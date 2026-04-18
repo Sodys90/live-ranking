@@ -44,7 +44,7 @@ export default function AdminPage() {
       .then(d => setHraci(d[aktivniKat]?.hraci ?? []))
   }, [authed, aktivniKat])
 
-  const nactiTurnaje = async (hrac) => {
+  const nactiTurnaje = async (hrac: any) => {
     setVybranyHrac(hrac)
     const r = await fetch(`/api/admin?hrac_id=${hrac.id}`, { headers })
     const d = await r.json()
