@@ -17,7 +17,7 @@ export default function AdminPage() {
   const [chybaHesla, setChybaHesla] = useState(false)
   const [aktivniKat, setAktivniKat] = useState("mladsi-zaci")
   const [hraci, setHraci] = useState([])
-  const [vybranýHrac, setVybranyHrac] = useState(null)
+  const [vybranýHrac, setVybranyHrac] = useState<any>(null)
   const [turnaje, setTurnaje] = useState([])
   const [loading, setLoading] = useState(false)
 
