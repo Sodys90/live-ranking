@@ -16,9 +16,9 @@ export default function AdminPage() {
   const [authed, setAuthed] = useState(false)
   const [chybaHesla, setChybaHesla] = useState(false)
   const [aktivniKat, setAktivniKat] = useState("mladsi-zaci")
-  const [hraci, setHraci] = useState([])
+  const [hraci, setHraci] = useState<any[]>([])
   const [vybranýHrac, setVybranyHrac] = useState<any>(null)
-  const [turnaje, setTurnaje] = useState([])
+  const [turnaje, setTurnaje] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
 
   // Formulář
