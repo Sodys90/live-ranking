@@ -84,7 +84,7 @@ export default function AdminPage() {
     setSaving(false)
   }
 
-  const smazTurnaj = async (id) => {
+  const smazTurnaj = async (id: string) => {
     if (!confirm("Smazat turnaj?")) return
     await fetch(`/api/admin?id=${id}`, { method: "DELETE", headers })
     await nactiTurnaje(vybranýHrac)

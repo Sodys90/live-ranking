@@ -14,7 +14,7 @@ const TYP_PRIORITY = {"ATP": 0, "WTA": 0, "ITF": 1, "TE": 2}
 
 export default function Home() {
   const [aktivni, setAktivni] = useState("mladsi-zaci")
-  const [data, setData] = useState(null)
+  const [data, setData] = useState<any>(null)
   const [hledej, setHledej] = useState("")
   const [loading, setLoading] = useState(true)
   const [disciplina, setDisciplina] = useState("celkem") // celkem | dv | ct
