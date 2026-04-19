@@ -67,32 +67,66 @@ def datum_je_platny(datum_str):
     return any(o["od"] <= d <= o["do"] for o in OBDOBI)
 
 # ── 1) Načti turnaje které skončily ─────────────────────────────────────────
+def parse_datum_konec(datum_str):
+    """Parsuje datum jako '11.-12.04.' nebo '17.-19.04.' a vrátí datum konce"""
+    import re
+    rok = date.today().year
+    # Formát: DD.-DD.MM. nebo DD.MM.
+    m = re.search(r'(\d{1,2})\.-(\d{1,2})\.(\d{2})\.', datum_str)
+    if m:
+        return date(rok, int(m.group(3)), int(m.group(2)))
+    m2 = re.search(r'(\d{1,2})\.(\d{2})\.', datum_str)
+    if m2:
+        return date(rok, int(m2.group(2)), int(m2.group(1)))
+    return None
+
 def get_turnaje_s_vysledky(url_base):
     url = f"{BASE_URL}/{url_base}/jednotlivci"
     soup = get_soup(url)
     turnaje = []
-    for a in soup.find_all("a", href=True):
-        href = a["href"]
-        if "/turnaj/" in href and "vysledky" in href:
-            # Extrahuj kod a sezonu
-            parts = href.split("/")
-            try:
-                idx = parts.index("turnaj")
-                kod = parts[idx+1]
-                sezona = parts[idx+3] if len(parts) > idx+3 else "L26"
-                turnaje.append({
-                    "kod": kod,
-                    "sezona": sezona,
-                    "url": BASE_URL + href,
-                })
-            except: pass
+    dnes = date.today()
+
+    # Projdi tabulku řádek po řádku abychom měli datum
+    for t in soup.find_all("table"):
+        rows = t.find_all("tr")
+        if len(rows) < 3: continue
+        aktualni_datum = None
+        for row in rows[1:]:
+            tds = row.find_all("td")
+            if not tds: continue
+            # První sloupec může obsahovat datum
+            prvni = tds[0].get_text(strip=True)
+            if re.search(r"\d{1,2}\.\-?\d{0,2}\.?\d{2}\.", prvni):
+                aktualni_datum = parse_datum_konec(prvni)
+
+            # Hledej odkaz na výsledky
+            for td in tds:
+                for a in td.find_all("a", href=True):
+                    href = a["href"]
+                    if "/turnaj/" in href and "vysledky" in href:
+                        parts = href.split("/")
+                        try:
+                            idx = parts.index("turnaj")
+                            kod = parts[idx+1]
+                            sezona = parts[idx+3] if len(parts) > idx+3 else "L26"
+                            # Filtruj - pouze turnaje starší 3 dny
+                            if aktualni_datum and (dnes - aktualni_datum).days < 3:
+                                continue
+                            turnaje.append({
+                                "kod":    kod,
+                                "sezona": sezona,
+                                "url":    BASE_URL + href,
+                                "datum":  aktualni_datum.isoformat() if aktualni_datum else None,
+                            })
+                        except: pass
+        break
+
     # Deduplikuj
     seen = set()
     unique = []
     for t in turnaje:
-        key = t["kod"]
-        if key not in seen:
-            seen.add(key)
+        if t["kod"] not in seen:
+            seen.add(t["kod"])
             unique.append(t)
     return unique
 
@@ -228,9 +262,9 @@ def main():
         klic = SEKCE_KLICOVA_SLOVA[kat["kat_id"]]
 
         # Načti všechny zpracované turnaje najednou
-        zpracovane_res = sb.table("turnaje").select("id").eq("zpracovano", True).execute()
+        zpracovane_res = sb.table("turnaje").select("id").eq("zpracovano", True).eq("kategorie_slug", kat["slug"]).execute()
         zpracovane = {r["id"] for r in (zpracovane_res.data or [])}
-        nove_turnaje = [t for t in turnaje if t["kod"] not in zpracovane]
+        nove_turnaje = [t for t in turnaje if f'{t["kod"]}_{kat["slug"]}' not in zpracovane]
         print(f"   Nových turnajů ke zpracování: {len(nove_turnaje)}")
 
         for t in nove_turnaje:
@@ -240,6 +274,9 @@ def main():
             try:
                 hraci_ids = get_hraci_z_turnaje(t["url"])
                 print(f"{len(hraci_ids)} hráčů", end=" ", flush=True)
+                if not hraci_ids:
+                    print("(přeskočeno)")
+                    continue
 
                 # Aktualizuj jen hráče kteří ještě nebyli aktualizováni
                 for hrac_id in hraci_ids:
@@ -247,16 +284,47 @@ def main():
                         continue
                     try:
                         csb, A, B, top_dv, top_ct = vypocti_body(hrac_id, klic)
-                        sb.table("hraci").upsert({
-                            "id":            hrac_id,
-                            "kategorie_slug": kat["slug"],
-                            "body_dv":       A,
-                            "body_ct":       B,
-                            "body_celkem":   csb,
-                            "akce_dv":       top_dv,
-                            "akce_ct":       top_ct,
-                            "updated_at":    datetime.now().isoformat(),
-                        }).execute()
+                        # Zkontroluj jestli hráč existuje v DB
+                        existing = sb.table("hraci").select("id,jmeno").eq("id", hrac_id).execute()
+                        if existing.data:
+                            # Aktualizuj jen body
+                            sb.table("hraci").update({
+                                "body_dv":    A,
+                                "body_ct":    B,
+                                "body_celkem": csb,
+                                "akce_dv":    top_dv,
+                                "akce_ct":    top_ct,
+                                "updated_at": datetime.now().isoformat(),
+                            }).eq("id", hrac_id).execute()
+                        else:
+                            # Hráč není v DB - načti jeho základní info z profilu
+                            try:
+                                profil = get_soup(f"{BASE_URL}/hrac/{hrac_id}", "post", {"volba":"1","sezona":"2026"})
+                                jmeno_tag = profil.find("h2")
+                                jmeno = jmeno_tag.get_text(strip=True) if jmeno_tag else f"Hráč {hrac_id}"
+                                nar_tag = profil.find("td", string=lambda t: t and "Rok narození" in t)
+                                narozeni = ""
+                                if nar_tag:
+                                    narozeni = nar_tag.find_next("td").get_text(strip=True)
+                                klub_tag = profil.find("td", string=lambda t: t and "Klub" in t)
+                                klub = ""
+                                if klub_tag:
+                                    klub = klub_tag.find_next("td").get_text(strip=True)
+                                sb.table("hraci").upsert({
+                                    "id":            hrac_id,
+                                    "jmeno":         jmeno,
+                                    "narozeni":      narozeni,
+                                    "klub":          klub,
+                                    "kategorie_slug": kat["slug"],
+                                    "body_dv":       A,
+                                    "body_ct":       B,
+                                    "body_celkem":   csb,
+                                    "akce_dv":       top_dv,
+                                    "akce_ct":       top_ct,
+                                    "updated_at":    datetime.now().isoformat(),
+                                }).execute()
+                            except Exception as e2:
+                                print(f"\n    CHYBA nový hráč {hrac_id}: {e2}")
                         aktualizovano_hraci.add(hrac_id)
                     except Exception as e:
                         print(f"\n    CHYBA hráč {hrac_id}: {e}")
@@ -264,7 +332,7 @@ def main():
 
                 # Označ turnaj jako zpracovaný
                 sb.table("turnaje").upsert({
-                    "id":            t["kod"],
+                    "id":            f'{t["kod"]}_{kat["slug"]}',
                     "sezona":        t["sezona"],
                     "kategorie_slug": kat["slug"],
                     "vysledky_url":  t["url"],
