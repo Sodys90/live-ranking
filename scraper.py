@@ -305,8 +305,6 @@ def uloz_historii(output: dict):
     except Exception as e:
         print(f"⚠ Chyba při ukládání historie: {e}")
 
-if __name__ == "__main__":
-    main()
 
 def main():
     os.makedirs("public/data", exist_ok=True)
@@ -331,5 +329,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-# ── Uložení historie pořadí do Supabase ──────────────────────────────────────
