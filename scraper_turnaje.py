@@ -227,11 +227,13 @@ def main():
 
         klic = SEKCE_KLICOVA_SLOVA[kat["kat_id"]]
 
-        for t in turnaje:
-            # Zkontroluj jestli už byl zpracován
-            existing = sb.table("turnaje").select("id,zpracovano").eq("id", t["kod"]).execute()
-            if existing.data and existing.data[0].get("zpracovano"):
-                continue
+        # Načti všechny zpracované turnaje najednou
+        zpracovane_res = sb.table("turnaje").select("id").eq("zpracovano", True).execute()
+        zpracovane = {r["id"] for r in (zpracovane_res.data or [])}
+        nove_turnaje = [t for t in turnaje if t["kod"] not in zpracovane]
+        print(f"   Nových turnajů ke zpracování: {len(nove_turnaje)}")
+
+        for t in nove_turnaje:
 
             print(f"   Turnaj {t['kod']}...", end=" ", flush=True)
 
