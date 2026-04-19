@@ -1,7 +1,7 @@
 {
   "mladsi-zaci": {
     "nazev": "Mladší žáci",
-    "aktualizace": "2026-04-18T21:26:12.206222",
+    "aktualizace": "2026-04-19T08:24:41.904869",
     "hraci": [
       {
         "id": "1055631",
@@ -2779,7 +2779,7 @@
   },
   "mladsi-zakyne": {
     "nazev": "Mladší žákyně",
-    "aktualizace": "2026-04-18T21:31:54.196584",
+    "aktualizace": "2026-04-19T08:30:22.181928",
     "hraci": [
       {
         "id": "1056619",
@@ -5581,7 +5581,7 @@
   },
   "starsi-zaci": {
     "nazev": "Starší žáci",
-    "aktualizace": "2026-04-18T21:36:20.292645",
+    "aktualizace": "2026-04-19T08:34:56.019022",
     "hraci": [
       {
         "id": "1049631",
@@ -7817,7 +7817,7 @@
   },
   "starsi-zakyne": {
     "nazev": "Starší žákyně",
-    "aktualizace": "2026-04-18T21:41:43.382513",
+    "aktualizace": "2026-04-19T08:40:17.813662",
     "hraci": [
       {
         "id": "1056943",
@@ -10442,7 +10442,7 @@
   },
   "dorostenci": {
     "nazev": "Dorostenci",
-    "aktualizace": "2026-04-18T21:47:42.210484",
+    "aktualizace": "2026-04-19T08:46:22.597696",
     "hraci": [
       {
         "id": "1039935",
@@ -13122,7 +13122,7 @@
   },
   "dorostenky": {
     "nazev": "Dorostenky",
-    "aktualizace": "2026-04-18T21:54:06.212493",
+    "aktualizace": "2026-04-19T08:52:54.562665",
     "hraci": [
       {
         "id": "1045661",
