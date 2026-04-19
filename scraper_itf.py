@@ -176,16 +176,21 @@ def main():
 
             print(f"  {jmeno} (ITF #{itf_poradi}, {birth_year}) → {kat_slug}")
 
-            # Aktualizuj ITF pořadí v tabulce hraci
-            existing = sb.table("hraci").select("id").eq("id", str(player_id)).execute()
+            # Aktualizuj ITF pořadí v tabulce hraci - hledej podle jména
+            krestni = hrac["playerGivenName"].lower()
+            prijmeni = hrac["playerFamilyName"].lower()
+            existing = sb.table("hraci").select("id").eq("kategorie_slug", kat_slug).ilike("jmeno", f"%{prijmeni}%").execute()
             if existing.data:
-                sb.table("hraci").update({
-                    "te_itf": True,
-                    "te_itf_typ": "ITF",
-                    "te_itf_poradi": itf_poradi,
-                    "updated_at": datetime.now().isoformat(),
-                }).eq("id", str(player_id)).execute()
-                print(f"    ITF #{itf_poradi} aktualizováno v hraci")
+                for row in existing.data:
+                    if krestni in row["id"] or True:  # aktualizuj první shodu
+                        sb.table("hraci").update({
+                            "te_itf": True,
+                            "te_itf_typ": "ITF",
+                            "te_itf_poradi": itf_poradi,
+                            "updated_at": datetime.now().isoformat(),
+                        }).eq("id", existing.data[0]["id"]).execute()
+                        print(f"    ITF #{itf_poradi} aktualizováno: {existing.data[0]['id']}")
+                        break
 
             # Načti výsledky turnajů
             turnaje_dv = get_activity(player_id, "S")

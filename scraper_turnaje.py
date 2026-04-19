@@ -198,8 +198,15 @@ def vypocti_body(hrac_id, klic_slovo):
 def prepocitej_zebricky():
     output = {}
     for kat in KATEGORIE_URL:
-        res = sb.table("hraci").select("*").eq("kategorie_slug", kat["slug"]).execute()
-        hraci = res.data if res.data else []
+        # Stránkování - Supabase vrací max 1000 záznamů
+        hraci = []
+        offset = 0
+        while True:
+            res = sb.table("hraci").select("*").eq("kategorie_slug", kat["slug"]).range(offset, offset + 999).execute()
+            if not res.data: break
+            hraci += res.data
+            if len(res.data) < 1000: break
+            offset += 1000
 
         mezi_res = sb.table("mezinarodni_turnaje").select("*").eq("kategorie_slug", kat["slug"]).execute()
         mezi = mezi_res.data if mezi_res.data else []
