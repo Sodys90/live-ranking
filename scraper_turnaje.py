@@ -289,12 +289,15 @@ def main():
                                 narozeni = nar_tag.find_next("td").get_text(strip=True) if nar_tag else ""
                                 klub_tag = profil.find("td", string=lambda t: t and "Klub" in t)
                                 klub = klub_tag.find_next("td").get_text(strip=True) if klub_tag else ""
-                                sb.table("hraci").upsert({
+                                # Urči správnou kategorii z prefixu turnaje
+                            t_prefix = t["kod"][0]
+                            spravny_slug = TURNAJ_PREFIX.get(t_prefix, slug)
+                            sb.table("hraci").upsert({
                                     "id":            hrac_id,
                                     "jmeno":         jmeno,
                                     "narozeni":      narozeni,
                                     "klub":          klub,
-                                    "kategorie_slug": slug,
+                                    "kategorie_slug": spravny_slug,
                                     "body_dv":       A,
                                     "body_ct":       B,
                                     "body_celkem":   csb,

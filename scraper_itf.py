@@ -183,7 +183,9 @@ def main():
                     "te_itf": True,
                     "te_itf_typ": "ITF",
                     "te_itf_poradi": itf_poradi,
+                    "updated_at": datetime.now().isoformat(),
                 }).eq("id", str(player_id)).execute()
+                print(f"    ITF #{itf_poradi} aktualizováno v hraci")
 
             # Načti výsledky turnajů
             turnaje_dv = get_activity(player_id, "S")
