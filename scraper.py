@@ -264,31 +264,6 @@ def scrape_kategorie(kat):
 
     return vysledky
 
-def main():
-    os.makedirs("public/data", exist_ok=True)
-    output = {}
-
-    for kat in KATEGORIE:
-        try:
-            hraci = scrape_kategorie(kat)
-            output[kat["slug"]] = {
-                "nazev":       kat["nazev"],
-                "aktualizace": datetime.now().isoformat(),
-                "hraci":       hraci,
-            }
-            # Uložit průběžně
-            with open("public/data/zebricky.json", "w", encoding="utf-8") as f:
-                json.dump(output, f, ensure_ascii=False, indent=2)
-        except Exception as e:
-            print(f"CHYBA kategorie {kat['nazev']}: {e}")
-
-    print(f"\n✅ Hotovo: data/zebricky.json")
-    uloz_historii(output)
-
-if __name__ == "__main__":
-    main()
-
-# ── Uložení historie pořadí do Supabase ──────────────────────────────────────
 def uloz_historii(output: dict):
     try:
         from supabase import create_client
@@ -329,3 +304,32 @@ def uloz_historii(output: dict):
             print(f"✅ Historie uložena: {len(zaznamy)} záznamů")
     except Exception as e:
         print(f"⚠ Chyba při ukládání historie: {e}")
+
+if __name__ == "__main__":
+    main()
+
+def main():
+    os.makedirs("public/data", exist_ok=True)
+    output = {}
+
+    for kat in KATEGORIE:
+        try:
+            hraci = scrape_kategorie(kat)
+            output[kat["slug"]] = {
+                "nazev":       kat["nazev"],
+                "aktualizace": datetime.now().isoformat(),
+                "hraci":       hraci,
+            }
+            # Uložit průběžně
+            with open("public/data/zebricky.json", "w", encoding="utf-8") as f:
+                json.dump(output, f, ensure_ascii=False, indent=2)
+        except Exception as e:
+            print(f"CHYBA kategorie {kat['nazev']}: {e}")
+
+    print(f"\n✅ Hotovo: data/zebricky.json")
+    uloz_historii(output)
+
+if __name__ == "__main__":
+    main()
+
+# ── Uložení historie pořadí do Supabase ──────────────────────────────────────
