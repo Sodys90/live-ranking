@@ -115,56 +115,67 @@ def scrape_hrace(page, hrac_id, kat):
     B = sum(top_ct)
     return A + B, A, B, top_dv, top_ct
 
+# Mapování slug na URL název
+SLUG_URL = {
+    "mladsi-zaci":   "mladsi-zaci",
+    "mladsi-zakyne": "mladsi-zakyne",
+    "starsi-zaci":   "starsi-zaci",
+    "starsi-zakyne": "starsi-zakyne",
+    "dorostenci":    "dorostenci",
+    "dorostenky":    "dorostenky",
+}
+
 def nacti_hraci_ze_zebricky(page, kat):
-    """Načte seznam hráčů ze žebříčku"""
-    url = f"{BASE_URL}/{kat['url_base']}/zebricky"
-    # Zkus novou URL strukturu
-    hraci = []
-    
-    # Prozatím použij starou metodu přes requests
-    import requests
+    """Načte seznam hráčů ze žebříčku - nový web cesky-tenis.cz"""
     from bs4 import BeautifulSoup as BS
-    
-    limit = 0
+    hraci = []
     povolene = ROCNIKY.get(kat["id"], [])
-    
+    url_slug = SLUG_URL.get(kat["slug"], kat["slug"])
+    strankovani = 1
+
     while True:
-        print(f"    offset {limit}...", end=" ", flush=True)
-        if limit == 0:
-            r = requests.post(f"https://cesky-tenis.cz/{kat['url_base']}/zebricky/",
-                headers={"User-Agent": "Mozilla/5.0"},
-                data={"volba":"1","sezona":"2026-L","kategorie":kat["id"],"region":"-1","hrac":""},
-                timeout=15)
-        else:
-            r = requests.get(f"https://cesky-tenis.cz/post/1/volba/2/sezona/2026-L/kategorie/{kat['id']}/region/-1/hrac/-/limit/{limit}/limit_next/1",
-                headers={"User-Agent": "Mozilla/5.0"}, timeout=15)
+        url = f"{BASE_URL}/zebricky/{url_slug}/{strankovani}"
+        print(f"    stránka {strankovani}...", end=" ", flush=True)
         
-        soup = BS(r.text, 'html.parser')
+        content = get_page(page, url)
+        if not content: break
+        
+        soup = BS(content, "html.parser")
         davka = []
+        
         for t in soup.find_all("table"):
             rows = t.find_all("tr")
-            if not rows or "suma" not in rows[0].get_text().lower(): continue
+            if not rows: continue
             for row in rows[1:]:
                 tds = row.find_all("td")
-                if len(tds) < 8: continue
-                link = tds[2].find("a")
+                if len(tds) < 6: continue
+                link = tds[2].find("a") if len(tds) > 2 else None
                 if not link: continue
-                hrac_id = link["href"].split("/hrac/")[1].split("/")[0]
-                narozeni = tds[3].get_text(strip=True)
-                if povolene and narozeni and int(narozeni) not in povolene: continue
-                dvouhra_raw = tds[5].get_text(strip=True)
-                ctyrhra_raw = tds[6].get_text(strip=True)
-                suma_raw = tds[7].get_text(strip=True)
+                href = link.get("href", "")
+                if "/hrac/" not in href: continue
+                hrac_id = href.split("/hrac/")[1].split("?")[0].split("/")[0]
+                # Sloupce: 0=cž 1=kž 2=Jméno 3=Narozen 4=Klub 5=Dvouhra 6=Čtyřhra 7=Suma 8=BH 9=rCŽ
+                narozeni = tds[3].get_text(strip=True) if len(tds) > 3 else ""
+                if povolene and narozeni and narozeni.isdigit() and int(narozeni) not in povolene: continue
+                
+                klub = tds[4].get_text(strip=True) if len(tds) > 4 else ""
+                dvouhra_raw = tds[5].get_text(strip=True) if len(tds) > 5 else ""
+                ctyrhra_raw = tds[6].get_text(strip=True) if len(tds) > 6 else ""
+                suma_raw = tds[7].get_text(strip=True) if len(tds) > 7 else ""
+                
                 try:
-                    suma = int(suma_raw); te_itf = False; te_itf_typ = None; te_itf_poradi = None
+                    int(suma_raw); te_itf = False; te_itf_typ = None; te_itf_poradi = None
                 except:
-                    suma = 0; te_itf = True
+                    te_itf = True
                     te_itf_typ = dvouhra_raw if dvouhra_raw in ["TE","ITF","ATP","WTA"] else None
                     try: te_itf_poradi = int(ctyrhra_raw)
                     except: te_itf_poradi = None
+                
                 davka.append({
-                    "id": hrac_id, "jmeno": tds[2].get_text(strip=True),
-                    "narozeni": narozeni, "klub": tds[4].get_text(strip=True),
+                    "id": hrac_id,
+                    "jmeno": tds[2].get_text(strip=True),
+                    "narozeni": narozeni,
+                    "klub": klub,
                     "te_itf": te_itf, "te_itf_typ": te_itf_typ, "te_itf_poradi": te_itf_poradi,
                 })
             break
@@ -172,9 +183,15 @@ def nacti_hraci_ze_zebricky(page, kat):
         print(f"{len(davka)} hráčů")
         if not davka: break
         hraci += davka
-        dalsi = soup.find("a", href=lambda h: h and "limit_next" in str(h))
-        if not dalsi: break
-        limit += 100
+        
+        # Zkontroluj jestli existuje další stránka
+        next_page = soup.find("a", string=str(strankovani + 1))
+        if not next_page:
+            # Zkus najít šipku doprava
+            next_btn = soup.find("a", class_=lambda c: c and "next" in str(c).lower())
+            if not next_btn: break
+        
+        strankovani += 1
         time.sleep(1.0)
     
     return hraci
