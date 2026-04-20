@@ -4,12 +4,15 @@ Scraper ITF žebříčku a výsledků českých juniorů
 Stahuje z ITF API a ukládá mezinárodní turnaje do Supabase
 """
 
-import requests, time, os, re
+import requests, time, os, re, unicodedata
 from datetime import datetime, date
 from supabase import create_client
 from dotenv import load_dotenv
 
 load_dotenv(".env.local")
+
+def bez_diakritiky(s):
+    return "".join(c for c in unicodedata.normalize("NFD", s) if unicodedata.category(c) != "Mn").lower()
 
 sb = create_client(os.getenv("NEXT_PUBLIC_SUPABASE_URL"), os.getenv("SUPABASE_SERVICE_KEY"))
 
@@ -156,6 +159,22 @@ def urci_kategorii_slug(gender, birth_year):
 def main():
     print("🎾 ITF scraper — čeští junioři")
 
+    # Načti všechny hráče ze Supabase do slovníku pro matchování
+    print("Načítám hráče z DB...")
+    hraci_db = {}
+    offset = 0
+    while True:
+        r = sb.table("hraci").select("id,jmeno,kategorie_slug").range(offset, offset+999).execute()
+        if not r.data: break
+        for h in r.data:
+            parts = h["jmeno"].split()
+            if parts:
+                klic = (bez_diakritiky(parts[0]), h["kategorie_slug"])
+                hraci_db[klic] = h["id"]
+        if len(r.data) < 1000: break
+        offset += 1000
+    print(f"Načteno {len(hraci_db)} hráčů")
+
     for gender, label, player_type in [("M", "Muži", "B"), ("F", "Ženy", "G")]:
         print(f"\n{'='*40}")
         print(f"📡 {label}")
@@ -176,21 +195,18 @@ def main():
 
             print(f"  {jmeno} (ITF #{itf_poradi}, {birth_year}) → {kat_slug}")
 
-            # Aktualizuj ITF pořadí v tabulce hraci - hledej podle jména
-            krestni = hrac["playerGivenName"].lower()
-            prijmeni = hrac["playerFamilyName"].lower()
-            existing = sb.table("hraci").select("id").eq("kategorie_slug", kat_slug).ilike("jmeno", f"%{prijmeni}%").execute()
-            if existing.data:
-                for row in existing.data:
-                    if krestni in row["id"] or True:  # aktualizuj první shodu
-                        sb.table("hraci").update({
-                            "te_itf": True,
-                            "te_itf_typ": "ITF",
-                            "te_itf_poradi": itf_poradi,
-                            "updated_at": datetime.now().isoformat(),
-                        }).eq("id", existing.data[0]["id"]).execute()
-                        print(f"    ITF #{itf_poradi} aktualizováno: {existing.data[0]['id']}")
-                        break
+            # Matchuj hráče přes příjmení bez diakritiky
+            prijmeni_itf = bez_diakritiky(hrac["playerFamilyName"])
+            klic = (prijmeni_itf, kat_slug)
+            cztenis_id = hraci_db.get(klic)
+            if cztenis_id:
+                sb.table("hraci").update({
+                    "te_itf": True,
+                    "te_itf_typ": "ITF",
+                    "te_itf_poradi": itf_poradi,
+                    "updated_at": datetime.now().isoformat(),
+                }).eq("id", cztenis_id).eq("kategorie_slug", kat_slug).execute()
+                print(f"    ITF #{itf_poradi} → cztenis ID: {cztenis_id}")
 
             # Načti výsledky turnajů
             turnaje_dv = get_activity(player_id, "S")
