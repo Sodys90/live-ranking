@@ -49,18 +49,16 @@ def get_page(page, url, retries=3):
     return None
 
 def parse_body_z_turnaje(match_div):
-    """Parsuje body z jednoho turnaje"""
+    """Parsuje body z jednoho turnaje - vrací (body_dv, body_ct, je_druzstvo)"""
     body_dv = 0
     body_ct = 0
+    je_druzstvo = 'match--teams' in ' '.join(match_div.get('class', []))
     
     cols = match_div.find_all(class_='match__tournaments__column')
     for col in cols:
         title = col.find(class_='title')
         if not title: continue
-        
         je_ctyrhra = 'čtyřhra' in title.get_text(strip=True).lower() or 'Čtyřhra' in title.get_text()
-        
-        # Najdi "Ziskané body: X b."
         p_body = col.find('p', class_='text-center')
         if p_body:
             strong = p_body.find('strong')
@@ -72,29 +70,17 @@ def parse_body_z_turnaje(match_div):
                     else:
                         body_dv = b
                 except: pass
-        else:
-            # Jednotlivci - spočítej z kol
-            results = col.find_all(class_='match__result')
-            if results:
-                # Poslední kolo kde hráč vyhrál
-                posledni_kolo = None
-                for res in results:
-                    kolo_div = res.find('div')
-                    if kolo_div:
-                        kolo_text = kolo_div.get_text(strip=True)
-                        if '>' in kolo_text:
-                            posledni_kolo = kolo_text
-                # Přepočítej kolo na umístění
-                # 2>1 = finále, 4>2 = semifinále atd. - ale to nevíme bez kat.
-                # Raději necháme 0 a použijeme data ze žebříčku
     
-    return body_dv, body_ct
+    return body_dv, body_ct, je_druzstvo
 
 def scrape_hrace(page, hrac_id, kat):
     """Stáhne body hráče ze všech sezón"""
     akce_dv = []
     akce_ct = []
+    druz_dv = []  # body z jednotlivých zápasů v družstvech - dvouhra
+    druz_ct = []  # body z jednotlivých zápasů v družstvech - čtyřhra
     
+    seen_druz = set()
     for sezona in SEZONY:
         url = f"{BASE_URL}/hrac/{hrac_id}?year={sezona}&category={kat['cat']}"
         content = get_page(page, url)
@@ -104,11 +90,32 @@ def scrape_hrace(page, hrac_id, kat):
         matches = soup.find_all(class_=lambda c: c and 'match--tournaments' in c)
         
         for match in matches:
-            body_dv, body_ct = parse_body_z_turnaje(match)
-            if body_dv > 0: akce_dv.append(body_dv)
-            if body_ct > 0: akce_ct.append(body_ct)
+            body_dv, body_ct, je_druzstvo = parse_body_z_turnaje(match)
+            nazev_elem = match.find(class_="match__title")
+            nazev = nazev_elem.get_text(strip=True)[:50] if nazev_elem else ""
+            if je_druzstvo:
+                # Deduplikuj podle názvu turnaje
+                klic_dv = f"{nazev}_dv"
+                klic_ct = f"{nazev}_ct"
+                if body_dv > 0 and klic_dv not in seen_druz:
+                    druz_dv.append(body_dv)
+                    seen_druz.add(klic_dv)
+                if body_ct > 0 and klic_ct not in seen_druz:
+                    druz_ct.append(body_ct)
+                    seen_druz.add(klic_ct)
+            else:
+                if body_dv > 0: akce_dv.append(body_dv)
+                if body_ct > 0: akce_ct.append(body_ct)
         
         time.sleep(0.5)
+    
+    # Družstva: top 4 výsledky = 1 akce (článek 24)
+    if druz_dv:
+        top4_druz_dv = sum(sorted(druz_dv, reverse=True)[:4])
+        akce_dv.append(top4_druz_dv)
+    if druz_ct:
+        top4_druz_ct = sum(sorted(druz_ct, reverse=True)[:4])
+        akce_ct.append(top4_druz_ct)
     
     # Spočítej top 8
     top_dv = sorted(akce_dv, reverse=True)[:TOP_N]
