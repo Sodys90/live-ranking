@@ -24,6 +24,7 @@ KATEGORIE = [
     {"id": "26", "slug": "starsi-zakyne", "url_base": "starsi-zactvo", "cat": "3"},
     {"id": "20", "slug": "dorostenci",    "url_base": "dorost",        "cat": "2"},
     {"id": "21", "slug": "dorostenky",    "url_base": "dorost",        "cat": "2"},
+
 ]
 
 ROCNIKY = {
@@ -31,6 +32,7 @@ ROCNIKY = {
     "25": [2012,2013,2014,2015,2016], "26": [2012,2013,2014,2015,2016],
     "20": [2008,2009,2010,2011,2012,2013,2014,2015,2016],
     "21": [2008,2009,2010,2011,2012,2013,2014,2015,2016],
+
 }
 
 # Sezóny pro scraping
@@ -123,6 +125,7 @@ SLUG_URL = {
     "starsi-zakyne": "starsi-zakyne",
     "dorostenci":    "dorostenci",
     "dorostenky":    "dorostenky",
+
 }
 
 def nacti_hraci_ze_zebricky(page, kat):
