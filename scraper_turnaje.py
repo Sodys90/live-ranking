@@ -311,7 +311,7 @@ def main():
                                     "akce_dv":       top_dv,
                                     "akce_ct":       top_ct,
                                     "updated_at":    datetime.now().isoformat(),
-                                }).execute()
+                                }, on_conflict="id,kategorie_slug").execute()
                             aktualizovano_hraci.add(hrac_id)
                         except Exception as e:
                             print(f"\n      CHYBA hráč {hrac_id}: {e}")
