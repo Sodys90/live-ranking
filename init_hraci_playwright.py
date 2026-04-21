@@ -251,5 +251,52 @@ def main():
         browser.close()
     print("\n✅ Hotovo!")
 
+def prepocitej_zebricky():
+    import json
+    TOP_N = 8
+    output = {}
+    for kat in KATEGORIE:
+        hraci = []
+        offset = 0
+        while True:
+            res = sb.table("hraci").select("*").eq("kategorie_slug", kat["slug"]).range(offset, offset+999).execute()
+            if not res.data: break
+            hraci += res.data
+            if len(res.data) < 1000: break
+            offset += 1000
+
+        # Seřaď - TE/ITF první, pak podle bodů
+        from typing import Any
+        def sort_key(h):
+            if h.get("te_itf"):
+                typ = h.get("te_itf_typ", "TE")
+                p = {"ATP": 0, "WTA": 0, "ITF": 1, "TE": 2}.get(typ, 9)
+                return (0, p, h.get("te_itf_poradi") or 999)
+            return (1, 0, -(h.get("body_celkem") or 0))
+
+        hraci.sort(key=sort_key)
+        poradi = 1
+        for i, h in enumerate(hraci):
+            if h.get("te_itf"):
+                h["poradi_live"] = 0
+                continue
+            if i > 0 and not hraci[i-1].get("te_itf") and h["body_celkem"] == hraci[i-1]["body_celkem"]:
+                h["poradi_live"] = hraci[i-1]["poradi_live"]
+            else:
+                h["poradi_live"] = poradi
+            poradi += 1
+
+        output[kat["slug"]] = {
+            "nazev": kat["slug"],
+            "aktualizace": datetime.now().isoformat(),
+            "hraci": hraci,
+        }
+
+    os.makedirs("public/data", exist_ok=True)
+    with open("public/data/zebricky.json", "w", encoding="utf-8") as f:
+        json.dump(output, f, ensure_ascii=False, indent=2)
+    print("✅ zebricky.json aktualizován")
+
 if __name__ == "__main__":
     main()
+    prepocitej_zebricky()
