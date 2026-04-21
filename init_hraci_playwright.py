@@ -20,8 +20,8 @@ TOP_N = 8
 KATEGORIE = [
     {"id": "22", "slug": "mladsi-zaci",   "url_base": "mladsi-zactvo", "cat": "4"},
     {"id": "23", "slug": "mladsi-zakyne", "url_base": "mladsi-zactvo", "cat": "4"},
-    {"id": "25", "slug": "starsi-zaci",   "url_base": "starsi-zactvo", "cat": "3"},
-    {"id": "26", "slug": "starsi-zakyne", "url_base": "starsi-zactvo", "cat": "3"},
+    {"id": "25", "slug": "starsi-zaci",   "url_base": "starsi-zactvo", "cat": "5"},
+    {"id": "26", "slug": "starsi-zakyne", "url_base": "starsi-zactvo", "cat": "5"},
     {"id": "20", "slug": "dorostenci",    "url_base": "dorost",        "cat": "2"},
     {"id": "21", "slug": "dorostenky",    "url_base": "dorost",        "cat": "2"},
 
@@ -73,16 +73,35 @@ def parse_body_z_turnaje(match_div):
     
     return body_dv, body_ct, je_druzstvo
 
+def get_vsechny_kategorie(page, hrac_id, kat_cat):
+    """Zjistí všechny kategorie které hráč hraje"""
+    url = f"{BASE_URL}/hrac/{hrac_id}"
+    content = get_page(page, url)
+    if not content: return [kat_cat]
+    
+    soup = BeautifulSoup(content, "html.parser")
+    cats = set([kat_cat])
+    for a in soup.find_all("a", href=True):
+        href = a["href"]
+        if f"/hrac/{hrac_id}" in href and "category=" in href:
+            cat = href.split("category=")[1].split("&")[0]
+            cats.add(cat)
+    return list(cats)
+
 def scrape_hrace(page, hrac_id, kat):
-    """Stáhne body hráče ze všech sezón"""
+    """Stáhne body hráče ze všech sezón a kategorií"""
     akce_dv = []
     akce_ct = []
-    druz_dv = []  # body z jednotlivých zápasů v družstvech - dvouhra
-    druz_ct = []  # body z jednotlivých zápasů v družstvech - čtyřhra
+    druz_dv = []
+    druz_ct = []
+    
+    # Zjisti všechny kategorie hráče
+    vsechny_katy = get_vsechny_kategorie(page, hrac_id, kat["cat"])
     
     seen_druz = set()
     for sezona in SEZONY:
-        url = f"{BASE_URL}/hrac/{hrac_id}?year={sezona}&category={kat['cat']}"
+        for cat in vsechny_katy:
+            url = f"{BASE_URL}/hrac/{hrac_id}?year={sezona}&category={cat}"
         content = get_page(page, url)
         if not content: continue
         
