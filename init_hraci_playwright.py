@@ -30,13 +30,33 @@ KATEGORIE = [
 ROCNIKY = {
     "22": [2014,2015,2016], "23": [2014,2015,2016],
     "25": [2012,2013,2014,2015,2016], "26": [2012,2013,2014,2015,2016],
-    "20": [2008,2009,2010,2011,2012,2013,2014,2015,2016],
-    "21": [2008,2009,2010,2011,2012,2013,2014,2015,2016],
+    "20": [2008,2009,2010,2011],
+    "21": [2008,2009,2010,2011],
 
 }
 
 # Sezóny pro scraping
 SEZONY = ["2026-Z", "2026-L"]
+
+# Prefix čísla turnaje určuje kategorii
+TURNAJ_PREFIXES = {
+    "mladsi-zaci":   ["7"],
+    "mladsi-zakyne": ["8"],
+    "starsi-zaci":   ["5"],
+    "starsi-zakyne": ["6"],
+    "dorostenci":    ["3"],
+    "dorostenky":    ["4"],
+}
+
+# Klíčová slova pro mezinárodní turnaje (bez odkazu)
+MEZINARODNI_KLICOVA_SLOVA = {
+    "mladsi-zaci":   ["u12 boys", "b12"],
+    "mladsi-zakyne": ["u12 girls", "g12"],
+    "starsi-zaci":   ["u14 boys", "b14", "te u14 boys"],
+    "starsi-zakyne": ["u14 girls", "g14", "te u14 girls"],
+    "dorostenci":    ["u16 boys", "u18 boys", "b16", "b18", "junior davis", "davis cup", "itf juniors boys", "te u16 boys", "te u18 boys"],
+    "dorostenky":    ["u16 girls", "u18 girls", "g16", "g18", "fed cup", "billie jean", "itf juniors girls", "te u16 girls", "te u18 girls"],
+}
 
 def get_page(page, url, retries=3):
     for i in range(retries):
@@ -89,26 +109,45 @@ def get_vsechny_kategorie(page, hrac_id, kat_cat):
     return list(cats)
 
 def scrape_hrace(page, hrac_id, kat):
-    """Stáhne body hráče ze všech sezón a kategorií"""
+    """Stáhne body hráče ze všech sezón - filtruje podle prefixu turnaje"""
     akce_dv = []
     akce_ct = []
     druz_dv = []
     druz_ct = []
-    
-    # Zjisti všechny kategorie hráče
-    vsechny_katy = get_vsechny_kategorie(page, hrac_id, kat["cat"])
+    prefixes = TURNAJ_PREFIXES.get(kat["slug"], [])
     
     seen_druz = set()
     for sezona in SEZONY:
-        for cat in vsechny_katy:
-            url = f"{BASE_URL}/hrac/{hrac_id}?year={sezona}&category={cat}"
+        url = f"{BASE_URL}/hrac/{hrac_id}?year={sezona}&category={kat['cat']}"
         content = get_page(page, url)
         if not content: continue
+        
+        # Zkontroluj jestli záložka pro tuto kategorii existuje
+        from bs4 import BeautifulSoup as _BS
+        _soup = _BS(content, 'html.parser')
+        dostupne_katy = set()
+        for a in _soup.find_all('a', href=True):
+            href = a['href']
+            if f'/hrac/{hrac_id}' in href and 'category=' in href:
+                cat = href.split('category=')[1].split('&')[0]
+                dostupne_katy.add(cat)
+        if kat['cat'] not in dostupne_katy:
+            continue  # hráč nemá turnaje v této kategorii v této sezóně
         
         soup = BeautifulSoup(content, 'html.parser')
         matches = soup.find_all(class_=lambda c: c and 'match--tournaments' in c)
         
         for match in matches:
+            # Filtruj podle prefixu čísla turnaje
+            if prefixes:
+                odkaz = match.find("a", href=lambda h: h and "/turnaj/" in str(h))
+                if odkaz:
+                    kod = odkaz["href"].split("/turnaj/")[1].split("?")[0].split("#")[0]
+                    if not any(kod.startswith(p) for p in prefixes):
+                        continue
+                else:
+                    pass  # bez odkazu = mezinárodní turnaj, zahrneme
+            
             body_dv, body_ct, je_druzstvo = parse_body_z_turnaje(match)
             nazev_elem = match.find(class_="match__title")
             nazev = nazev_elem.get_text(strip=True)[:50] if nazev_elem else ""
