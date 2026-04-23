@@ -263,9 +263,14 @@ export default function Home() {
                           <span className="text-[10px] text-white/30">4H: {jeTeItf ? "—" : h.body_ct}</span>
                         </div>
                       </div>
-                      <span className={`text-sm font-black text-right ${!jeTeItf && poradi === 1 ? "text-[#e8ff3e]" : jeTeItf ? "text-white/30" : "text-white"}`}>
-                        {bodySloupec(h)}
-                      </span>
+                      <div className="text-right">
+                        <span className={`text-sm font-black block ${!jeTeItf && poradi === 1 ? "text-[#e8ff3e]" : jeTeItf ? "text-white/30" : "text-white"}`}>
+                          {bodySloupec(h)}
+                        </span>
+                        {!jeTeItf && (
+                          <span className="text-[10px] text-white/40">BH {h.bh ?? 0}</span>
+                        )}
+                      </div>
                     </div>
                   </div>
                 )
