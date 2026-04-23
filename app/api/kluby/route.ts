@@ -10,19 +10,32 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
   const kategorie = searchParams.get('kategorie')
 
-  let query = supabase
-    .from('hraci')
-    .select('klub, kategorie_slug, body_dv, body_ct, body_celkem, te_itf').limit(10000)
-    .not('klub', 'is', null)
+  // Stránkování — Supabase má limit 1000 řádků per request
+  const vsechnaData: any[] = []
+  let from = 0
+  const PAGE = 1000
 
-  if (kategorie) query = query.eq('kategorie_slug', kategorie)
+  while (true) {
+    let query = supabase
+      .from('hraci')
+      .select('klub, kategorie_slug, body_dv, body_ct, body_celkem, te_itf')
+      .not('klub', 'is', null)
+      .range(from, from + PAGE - 1)
 
-  const { data, error } = await query
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+    if (kategorie) query = query.eq('kategorie_slug', kategorie)
+
+    const { data, error } = await query
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+    if (!data || data.length === 0) break
+
+    vsechnaData.push(...data)
+    if (data.length < PAGE) break
+    from += PAGE
+  }
 
   const map: Record<string, { klub: string; kategorie_slug: string; body_dv: number; body_ct: number; body_celkem: number; pocet: number }> = {}
 
-  for (const h of data ?? []) {
+  for (const h of vsechnaData) {
     if (!h.klub) continue
     const key = `${h.klub}__${h.kategorie_slug}`
     if (!map[key]) map[key] = { klub: h.klub, kategorie_slug: h.kategorie_slug, body_dv: 0, body_ct: 0, body_celkem: 0, pocet: 0 }
