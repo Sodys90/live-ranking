@@ -9,9 +9,8 @@ const supabase = createClient(
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
   const kategorie = searchParams.get('kategorie')
-  const oblast = searchParams.get('oblast')
+  const svaz = searchParams.get('svaz')
 
-  // Načti všechny hráče se stránkováním
   const vsechnaData: any[] = []
   let from = 0
   while (true) {
@@ -29,31 +28,29 @@ export async function GET(request: Request) {
     from += 1000
   }
 
-  // Načti oblasti klubů
   const { data: klubyData } = await supabase
     .from('kluby')
-    .select('nazev, oblast, kraj')
-  const klubOblast: Record<string, { oblast: string; kraj: string }> = {}
+    .select('nazev, oblast, kraj, svaz')
+  const klubInfo: Record<string, { oblast: string; kraj: string; svaz: string }> = {}
   for (const k of klubyData ?? []) {
-    klubOblast[k.nazev] = { oblast: k.oblast, kraj: k.kraj }
+    klubInfo[k.nazev] = { oblast: k.oblast, kraj: k.kraj, svaz: k.svaz }
   }
 
-  // Agreguj
   const map: Record<string, {
     klub: string; kategorie_slug: string
     body_dv: number; body_ct: number; body_celkem: number; pocet: number
-    oblast: string; kraj: string
+    oblast: string; svaz: string
   }> = {}
 
   for (const h of vsechnaData) {
     if (!h.klub) continue
-    const info = klubOblast[h.klub] ?? { oblast: 'Neznámá', kraj: 'Neznámá' }
-    if (oblast && info.oblast !== oblast) continue
+    const info = klubInfo[h.klub] ?? { oblast: 'Neznámá', kraj: 'Neznámá', svaz: 'Neznámý' }
+    if (svaz && svaz !== 'Vše' && info.svaz !== svaz) continue
     const key = `${h.klub}__${h.kategorie_slug}`
     if (!map[key]) map[key] = {
       klub: h.klub, kategorie_slug: h.kategorie_slug,
       body_dv: 0, body_ct: 0, body_celkem: 0, pocet: 0,
-      oblast: info.oblast, kraj: info.kraj
+      oblast: info.oblast, svaz: info.svaz
     }
     if (!h.te_itf) {
       map[key].body_dv += h.body_dv ?? 0
