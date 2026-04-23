@@ -12,7 +12,7 @@ export async function GET(request: Request) {
 
   let query = supabase
     .from('hraci')
-    .select('klub, kategorie_slug, body_dv, body_ct, body_celkem, te_itf')
+    .select('klub, kategorie_slug, body_dv, body_ct, body_celkem, te_itf').limit(10000)
     .not('klub', 'is', null)
 
   if (kategorie) query = query.eq('kategorie_slug', kategorie)
