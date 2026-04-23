@@ -337,9 +337,12 @@ def prepocitej_zebricky():
         # Počet hráčů bez TE/ITF pro výpočet BH
         pocet = sum(1 for h in hraci if not h.get("te_itf"))
         
-        def vypocitej_bh(poradi, pocet):
-            if pocet <= 0: return 1
-            # Hranice skupin
+        # Hráči s body > 0
+        pocet_s_body = sum(1 for h in hraci if not h.get("te_itf") and (h.get("body_celkem") or 0) > 0)
+        
+        def vypocitej_bh(poradi, pocet_s_body):
+            if pocet_s_body <= 0: return 1
+            # Fixní skupiny
             bs = [
                 (5,   60),
                 (7,   45),
@@ -356,8 +359,8 @@ def prepocitej_zebricky():
                 hranice += pocet_skupiny
                 if poradi <= hranice:
                     return bh_val
-            # 1/3 zbývajících
-            zbyvajici = pocet - hranice
+            # 1/3 zbývajících (jen hráči s body > 0)
+            zbyvajici = pocet_s_body - hranice
             if zbyvajici <= 0: return 1
             tretina = max(1, zbyvajici // 3)
             if poradi <= hranice + tretina: return 6
@@ -375,7 +378,10 @@ def prepocitej_zebricky():
                 h["poradi_live"] = hraci[i-1]["poradi_live"]
             else:
                 h["poradi_live"] = poradi
-            h["bh"] = vypocitej_bh(h["poradi_live"], pocet)
+            if (h.get("body_celkem") or 0) == 0:
+                h["bh"] = 1
+            else:
+                h["bh"] = vypocitej_bh(h["poradi_live"], pocet_s_body)
             poradi += 1
 
         output[kat["slug"]] = {
