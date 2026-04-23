@@ -1,5 +1,6 @@
 "use client"
 import { useState, useEffect } from "react"
+import Link from "next/link"
 
 const KATEGORIE = [
   { slug: "mladsi-zaci",   nazev: "Mladší žáci",   rocniky: [2014,2015,2016] },
@@ -95,6 +96,7 @@ export default function Home() {
               <p className="text-[10px] text-white/40">Český tenisový svaz · mládež</p>
             </div>
           </div>
+          <Link href="/kluby" className="text-xs px-3 py-1.5 rounded-full bg-white/5 text-white/60 hover:bg-white/10 transition-all font-semibold hidden sm:block">Kluby →</Link>
           {kat && (
             <p className="text-xs text-white/40 hidden sm:block">
               Aktualizováno: {formatDatum(kat.aktualizace)}
