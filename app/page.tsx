@@ -175,7 +175,7 @@ export default function Home() {
             <div className="bg-white/5 rounded-2xl border border-white/10 overflow-hidden">
               {/* Záhlaví - desktop */}
               <div className="hidden sm:grid gap-3 px-4 py-2 border-b border-white/10 text-xs text-white/40 font-semibold uppercase tracking-wider"
-                style={{ gridTemplateColumns: "3rem 1fr 6rem 4rem 14rem 5rem 5rem 5rem" }}>
+                style={{ gridTemplateColumns: "3rem 1fr 6rem 4rem 14rem 4rem 4rem 4rem 4rem" }}>
                 <span>#</span>
                 <span>Jméno</span>
                 <span className="text-center">Mez.</span>
@@ -184,6 +184,7 @@ export default function Home() {
                 <span className="text-right">2H</span>
                 <span className="text-right">4H</span>
                 <span className="text-right">Body</span>
+                <span className="text-right">BH</span>
               </div>
 
               {/* Záhlaví - mobil */}
@@ -206,7 +207,7 @@ export default function Home() {
                   <div key={h.id} className={jeTeItf ? "bg-[#e8ff3e]/[0.03]" : ""}>
                     {/* Desktop řádek */}
                     <div className="hidden sm:grid gap-3 px-4 py-2 border-b border-white/5 hover:bg-white/5 transition-colors items-center"
-                      style={{ gridTemplateColumns: "3rem 1fr 6rem 4rem 14rem 5rem 5rem 5rem" }}>
+                      style={{ gridTemplateColumns: "3rem 1fr 6rem 4rem 14rem 4rem 4rem 4rem 4rem" }}>
                       <span className={`text-sm font-black ${poradiColor}`}>{i + 1}</span>
                       <div className="min-w-0">
                         <a href={`https://cztenis.cz/hrac/${h.id}`} target="_blank" rel="noopener noreferrer"
@@ -229,6 +230,9 @@ export default function Home() {
                       <span className="text-sm text-right text-white/60">{jeTeItf ? "—" : h.body_ct}</span>
                       <span className={`text-sm font-black text-right ${!jeTeItf && poradi === 1 ? "text-[#e8ff3e]" : jeTeItf ? "text-white/30" : "text-white"}`}>
                         {bodySloupec(h)}
+                      </span>
+                      <span className="text-sm text-right text-white/50">
+                        {jeTeItf ? "—" : (h.bh ?? 0)}
                       </span>
                     </div>
 
