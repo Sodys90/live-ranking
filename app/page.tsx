@@ -208,9 +208,9 @@ export default function Home() {
               <div className="hidden sm:grid gap-3 px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest"
                 style={{ gridTemplateColumns: hasMez ? "3rem minmax(0,1fr) 5.5rem 3.5rem minmax(0,13rem) 4rem 4rem 5rem 3.5rem" : "3rem minmax(0,1fr) 3.5rem minmax(0,13rem) 4rem 4rem 5rem 3.5rem", background: 'var(--bg-card)', borderBottom: '1px solid var(--border)', color: 'var(--text-3)' }}>
                 <span>#</span><span>Hráč</span>{hasMez && <span className="text-center">Mez.</span>}
-                <span className="text-center">Nar.</span><span>Klub</span>
-                <span className="text-right">2H</span><span className="text-right">4H</span>
-                <span className="text-right">Body</span><span className="text-right">BH</span>
+                <span className="text-center">Nar.</span><span title="Název klubu hráče" className="cursor-help">Klub</span>
+                <span className="text-right cursor-help" title="Body získané z dvouhry">2H</span><span className="text-right cursor-help" title="Body získané ze čtyřhry">4H</span>
+                <span className="text-right cursor-help" title="Součet 8 nejlepších akcí">Body</span><span className="text-right cursor-help" title="Bonusová hodnota">BH</span>
               </div>
               {/* Záhlaví mobil */}
               <div className="grid sm:hidden px-3 py-2 text-[10px] font-bold uppercase tracking-widest"
@@ -224,24 +224,24 @@ export default function Home() {
                 const isTop1 = !jeTeItf && poradi === 1
                 const isTop2 = !jeTeItf && poradi === 2
                 const isTop3 = !jeTeItf && poradi === 3
-                const poradiColor = isTop1 ? '#00B14F' : isTop2 ? '#A7B1B5' : isTop3 ? '#F5A623' : 'var(--text-3)'
+                const poradiColor = isTop1 ? '#F5A623' : isTop2 ? '#A7B1B5' : isTop3 ? '#CD7F32' : 'var(--text-3)'
 
                 return (
                   <div key={h.id}
                     className="transition-colors"
-                    style={{ borderBottom: '1px solid var(--border)', background: jeTeItf ? 'var(--brand-dim)' : i % 2 === 0 ? 'var(--bg-card)' : 'var(--bg-hover)' }}
+                    style={{ borderBottom: '1px solid var(--border)', background: jeTeItf ? 'var(--brand-dim)' : isTop1 ? '#F5A62308' : isTop2 ? '#A7B1B508' : isTop3 ? '#CD7F3208' : i % 2 === 0 ? 'var(--bg-card)' : 'var(--bg-hover)' }}
                     onMouseEnter={e => (e.currentTarget.style.background = 'var(--bg-hover)')}
-                    onMouseLeave={e => (e.currentTarget.style.background = jeTeItf ? 'var(--brand-dim)' : i % 2 === 0 ? 'var(--bg-card)' : 'var(--bg-hover)')}>
+                    onMouseLeave={e => (e.currentTarget.style.background = jeTeItf ? 'var(--brand-dim)' : isTop1 ? '#F5A62308' : isTop2 ? '#A7B1B508' : isTop3 ? '#CD7F3208' : i % 2 === 0 ? 'var(--bg-card)' : 'var(--bg-hover)')}>
 
                     {/* Desktop */}
-                    <div className="hidden sm:grid gap-3 px-4 py-1.5 items-center"
+                    <div className="hidden sm:grid gap-3 px-4 py-[5px] items-center"
                       style={{ gridTemplateColumns: hasMez ? "3rem minmax(0,1fr) 5.5rem 3.5rem minmax(0,13rem) 4rem 4rem 5rem 3.5rem" : "3rem minmax(0,1fr) 3.5rem minmax(0,13rem) 4rem 4rem 5rem 3.5rem" }}>
                       <span className="text-sm font-black mono" style={{ color: poradiColor }}>{i + 1}</span>
-                      <div className="min-w-0">
+                      <div className="min-w-0 group">
                         <a href={`https://cztenis.cz/hrac/${h.id}`} target="_blank" rel="noopener noreferrer"
-                          className="font-semibold text-sm truncate block hover:underline"
+                          className="font-semibold text-sm truncate block hover:underline group-hover:after:content-['_→']"
                           style={{ color: 'var(--text)' }}>
-                          {h.jmeno}
+                          {h.jmeno} <span className="opacity-0 group-hover:opacity-40 text-xs transition-opacity">→</span>
                         </a>
                       </div>
                       {hasMez && <div className="flex justify-center">
@@ -254,7 +254,7 @@ export default function Home() {
                         ) : <span style={{ color: 'var(--border)' }}>—</span>}
                       </div>}
                       <span className="text-xs text-center mono" style={{ color: 'var(--text-3)' }}>{h.narozeni}</span>
-                      <span className="text-xs truncate" style={{ color: 'var(--text-2)' }}>{h.klub}</span>
+                      <span className="text-xs truncate cursor-help" title={h.klub} style={{ color: 'var(--text-2)' }}>{h.klub}</span>
                       <span className="text-sm text-right mono" style={{ color: 'var(--text-2)' }}>{jeTeItf ? "—" : h.body_dv}</span>
                       <span className="text-sm text-right mono" style={{ color: 'var(--text-2)' }}>{jeTeItf ? "—" : h.body_ct}</span>
                       <span className="text-sm font-black text-right mono" style={{ color: isTop1 ? '#00B14F' : jeTeItf ? 'var(--text-3)' : 'var(--text)' }}>
@@ -266,10 +266,10 @@ export default function Home() {
                     </div>
 
                     {/* Mobil */}
-                    <div className="grid sm:hidden gap-2 px-3 py-2 items-center"
+                    <div className="grid sm:hidden gap-2 px-3 py-1.5 items-center"
                       style={{ gridTemplateColumns: "2.5rem 1fr auto" }}>
                       <span className="text-sm font-black mono" style={{ color: poradiColor }}>{i + 1}</span>
-                      <div className="min-w-0">
+                      <div className="min-w-0 group">
                         <a href={`https://cztenis.cz/hrac/${h.id}`} target="_blank" rel="noopener noreferrer"
                           className="font-semibold text-sm truncate block" style={{ color: 'var(--text)' }}>
                           {h.jmeno}
