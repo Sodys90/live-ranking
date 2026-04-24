@@ -298,22 +298,22 @@ export default function Home() {
                         if (!best) return <span/>
                         const diff = h.poradi_live - best
                         if (diff === 0) return (
-                          <span className="text-[9px] font-black w-6 h-5 flex items-center justify-center rounded" style={{background:"#F5A623",color:"#fff"}}>
+                          <span className="text-[8px] font-black w-5 h-4 flex items-center justify-center rounded" style={{background:"#F5A623",color:"#fff"}}>
                             {best}
                           </span>
                         )
                         if (diff <= 5) return (
-                          <span className="text-[9px] font-black w-6 h-5 flex items-center justify-center rounded" style={{background:"#00B14F",color:"#fff"}}>
+                          <span className="text-[8px] font-black w-5 h-4 flex items-center justify-center rounded" style={{background:"#00B14F",color:"#fff"}}>
                             {best}
                           </span>
                         )
                         if (diff <= 30) return (
-                          <span className="text-[9px] font-black w-6 h-5 flex items-center justify-center rounded" style={{background:"#6E7681",color:"#fff"}}>
+                          <span className="text-[8px] font-black w-5 h-4 flex items-center justify-center rounded" style={{background:"#6E7681",color:"#fff"}}>
                             {best}
                           </span>
                         )
                         return (
-                          <span className="text-[9px] font-black w-6 h-5 flex items-center justify-center rounded" style={{background:"#0D1117",color:"#fff",border:"1px solid #30363D"}}>
+                          <span className="text-[8px] font-black w-5 h-4 flex items-center justify-center rounded" style={{background:"#0D1117",color:"#fff",border:"1px solid #30363D"}}>
                             {best}
                           </span>
                         )
