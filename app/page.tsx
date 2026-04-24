@@ -172,9 +172,9 @@ export default function Home() {
       <main className="max-w-7xl mx-auto px-4 py-4">
 
         {/* ── FILTRY ── */}
-        <div className="flex flex-col gap-1.5 mb-3">
-          <div className="flex gap-2 items-center">
-            <div className="relative flex-1 min-w-0">
+        <div className="flex flex-col sm:flex-row gap-1.5 mb-3 sm:flex-wrap sm:items-center">
+          <div className="flex gap-2 items-center sm:contents">
+            <div className="relative flex-1 sm:flex-none sm:w-56 min-w-0">
               <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-3 h-3" style={{color:"var(--text-3)"}} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                 <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
               </svg>
@@ -192,13 +192,13 @@ export default function Home() {
               </select>
             )}
             <div className="flex rounded-full p-0.5 shrink-0" style={{background:"var(--bg-card)",border:"1px solid var(--border)"}}>
-              {[{val:"celkem",label:"C"},{val:"dv",label:"2H"},{val:"ct",label:"4H"}].map(d=>(
+              {[{val:"celkem",label:"Celkem",short:"C"},{val:"dv",label:"2H",short:"2H"},{val:"ct",label:"4H",short:"4H"}].map(d=>(
                 <button key={d.val} onClick={()=>setDisciplina(d.val)}
                   className="px-2.5 py-1 rounded-full text-xs font-semibold transition-all"
                   style={disciplina===d.val
                     ? {background:"#FF3B3B",color:"#fff"}
                     : {background:"transparent",color:"var(--text-3)"}}>
-                  {d.label}
+                  <span className="hidden sm:inline">{d.label}</span><span className="sm:hidden">{d.short}</span>
                 </button>
               ))}
             </div>
