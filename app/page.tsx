@@ -26,6 +26,16 @@ export default function Home() {
   const [trend, setTrend]         = useState<Record<string,{trend:number,novy:boolean}>>({})
   const [nmk, setNmk]             = useState<Record<string,number>>({})
   const tabsRef = useRef<HTMLDivElement>(null)
+  const [tabsScroll, setTabsScroll] = useState({left: false, right: true})
+
+  const handleTabsScroll = () => {
+    const el = tabsRef.current
+    if (!el) return
+    setTabsScroll({
+      left: el.scrollLeft > 10,
+      right: el.scrollLeft < el.scrollWidth - el.clientWidth - 10
+    })
+  }
 
   useEffect(() => {
     setLoading(true)
@@ -152,10 +162,17 @@ export default function Home() {
       {/* ── KATEGORIE TABS ── */}
       <div style={{background:"var(--header-bg)",borderBottom:"1px solid var(--header-border)"}}>
         <div className="max-w-7xl mx-auto px-4 relative">
-          <div className="absolute right-0 top-0 bottom-0 w-10 pointer-events-none sm:hidden flex items-center justify-end pr-1" style={{background:"linear-gradient(to right, transparent, var(--header-bg))"}}>
-            <span className="text-white/40 text-xs animate-pulse">›</span>
-          </div>
-          <div ref={tabsRef} className="flex gap-0 overflow-x-auto scrollbar-hide">
+          {tabsScroll.left && (
+            <div className="absolute left-0 top-0 bottom-0 w-10 pointer-events-none sm:hidden flex items-center justify-start pl-1 z-10" style={{background:"linear-gradient(to left, transparent, var(--header-bg))"}}>
+              <span className="text-white/50 text-sm font-bold">‹</span>
+            </div>
+          )}
+          {tabsScroll.right && (
+            <div className="absolute right-0 top-0 bottom-0 w-10 pointer-events-none sm:hidden flex items-center justify-end pr-1 z-10" style={{background:"linear-gradient(to right, transparent, var(--header-bg))"}}>
+              <span className="text-white/50 text-sm font-bold animate-pulse">›</span>
+            </div>
+          )}
+          <div ref={tabsRef} className="flex gap-0 overflow-x-auto scrollbar-hide" onScroll={handleTabsScroll}>
             {KATEGORIE.map(k => (
               <button key={k.slug}
                 onClick={()=>{setAktivni(k.slug);setHledej("");setRocnik("vse")}}
