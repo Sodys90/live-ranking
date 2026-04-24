@@ -24,6 +24,22 @@ const SVAZY = [
 type KlubRow = { klub: string; kategorie_slug: string; body_dv: number; body_ct: number; body_celkem: number; pocet: number; oblast: string; svaz: string }
 type AggRow  = { klub: string; body_dv: number; body_ct: number; body_celkem: number; pocet: number; oblast: string; svaz: string }
 
+const nextMonday = () => {
+  const d = new Date()
+  const day = d.getDay()
+  const diff = day===1 ? 7 : (8-day)%7||7
+  d.setDate(d.getDate()+diff)
+  return d.toLocaleDateString("cs-CZ",{day:"numeric",month:"long"})
+}
+
+const lastMonday = () => {
+  const d = new Date()
+  const day = d.getDay()
+  const diff = day===1 ? 0 : (day+6)%7
+  d.setDate(d.getDate()-diff)
+  return d.toLocaleDateString("cs-CZ",{day:"numeric",month:"long",year:"numeric"})
+}
+
 export default function KlubovyZebricek() {
   const [data, setData]           = useState<KlubRow[]>([])
   const [loading, setLoading]     = useState(true)
@@ -89,6 +105,14 @@ export default function KlubovyZebricek() {
             <span className="px-3 py-1.5 rounded-md text-xs font-semibold" style={{background:"#FF3B3B20",color:"#FF3B3B"}}>Kluby</span>
           </nav>
 
+          <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-md" style={{background:"#FFFFFF10",border:"1px solid #FFFFFF20"}}>
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF60" strokeWidth="2.5">
+              <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
+            </svg>
+            <span className="text-[10px] font-semibold" style={{color:"#FFFFFF70"}}>Aktualizován: {lastMonday()}</span>
+            <span className="text-[10px]" style={{color:"#FFFFFF30"}}>·</span>
+            <span className="text-[10px] font-semibold" style={{color:"#FFFFFF40"}}>Další: {nextMonday()}</span>
+          </div>
           <ThemeToggle />
         </div>
       </header>
