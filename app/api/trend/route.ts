@@ -15,7 +15,7 @@ export async function GET() {
 
   if (!datumy || datumy.length === 0) return NextResponse.json({})
 
-  const unique = [...new Set(datumy.map((d: any) => d.datum))]
+  const unique = Array.from(new Set(datumy.map((d: any) => d.datum)))
   if (unique.length < 2) return NextResponse.json({})
 
   const aktualniDatum = unique[0]
