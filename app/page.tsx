@@ -382,7 +382,7 @@ export default function Home() {
                     </div>
 
                     {/* Mobil */}
-                    <div className="grid sm:hidden gap-1 px-3 py-[2px] items-center"
+                    <div className="grid sm:hidden gap-1 px-3 py-[1px] items-center"
                       style={{gridTemplateColumns:"2rem auto 1fr auto"}}>
                       <span className="text-xs font-black mono" style={{color:rankColor}}>{i+1}</span>
 
@@ -408,9 +408,9 @@ export default function Home() {
                           <span style={{color:"var(--border)"}}>·</span>
                           <span className="text-[10px] truncate" style={{color:"var(--text-3)"}}>{h.klub}{!jeTeItf && klubPoradi[h.id] ? <sub className="mono font-bold" style={{color:"var(--text-3)",fontSize:"8px"}}>{klubPoradi[h.id]}</sub> : null}</span>
                         </div>
-                        <div className="flex gap-1">
-                          <span className="text-[10px] mono" style={{color:"var(--text-3)"}}>2H {jeTeItf?"—":h.body_dv}</span>
-                          <span className="text-[10px] mono" style={{color:"var(--text-3)"}}>4H {jeTeItf?"—":h.body_ct}</span>
+                        <div className="flex gap-3">
+                          <span className="text-[10px] mono" style={{color:"var(--text-3)"}}>2H <span style={{color:"var(--text-2)"}}>{jeTeItf?"—":h.body_dv}</span></span>
+                          <span className="text-[10px] mono" style={{color:"var(--text-3)"}}>4H <span style={{color:"var(--text-2)"}}>{jeTeItf?"—":h.body_ct}</span></span>
                         </div>
                       </div>
 
