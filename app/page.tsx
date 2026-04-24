@@ -23,13 +23,15 @@ export default function Home() {
   const [loading, setLoading]     = useState(true)
   const [disciplina, setDisciplina] = useState("celkem")
   const [rocnik, setRocnik]       = useState("vse")
+  const [trend, setTrend]         = useState<Record<string,{trend:number,novy:boolean}>>({})
   const tabsRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     setLoading(true)
-    fetch("/api/zebricky")
-      .then(r => r.json())
-      .then(d => { setData(d); setLoading(false) })
+    Promise.all([
+      fetch("/api/zebricky").then(r => r.json()),
+      fetch("/api/trend").then(r => r.json()),
+    ]).then(([d, t]) => { setData(d); setTrend(t); setLoading(false) })
       .catch(() => setLoading(false))
   }, [])
 
@@ -264,13 +266,21 @@ export default function Home() {
                       <span className="text-xs font-black mono" style={{color:rankColor}}>{i+1}</span>
 
                       {/* Jméno */}
-                      <div className="min-w-0 group">
+                      <div className="min-w-0 group flex items-center gap-2">
                         <a href={`https://cztenis.cz/hrac/${h.id}`} target="_blank" rel="noopener noreferrer"
                           className="font-semibold text-sm truncate flex items-center gap-1 hover:underline"
                           style={{color:"var(--text)"}}>
                           <span className="truncate">{h.jmeno}</span>
                           <span className="opacity-0 group-hover:opacity-40 transition-opacity text-xs shrink-0">↗</span>
                         </a>
+                        {(() => {
+                          const t = trend[`${h.id}__${aktivni}`]
+                          if (!t) return null
+                          if (t.novy) return <span className="text-[9px] font-bold px-1 py-0.5 rounded shrink-0" style={{background:"#FF3B3B15",color:"#FF3B3B"}}>NEW</span>
+                          if (t.trend > 0) return <span className="text-[10px] font-bold shrink-0" style={{color:"#00B14F"}}>↑{t.trend}</span>
+                          if (t.trend < 0) return <span className="text-[10px] font-bold shrink-0" style={{color:"#FF3B3B"}}>↓{Math.abs(t.trend)}</span>
+                          return <span className="text-[10px] shrink-0" style={{color:"var(--text-3)"}}>—</span>
+                        })()}
                       </div>
 
                       {/* Mez */}

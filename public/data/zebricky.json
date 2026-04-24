@@ -1,7 +1,7 @@
 {
   "mladsi-zaci": {
     "nazev": "mladsi-zaci",
-    "aktualizace": "2026-04-23T10:48:46.763739",
+    "aktualizace": "2026-04-24T10:57:14.834753",
     "hraci": [
       {
         "id": "1061488",
@@ -30284,7 +30284,7 @@
   },
   "mladsi-zakyne": {
     "nazev": "mladsi-zakyne",
-    "aktualizace": "2026-04-23T10:48:46.920784",
+    "aktualizace": "2026-04-24T10:57:15.132163",
     "hraci": [
       {
         "id": "1059456",
@@ -58414,7 +58414,7 @@
   },
   "starsi-zaci": {
     "nazev": "starsi-zaci",
-    "aktualizace": "2026-04-23T10:48:47.770015",
+    "aktualizace": "2026-04-24T10:57:15.295946",
     "hraci": [
       {
         "id": "1049631",
@@ -85286,7 +85286,7 @@
   },
   "starsi-zakyne": {
     "nazev": "starsi-zakyne",
-    "aktualizace": "2026-04-23T10:48:47.874091",
+    "aktualizace": "2026-04-24T10:57:15.389210",
     "hraci": [
       {
         "id": "1052476",
@@ -109284,7 +109284,7 @@
   },
   "dorostenci": {
     "nazev": "dorostenci",
-    "aktualizace": "2026-04-23T10:48:48.042568",
+    "aktualizace": "2026-04-24T10:57:15.566651",
     "hraci": [
       {
         "id": "1034244",
@@ -145270,7 +145270,7 @@
   },
   "dorostenky": {
     "nazev": "dorostenky",
-    "aktualizace": "2026-04-23T10:48:48.187286",
+    "aktualizace": "2026-04-24T10:57:15.707810",
     "hraci": [
       {
         "id": "1027481",
@@ -171547,5 +171547,15 @@
         "bh": 1
       }
     ]
+  },
+  "muzi": {
+    "nazev": "muzi",
+    "aktualizace": "2026-04-24T10:57:15.760349",
+    "hraci": []
+  },
+  "zeny": {
+    "nazev": "zeny",
+    "aktualizace": "2026-04-24T10:57:15.806266",
+    "hraci": []
   }
 }

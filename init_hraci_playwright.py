@@ -405,6 +405,32 @@ def prepocitej_zebricky():
         json.dump(output, f, ensure_ascii=False, indent=2)
     print("✅ zebricky.json aktualizován")
 
+    # Ulož snapshot do historie_poradi
+    dnes = datetime.now().date().isoformat()
+    # Zkontroluj jestli dnes už snapshot existuje
+    existing = sb.table("historie_poradi").select("id").eq("datum", dnes).limit(1).execute()
+    if existing.data:
+        print(f"⏭️  Historie pro {dnes} už existuje, přeskakuji")
+    else:
+        snapshot = []
+        for kat_slug, kat_data in output.items():
+            for h in kat_data["hraci"]:
+                if h.get("te_itf"): continue
+                if not h.get("poradi_live"): continue
+                snapshot.append({
+                    "hrac_id":       str(h["id"]),
+                    "kategorie_slug": kat_slug,
+                    "poradi":        h["poradi_live"],
+                    "body_celkem":   h.get("body_celkem") or 0,
+                    "body_dv":       h.get("body_dv") or 0,
+                    "body_ct":       h.get("body_ct") or 0,
+                    "datum":         dnes,
+                })
+        # Ulož po dávkách 500
+        for i in range(0, len(snapshot), 500):
+            sb.table("historie_poradi").insert(snapshot[i:i+500]).execute()
+        print(f"✅ Historie uložena: {len(snapshot)} záznamů pro {dnes}")
+
 if __name__ == "__main__":
     main()
     prepocitej_zebricky()
