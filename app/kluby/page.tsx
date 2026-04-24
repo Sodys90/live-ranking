@@ -47,16 +47,22 @@ export default function KlubovyZebricek() {
   const [svaz, setSvaz]           = useState("Vše")
   const [disciplina, setDisciplina] = useState("celkem")
   const [hledej, setHledej]       = useState("")
+  const [aktualizace, setAktualizace] = useState<string|null>(null)
 
   useEffect(() => {
     setLoading(true)
     const params = new URLSearchParams()
     if (kategorie !== "vse") params.set("kategorie", kategorie)
     if (svaz !== "Vše") params.set("svaz", svaz)
-    fetch(`/api/kluby?${params}`)
-      .then(r => r.json())
-      .then(d => { setData(d); setLoading(false) })
-      .catch(() => setLoading(false))
+    Promise.all([
+      fetch(`/api/kluby?${params}`).then(r => r.json()),
+      fetch('/api/zebricky').then(r => r.json()),
+    ]).then(([d, z]) => {
+      setData(d)
+      const kat = Object.values(z)[0] as any
+      if (kat?.aktualizace) setAktualizace(kat.aktualizace)
+      setLoading(false)
+    }).catch(() => setLoading(false))
   }, [kategorie, svaz])
 
   const aggMap: Record<string, AggRow> = {}
@@ -105,15 +111,17 @@ export default function KlubovyZebricek() {
             <span className="px-3 py-1.5 rounded-md text-xs font-semibold" style={{background:"#FF3B3B20",color:"#FF3B3B"}}>Kluby</span>
           </nav>
 
-          <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-md" style={{background:"#FFFFFF10",border:"1px solid #FFFFFF20"}}>
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF60" strokeWidth="2.5">
-              <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
-            </svg>
-            <span className="text-[10px] font-semibold" style={{color:"#FFFFFF70"}}>Aktualizován: {lastMonday()}</span>
-            <span className="text-[10px]" style={{color:"#FFFFFF30"}}>·</span>
-            <span className="text-[10px] font-semibold" style={{color:"#FFFFFF40"}}>Další: {nextMonday()}</span>
+          <div className="flex items-center gap-3">
+            <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-md" style={{background:"#FFFFFF10",border:"1px solid #FFFFFF20"}}>
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF60" strokeWidth="2.5">
+                <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
+              </svg>
+              <span className="text-[10px] font-semibold" style={{color:"#FFFFFF70"}}>Aktualizován: {aktualizace ? new Date(aktualizace).toLocaleDateString("cs-CZ",{day:"numeric",month:"long",year:"numeric"}) : "..."}</span>
+              <span className="text-[10px]" style={{color:"#FFFFFF30"}}>·</span>
+              <span className="text-[10px] font-semibold" style={{color:"#FFFFFF40"}}>Další: {nextMonday()}</span>
+            </div>
+            <ThemeToggle />
           </div>
-          <ThemeToggle />
         </div>
       </header>
 
