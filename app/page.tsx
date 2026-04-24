@@ -190,16 +190,16 @@ export default function Home() {
         ) : (
           <>
             {/* Stats */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+            <div className="flex flex-wrap gap-2 mb-4">
               {[
                 { label: "Hráčů", value: vsichni.length },
                 { label: "Top body", value: topBody },
                 { label: "Průměr", value: prumer },
                 { label: "Mez. žeb.", value: teItf.length },
               ].map(s => (
-                <div key={s.label} className="rounded-xl p-3" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
-                  <p className="text-2xl font-black mono" style={{ color: '#00B14F' }}>{s.value}</p>
-                  <p className="text-[10px] mt-0.5 font-medium uppercase tracking-wider" style={{ color: 'var(--text-3)' }}>{s.label}</p>
+                <div key={s.label} className="flex items-center gap-2 px-3 py-2 rounded-lg" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+                  <span className="text-sm font-black mono" style={{ color: "#00B14F" }}>{s.value}</span>
+                  <span className="text-[10px] font-medium uppercase tracking-wider" style={{ color: "var(--text-3)" }}>{s.label}</span>
                 </div>
               ))}
             </div>
