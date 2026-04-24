@@ -1,5 +1,5 @@
 "use client"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
 import ThemeToggle from "../components/ThemeToggle"
 
@@ -41,6 +41,10 @@ const lastMonday = () => {
 }
 
 export default function KlubovyZebricek() {
+  const [katScroll, setKatScroll] = useState({left: false, right: true})
+  const [svazScroll, setSvazScroll] = useState({left: false, right: true})
+  const katRef = useRef<HTMLDivElement>(null)
+  const svazRef = useRef<HTMLDivElement>(null)
   const [data, setData]           = useState<KlubRow[]>([])
   const [loading, setLoading]     = useState(true)
   const [kategorie, setKategorie] = useState("vse")
@@ -128,8 +132,22 @@ export default function KlubovyZebricek() {
       {/* KATEGORIE TABS */}
       <div style={{background:"var(--header-bg)",borderBottom:"1px solid var(--header-border)"}}>
         <div className="max-w-7xl mx-auto px-4 relative">
-          <div className="absolute right-0 top-0 bottom-0 w-8 pointer-events-none sm:hidden" style={{background:"linear-gradient(to right, transparent, var(--header-bg))"}}/>
-          <div className="flex gap-0 overflow-x-auto scrollbar-hide">
+          {katScroll.left && (
+            <div className="absolute left-0 top-0 bottom-0 w-10 pointer-events-none sm:hidden flex items-center justify-start pl-1 z-10" style={{background:"linear-gradient(to left, transparent, var(--header-bg))"}}>
+              <span className="text-white/50 text-sm font-bold">‹</span>
+            </div>
+          )}
+          {katScroll.right && (
+            <div className="absolute right-0 top-0 bottom-0 w-10 pointer-events-none sm:hidden flex items-center justify-end pr-1 z-10" style={{background:"linear-gradient(to right, transparent, var(--header-bg))"}}>
+              <span className="text-white/50 text-sm font-bold animate-pulse">›</span>
+            </div>
+          )}
+          <div ref={katRef} className="flex gap-0 overflow-x-auto scrollbar-hide"
+            onScroll={() => {
+              const el = katRef.current
+              if (!el) return
+              setKatScroll({left: el.scrollLeft > 10, right: el.scrollLeft < el.scrollWidth - el.clientWidth - 10})
+            }}>
             {KATEGORIE.map(k => (
               <button key={k.slug} onClick={() => setKategorie(k.slug)}
                 className="px-4 py-3 text-xs font-semibold whitespace-nowrap shrink-0 border-b-2 transition-all"
@@ -147,8 +165,22 @@ export default function KlubovyZebricek() {
       {/* SVAZY TABS */}
       <div style={{background:"var(--bg-card)",borderBottom:"1px solid var(--border)"}}>
         <div className="max-w-7xl mx-auto px-4 relative">
-          <div className="absolute right-0 top-0 bottom-0 w-8 pointer-events-none sm:hidden" style={{background:"linear-gradient(to right, transparent, var(--bg-card))"}}/>
-          <div className="flex gap-0 overflow-x-auto scrollbar-hide">
+          {svazScroll.left && (
+            <div className="absolute left-0 top-0 bottom-0 w-10 pointer-events-none sm:hidden flex items-center justify-start pl-1 z-10" style={{background:"linear-gradient(to left, transparent, var(--bg-card))"}}>
+              <span className="text-sm font-bold" style={{color:"var(--text-3)"}}>‹</span>
+            </div>
+          )}
+          {svazScroll.right && (
+            <div className="absolute right-0 top-0 bottom-0 w-10 pointer-events-none sm:hidden flex items-center justify-end pr-1 z-10" style={{background:"linear-gradient(to right, transparent, var(--bg-card))"}}>
+              <span className="text-sm font-bold animate-pulse" style={{color:"var(--text-3)"}}>›</span>
+            </div>
+          )}
+          <div ref={svazRef} className="flex gap-0 overflow-x-auto scrollbar-hide"
+            onScroll={() => {
+              const el = svazRef.current
+              if (!el) return
+              setSvazScroll({left: el.scrollLeft > 10, right: el.scrollLeft < el.scrollWidth - el.clientWidth - 10})
+            }}>
             {SVAZY.map(s => (
               <button key={s} onClick={() => setSvaz(s)}
                 className="px-4 py-2.5 text-xs font-semibold whitespace-nowrap shrink-0 border-b-2 transition-all"
