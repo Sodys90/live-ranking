@@ -119,7 +119,7 @@ export default function Home() {
                 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#FF3B3B" strokeWidth="2.5">
                   <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
                 </svg>
-                <span className="text-[10px] font-semibold" style={{color:"#FF3B3B"}}>Aktualizováno {formatDatum(kat.aktualizace)}</span>
+                <span className="text-[10px] font-semibold" style={{color:"#FF3B3B"}}>Žebříček aktualizován: {formatDatum(kat.aktualizace)}</span>
               </div>
             )}
             <ThemeToggle />
