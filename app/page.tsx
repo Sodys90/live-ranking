@@ -371,13 +371,13 @@ export default function Home() {
                           className="font-semibold text-[13px] truncate block" style={{color:"var(--text)"}}>
                           {h.jmeno}
                         </a>
-                        <div className="flex gap-1 mt-0 items-center">
+                        <div className="flex gap-1 mt-0 items-center flex-wrap">
                           <span className="text-[10px] mono" style={{color:"var(--text-3)"}}>{h.narozeni}</span>
                           <span style={{color:"var(--border)"}}>·</span>
                           <span className="text-[10px] truncate" style={{color:"var(--text-3)"}}>{h.klub}{!jeTeItf && klubPoradi[h.id] ? <sub className="mono font-bold" style={{color:"var(--text-3)",fontSize:"8px"}}>{klubPoradi[h.id]}</sub> : null}</span>
-                        </div>
-                        <div className="flex gap-1.5 mt-0">
+                          <span style={{color:"var(--border)"}}>·</span>
                           <span className="text-[10px] mono" style={{color:"var(--text-3)"}}>2H {jeTeItf?"—":h.body_dv}</span>
+                          <span style={{color:"var(--border)"}}>·</span>
                           <span className="text-[10px] mono" style={{color:"var(--text-3)"}}>4H {jeTeItf?"—":h.body_ct}</span>
                         </div>
                       </div>
