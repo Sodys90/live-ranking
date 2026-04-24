@@ -281,7 +281,7 @@ export default function Home() {
               </div>
 
               {/* Záhlaví mobil */}
-              <div className="grid sm:hidden gap-2 px-3 py-2 text-[10px] font-bold uppercase tracking-widest"
+              <div className="grid sm:hidden gap-1 px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest"
                 style={{gridTemplateColumns:"2.5rem 1fr auto",background:"var(--bg-card)",borderBottom:"2px solid var(--border)",color:"var(--text-3)"}}>
                 <span>#</span><span>Hráč</span><span className="text-right">Body</span>
               </div>
