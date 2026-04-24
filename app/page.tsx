@@ -228,7 +228,7 @@ export default function Home() {
               <div className="hidden sm:grid gap-3 px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest"
                 style={{gridTemplateColumns:cols,background:"var(--bg-card)",borderBottom:"2px solid var(--border)",color:"var(--text-3)"}}>
                 <span>#</span>
-                <span className="cursor-help" title="Nejlepší historické pořadí hráče">MK</span>
+                <span className="cursor-help" title="Nejlepší historické umístění">NH</span>
                 <span>Hráč</span>
                 {hasMez && <span className="text-center cursor-help" title="Mezinárodní žebříček">Mez.</span>}
                 <span className="text-center">Nar.</span>
@@ -276,22 +276,22 @@ export default function Home() {
                         if (!best) return <span/>
                         const diff = h.poradi_live - best
                         if (diff === 0) return (
-                          <span className="text-[10px] font-black px-1.5 py-0.5 rounded text-center" style={{background:"#F5A623",color:"#fff",minWidth:"2rem",display:"inline-block"}}>
+                          <span className="text-[9px] font-black w-6 h-5 flex items-center justify-center rounded" style={{background:"#F5A623",color:"#fff"}}>
                             {best}
                           </span>
                         )
                         if (diff <= 5) return (
-                          <span className="text-[10px] font-black px-1.5 py-0.5 rounded text-center" style={{background:"#00B14F",color:"#fff",minWidth:"2rem",display:"inline-block"}}>
+                          <span className="text-[9px] font-black w-6 h-5 flex items-center justify-center rounded" style={{background:"#00B14F",color:"#fff"}}>
                             {best}
                           </span>
                         )
                         if (diff <= 30) return (
-                          <span className="text-[10px] font-black px-1.5 py-0.5 rounded text-center" style={{background:"#6E7681",color:"#fff",minWidth:"2rem",display:"inline-block"}}>
+                          <span className="text-[9px] font-black w-6 h-5 flex items-center justify-center rounded" style={{background:"#6E7681",color:"#fff"}}>
                             {best}
                           </span>
                         )
                         return (
-                          <span className="text-[10px] font-black px-1.5 py-0.5 rounded text-center" style={{background:"#0D1117",color:"#fff",border:"1px solid #30363D",minWidth:"2rem",display:"inline-block"}}>
+                          <span className="text-[9px] font-black w-6 h-5 flex items-center justify-center rounded" style={{background:"#0D1117",color:"#fff",border:"1px solid #30363D"}}>
                             {best}
                           </span>
                         )
