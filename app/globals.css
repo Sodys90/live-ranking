@@ -2,5 +2,48 @@
 @tailwind components;
 @tailwind utilities;
 
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800;900&family=Geist+Mono:wght@400;500;600;700&display=swap');
+
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { background: #0a0f1e; }
+
+:root {
+  --bg:        #F4F6F7;
+  --bg-card:   #FFFFFF;
+  --bg-hover:  #EEF1F2;
+  --border:    #DDE2E5;
+  --text:      #0F1A1F;
+  --text-2:    #4A5568;
+  --text-3:    #8A9BA3;
+  --brand:     #00B14F;
+  --brand-dim: #00B14F1A;
+  --accent:    #FF3B3B;
+  --gold:      #F5A623;
+  --header-bg: #FFFFFF;
+}
+
+.dark {
+  --bg:        #0F1A1F;
+  --bg-card:   #1C2A30;
+  --bg-hover:  #243540;
+  --border:    #2A3A42;
+  --text:      #FFFFFF;
+  --text-2:    #A7B1B5;
+  --text-3:    #566970;
+  --brand:     #00B14F;
+  --brand-dim: #00B14F1A;
+  --accent:    #FF3B3B;
+  --gold:      #F5A623;
+  --header-bg: #162028;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Geist', sans-serif;
+  transition: background 0.2s, color 0.2s;
+}
+
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+.mono { font-family: 'Geist Mono', monospace; }

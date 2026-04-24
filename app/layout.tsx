@@ -3,13 +3,28 @@ import { Analytics } from "@vercel/analytics/react"
 import "./globals.css"
 
 export const metadata: Metadata = {
-  title: "Live Ranking - ČTS mládež",
-  description: "Aktuální žebříček mladšího žactva, staršího žactva a dorostu",
+  title: "TenisCZ — Žebříčky mládeže",
+  description: "Aktuální živý žebříček mládeže Českého tenisového svazu",
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="cs">
+    <html lang="cs" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{
+          __html: `
+            (function() {
+              try {
+                var stored = localStorage.getItem('theme');
+                var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                if (stored === 'dark' || (!stored && prefersDark)) {
+                  document.documentElement.classList.add('dark');
+                }
+              } catch(e) {}
+            })();
+          `
+        }} />
+      </head>
       <body>
         {children}
         <Analytics />
