@@ -103,7 +103,7 @@ export default function KlubovyZebricek() {
             <button key={k.slug} onClick={() => setKategorie(k.slug)}
               className="px-3 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap shrink-0"
               style={kategorie === k.slug
-                ? { background: '#00B14F', color: '#fff' }
+                ? { background: '#FF3B3B', color: '#fff' }
                 : { background: 'var(--bg-card)', color: 'var(--text-2)', border: '1px solid var(--border)' }
               }>
               {k.nazev}
@@ -139,7 +139,7 @@ export default function KlubovyZebricek() {
               <button key={d.val} onClick={() => setDisciplina(d.val)}
                 className="px-3 py-2 text-xs font-bold transition-all"
                 style={disciplina === d.val
-                  ? { background: '#00B14F', color: '#fff' }
+                  ? { background: '#FF3B3B', color: '#fff' }
                   : { background: 'var(--bg-card)', color: 'var(--text-2)' }
                 }>
                 {d.label}
@@ -150,7 +150,7 @@ export default function KlubovyZebricek() {
 
         {loading ? (
           <div className="text-center py-32" style={{ color: 'var(--text-3)' }}>
-            <div className="inline-block w-8 h-8 border-2 rounded-full animate-spin mb-4" style={{ borderColor: 'var(--border)', borderTopColor: '#00B14F' }} />
+            <div className="inline-block w-8 h-8 border-2 rounded-full animate-spin mb-4" style={{ borderColor: 'var(--border)', borderTopColor: '#FF3B3B' }} />
             <p className="text-sm">Načítám kluby...</p>
           </div>
         ) : (
@@ -162,7 +162,7 @@ export default function KlubovyZebricek() {
                 { label: "Hráčů celkem", value: radky.reduce((s, r) => s + r.pocet, 0) },
               ].map(s => (
                 <div key={s.label} className="rounded-xl p-3" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
-                  <p className="text-2xl font-black mono" style={{ color: '#00B14F' }}>{s.value}</p>
+                  <p className="text-2xl font-black mono" style={{ color: '#FF3B3B' }}>{s.value}</p>
                   <p className="text-[10px] mt-0.5 font-medium uppercase tracking-wider" style={{ color: 'var(--text-3)' }}>{s.label}</p>
                 </div>
               ))}
@@ -184,7 +184,7 @@ export default function KlubovyZebricek() {
                 const isTop1 = i === 0
                 const isTop2 = i === 1
                 const isTop3 = i === 2
-                const poradiColor = isTop1 ? '#00B14F' : isTop2 ? '#A7B1B5' : isTop3 ? '#F5A623' : 'var(--text-3)'
+                const poradiColor = isTop1 ? '#FF3B3B' : isTop2 ? '#A7B1B5' : isTop3 ? '#F5A623' : 'var(--text-3)'
                 const body = bodyKlubu(r)
                 const pct = top > 0 ? (body / top) * 100 : 0
                 return (
@@ -202,7 +202,7 @@ export default function KlubovyZebricek() {
                       <span className="text-xs text-right mono relative" style={{ color: 'var(--text-3)' }}>{r.pocet}</span>
                       <span className="text-sm text-right mono relative" style={{ color: 'var(--text-2)' }}>{r.body_dv}</span>
                       <span className="text-sm text-right mono relative" style={{ color: 'var(--text-2)' }}>{r.body_ct}</span>
-                      <span className="text-sm font-black text-right mono relative" style={{ color: isTop1 ? '#00B14F' : 'var(--text)' }}>{body}</span>
+                      <span className="text-sm font-black text-right mono relative" style={{ color: isTop1 ? '#FF3B3B' : 'var(--text)' }}>{body}</span>
                     </div>
                     <div className="grid sm:hidden gap-2 px-3 py-3 items-center"
                       style={{ gridTemplateColumns: "2.5rem 1fr auto" }}>
@@ -216,7 +216,7 @@ export default function KlubovyZebricek() {
                           <span className="text-[10px] mono" style={{ color: 'var(--text-3)' }}>4H: {r.body_ct}</span>
                         </div>
                       </div>
-                      <span className="text-sm font-black mono" style={{ color: isTop1 ? '#00B14F' : 'var(--text)' }}>{body}</span>
+                      <span className="text-sm font-black mono" style={{ color: isTop1 ? '#FF3B3B' : 'var(--text)' }}>{body}</span>
                     </div>
                   </div>
                 )

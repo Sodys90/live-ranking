@@ -70,7 +70,7 @@ export default function Home() {
   const badgeStyle = (typ:string) => {
     if (typ==="ATP"||typ==="WTA") return {background:"#7C3AED18",color:"#9F7AEA",border:"1px solid #7C3AED30"}
     if (typ==="ITF") return {background:"#2563EB18",color:"#60A5FA",border:"1px solid #2563EB30"}
-    return {background:"#00B14F18",color:"#00B14F",border:"1px solid #00B14F30"}
+    return {background:"#FF3B3B18",color:"#FF3B3B",border:"1px solid #FF3B3B30"}
   }
 
   const bodySloupec = (h:any) => {
@@ -105,7 +105,7 @@ export default function Home() {
 
           {/* Nav */}
           <nav className="hidden sm:flex items-center gap-0.5">
-            <span className="px-3 py-1.5 rounded-md text-xs font-semibold" style={{background:"#00B14F20",color:"#00B14F"}}>Hráči</span>
+            <span className="px-3 py-1.5 rounded-md text-xs font-semibold" style={{background:"#FF3B3B20",color:"#FF3B3B"}}>Hráči</span>
             <Link href="/kluby" className="px-3 py-1.5 rounded-md text-xs font-semibold transition-colors" style={{color:"#8B949E"}}
               onMouseEnter={e=>(e.currentTarget.style.color="#E6EDF3")}
               onMouseLeave={e=>(e.currentTarget.style.color="#8B949E")}>
@@ -129,7 +129,7 @@ export default function Home() {
                 onClick={()=>{setAktivni(k.slug);setHledej("");setRocnik("vse")}}
                 className="px-4 py-3 text-xs font-semibold whitespace-nowrap shrink-0 border-b-2 transition-all"
                 style={aktivni===k.slug
-                  ? {color:"#00B14F",borderColor:"#00B14F",background:"transparent"}
+                  ? {color:"#FF3B3B",borderColor:"#FF3B3B",background:"transparent"}
                   : {color:"#6E7681",borderColor:"transparent",background:"transparent"}
                 }>
                 {k.nazev}
@@ -162,13 +162,13 @@ export default function Home() {
             </select>
           )}
 
-          <div className="flex rounded-lg overflow-hidden" style={{border:"1px solid var(--border)"}}>
+          <div className="flex rounded-full p-0.5" style={{background:"var(--bg-card)",border:"1px solid var(--border)"}}>
             {[{val:"celkem",label:"Celkem"},{val:"dv",label:"2H"},{val:"ct",label:"4H"}].map(d=>(
               <button key={d.val} onClick={()=>setDisciplina(d.val)}
-                className="px-3 py-2 text-xs font-semibold transition-all"
+                className="px-3 py-1.5 rounded-full text-xs font-semibold transition-all"
                 style={disciplina===d.val
-                  ? {background:"#00B14F",color:"#fff"}
-                  : {background:"var(--bg-card)",color:"var(--text-2)"}}>
+                  ? {background:"#FF3B3B",color:"#fff",boxShadow:"0 1px 3px #FF3B3B40"}
+                  : {background:"transparent",color:"var(--text-3)"}}>
                 {d.label}
               </button>
             ))}
@@ -177,7 +177,7 @@ export default function Home() {
 
         {loading ? (
           <div className="flex flex-col items-center justify-center py-40 gap-4" style={{color:"var(--text-3)"}}>
-            <div className="w-8 h-8 rounded-full border-2 animate-spin" style={{borderColor:"var(--border)",borderTopColor:"#00B14F"}}/>
+            <div className="w-8 h-8 rounded-full border-2 animate-spin" style={{borderColor:"var(--border)",borderTopColor:"#FF3B3B"}}/>
             <span className="text-sm">Načítám žebříček...</span>
           </div>
         ) : !kat ? (
@@ -195,7 +195,7 @@ export default function Home() {
                 <div key={s.label} title={s.tip}
                   className="flex items-center gap-2 px-3 py-2 rounded-lg cursor-help"
                   style={{background:"var(--bg-card)",border:"1px solid var(--border)"}}>
-                  <span className="text-sm font-black mono" style={{color:"#00B14F"}}>{s.value}</span>
+                  <span className="text-sm font-black mono" style={{color:"#FF3B3B"}}>{s.value}</span>
                   <span className="text-[10px] font-semibold uppercase tracking-wider" style={{color:"var(--text-3)"}}>{s.label}</span>
                 </div>
               ))}
