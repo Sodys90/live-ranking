@@ -64,6 +64,15 @@ export default function Home() {
   const hraci = hledej||rocnik!=="vse" ? cesteFiltr : [...teItf,...cesteFiltr]
   const hasMez = vsichni.some((h:any) => h.te_itf||h.ma_mezinarodni)
 
+  // Pořadí v klubu
+  const klubCounter: Record<string, number> = {}
+  const klubPoradi: Record<string, number> = {}
+  cestiSerazeni.forEach((h:any) => {
+    if (!klubCounter[h.klub]) klubCounter[h.klub] = 0
+    klubCounter[h.klub]++
+    klubPoradi[h.id] = klubCounter[h.klub]
+  })
+
   const getBody  = (h:any) => disciplina==="dv"?h.body_dv:disciplina==="ct"?h.body_ct:h.body_celkem
   const sHraci   = cesteFiltr.filter((h:any) => getBody(h)>0)
   const topBody  = sHraci[0] ? getBody(sHraci[0]) : 0
@@ -329,7 +338,9 @@ export default function Home() {
                       )}
 
                       <span className="text-xs text-center mono" style={{color:"var(--text-3)"}}>{h.narozeni}</span>
-                      <span className="text-xs truncate cursor-help" title={h.klub} style={{color:"var(--text-2)"}}>{h.klub}</span>
+                      <span className="text-xs truncate cursor-help" title={h.klub} style={{color:"var(--text-2)"}}>
+                        {h.klub}{!jeTeItf && klubPoradi[h.id] ? <sub className="mono font-bold" style={{color:"var(--text-3)",fontSize:"9px"}}>{klubPoradi[h.id]}</sub> : null}
+                      </span>
                       <span className="text-xs text-right mono" style={{color:"var(--text-2)"}}>{jeTeItf?"—":h.body_dv}</span>
                       <span className="text-xs text-right mono" style={{color:"var(--text-2)"}}>{jeTeItf?"—":h.body_ct}</span>
                       <span className="text-sm font-black text-right mono" style={{color:isTop1?"#D4A017":jeTeItf?"var(--text-3)":"var(--text)"}}>
