@@ -214,7 +214,7 @@ export default function Home() {
         ) : (
           <>
             {/* ── STATS ── */}
-            <div className="grid grid-cols-3 gap-2 mb-4">
+            <div className="flex flex-wrap gap-2 mb-4">
               {[
                 {label:"Hráčů",value:sHraci.length,tip:"Hráčů s alespoň 1 bodem"},
                 {label:"Top body",value:topBody,tip:"Nejvyšší počet bodů v kategorii"},
@@ -222,7 +222,7 @@ export default function Home() {
                 ...(teItf.length>0?[{label:"Mez. žeb.",value:teItf.length,tip:"Počet hráčů na mezinárodním žebříčku"}]:[]),
               ].map(s=>(
                 <div key={s.label} title={s.tip}
-                  className="flex items-baseline gap-2 px-3 py-2 rounded-lg cursor-help justify-center sm:justify-start"
+                  className="flex items-baseline gap-2 px-3 py-2 rounded-lg cursor-help"
                   style={{background:"var(--bg-card)",border:"1px solid var(--border)"}}>
                   <span className="text-base font-black mono leading-none" style={{color:"#FF3B3B"}}>{s.value}</span>
                   <span className="text-[9px] font-bold uppercase tracking-widest" style={{color:"var(--text-3)"}}>{s.label}</span>
