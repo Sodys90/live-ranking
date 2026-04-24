@@ -1,28 +1,29 @@
 "use client"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
 import ThemeToggle from "./components/ThemeToggle"
 
 const KATEGORIE = [
-  { slug: "mladsi-zaci",   nazev: "Ml. žáci",    rocniky: [2014,2015,2016] },
-  { slug: "mladsi-zakyne", nazev: "Ml. žákyně",   rocniky: [2014,2015,2016] },
-  { slug: "starsi-zaci",   nazev: "St. žáci",     rocniky: [2012,2013,2014,2015,2016] },
-  { slug: "starsi-zakyne", nazev: "St. žákyně",   rocniky: [2012,2013,2014,2015,2016] },
-  { slug: "dorostenci",    nazev: "Dorostenci",   rocniky: [2008,2009,2010,2011] },
-  { slug: "dorostenky",    nazev: "Dorostenky",   rocniky: [2008,2009,2010,2011] },
-  { slug: "muzi",          nazev: "Muži",         rocniky: [] },
-  { slug: "zeny",          nazev: "Ženy",         rocniky: [] },
+  { slug: "mladsi-zaci",   nazev: "Ml. žáci",    full: "Mladší žáci",    rocniky: [2014,2015,2016] },
+  { slug: "mladsi-zakyne", nazev: "Ml. žákyně",  full: "Mladší žákyně",  rocniky: [2014,2015,2016] },
+  { slug: "starsi-zaci",   nazev: "St. žáci",    full: "Starší žáci",    rocniky: [2012,2013,2014,2015,2016] },
+  { slug: "starsi-zakyne", nazev: "St. žákyně",  full: "Starší žákyně",  rocniky: [2012,2013,2014,2015,2016] },
+  { slug: "dorostenci",    nazev: "Dorostenci",  full: "Dorostenci",     rocniky: [2008,2009,2010,2011] },
+  { slug: "dorostenky",    nazev: "Dorostenky",  full: "Dorostenky",     rocniky: [2008,2009,2010,2011] },
+  { slug: "muzi",          nazev: "Muži",        full: "Muži",           rocniky: [] },
+  { slug: "zeny",          nazev: "Ženy",        full: "Ženy",           rocniky: [] },
 ]
 
-const TYP_PRIORITY: Record<string, number> = { "ATP": 0, "WTA": 0, "ITF": 1, "TE": 2 }
+const TYP_PRIORITY: Record<string,number> = { ATP:0, WTA:0, ITF:1, TE:2 }
 
 export default function Home() {
-  const [aktivni, setAktivni] = useState("mladsi-zaci")
-  const [data, setData] = useState<any>(null)
-  const [hledej, setHledej] = useState("")
-  const [loading, setLoading] = useState(true)
+  const [aktivni, setAktivni]     = useState("mladsi-zaci")
+  const [data, setData]           = useState<any>(null)
+  const [hledej, setHledej]       = useState("")
+  const [loading, setLoading]     = useState(true)
   const [disciplina, setDisciplina] = useState("celkem")
-  const [rocnik, setRocnik] = useState("vse")
+  const [rocnik, setRocnik]       = useState("vse")
+  const tabsRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     setLoading(true)
@@ -33,145 +34,141 @@ export default function Home() {
   }, [])
 
   const aktivniKat = KATEGORIE.find(k => k.slug === aktivni)
-  const kat = data?.[aktivni]
-  const vsichni = kat?.hraci ?? []
+  const kat        = data?.[aktivni]
+  const vsichni    = kat?.hraci ?? []
 
-  const teItf = vsichni.filter((h: any) => h.te_itf).sort((a: any, b: any) => {
-    const pa = TYP_PRIORITY[a.te_itf_typ] ?? 9
-    const pb = TYP_PRIORITY[b.te_itf_typ] ?? 9
-    if (pa !== pb) return pa - pb
-    return (a.te_itf_poradi ?? 999) - (b.te_itf_poradi ?? 999)
+  const teItf = vsichni.filter((h:any) => h.te_itf).sort((a:any,b:any) => {
+    const pa = TYP_PRIORITY[a.te_itf_typ]??9, pb = TYP_PRIORITY[b.te_itf_typ]??9
+    return pa!==pb ? pa-pb : (a.te_itf_poradi??999)-(b.te_itf_poradi??999)
   })
 
-  const hasMez = vsichni.some((h: any) => h.te_itf || h.ma_mezinarodni)
   const cestiSerazeni = vsichni
-    .filter((h: any) => !h.te_itf)
-    .sort((a: any, b: any) => {
-      if (disciplina === "dv") return b.body_dv - a.body_dv
-      if (disciplina === "ct") return b.body_ct - a.body_ct
-      return b.body_celkem - a.body_celkem
+    .filter((h:any) => !h.te_itf)
+    .sort((a:any,b:any) => {
+      if (disciplina==="dv") return b.body_dv-a.body_dv
+      if (disciplina==="ct") return b.body_ct-a.body_ct
+      return b.body_celkem-a.body_celkem
     })
-    .map((h: any, i: number) => ({ ...h, poradi_disc: i + 1 }))
+    .map((h:any,i:number) => ({...h, poradi_disc:i+1}))
 
-  const cesteFiltr = cestiSerazeni.filter((h: any) => {
-    const matchHledej = h.jmeno.toLowerCase().includes(hledej.toLowerCase()) ||
-      h.klub.toLowerCase().includes(hledej.toLowerCase())
-    const matchRocnik = rocnik === "vse" || String(h.narozeni) === rocnik
-    return matchHledej && matchRocnik
+  const cesteFiltr = cestiSerazeni.filter((h:any) => {
+    const mH = h.jmeno.toLowerCase().includes(hledej.toLowerCase()) || h.klub.toLowerCase().includes(hledej.toLowerCase())
+    const mR = rocnik==="vse" || String(h.narozeni)===rocnik
+    return mH && mR
   })
 
-  const hraci = hledej || rocnik !== "vse" ? cesteFiltr : [...teItf, ...cesteFiltr]
+  const hraci = hledej||rocnik!=="vse" ? cesteFiltr : [...teItf,...cesteFiltr]
+  const hasMez = vsichni.some((h:any) => h.te_itf||h.ma_mezinarodni)
 
-  const formatDatum = (iso: string) => {
-    const d = new Date(iso)
-    return d.toLocaleDateString("cs-CZ", { day: "numeric", month: "long", year: "numeric" })
+  const getBody  = (h:any) => disciplina==="dv"?h.body_dv:disciplina==="ct"?h.body_ct:h.body_celkem
+  const sHraci   = cesteFiltr.filter((h:any) => getBody(h)>0)
+  const topBody  = sHraci[0] ? getBody(sHraci[0]) : 0
+  const prumer   = Math.round(sHraci.reduce((s:number,h:any)=>s+getBody(h),0)/(sHraci.length||1))
+
+  const formatDatum = (iso:string) => new Date(iso).toLocaleDateString("cs-CZ",{day:"numeric",month:"long",year:"numeric"})
+
+  const badgeStyle = (typ:string) => {
+    if (typ==="ATP"||typ==="WTA") return {background:"#7C3AED18",color:"#9F7AEA",border:"1px solid #7C3AED30"}
+    if (typ==="ITF") return {background:"#2563EB18",color:"#60A5FA",border:"1px solid #2563EB30"}
+    return {background:"#00B14F18",color:"#00B14F",border:"1px solid #00B14F30"}
   }
 
-  const badgeStyle = (typ: string) => {
-    if (typ === "ATP" || typ === "WTA") return { background: "#7C3AED22", color: "#7C3AED", border: "1px solid #7C3AED44" }
-    if (typ === "ITF") return { background: "#2563EB22", color: "#2563EB", border: "1px solid #2563EB44" }
-    return { background: "#00B14F22", color: "#00B14F", border: "1px solid #00B14F44" }
-  }
-
-  const bodySloupec = (h: any) => {
+  const bodySloupec = (h:any) => {
     if (h.te_itf) return "****"
-    if (disciplina === "dv") return h.body_dv
-    if (disciplina === "ct") return h.body_ct
-    return h.body_celkem
+    return getBody(h)
   }
 
-  const getBody = (h: any) => disciplina === "dv" ? h.body_dv : disciplina === "ct" ? h.body_ct : h.body_celkem
-  const sHraci = cesteFiltr.filter((h: any) => getBody(h) > 0)
-  const topBody = sHraci[0] ? getBody(sHraci[0]) : 0
-  const prumer = Math.round(sHraci.reduce((s: number, h: any) => s + getBody(h), 0) / (sHraci.length || 1))
-  const pocetSBody = sHraci.length
+  const cols = hasMez
+    ? "3rem minmax(0,1fr) 5rem 3.5rem minmax(0,1fr) 4rem 4rem 5.5rem 3.5rem"
+    : "3rem minmax(0,1fr) 3.5rem minmax(0,1fr) 4rem 4rem 5.5rem 3.5rem"
 
   return (
-    <div className="min-h-screen" style={{ background: 'var(--bg)' }}>
-      {/* Header */}
-      <header className="sticky top-0 z-50 border-b" style={{ background: 'var(--header-bg)', borderColor: 'var(--border)' }}>
-        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
+    <div className="min-h-screen" style={{background:"var(--bg)"}}>
+
+      {/* ── HEADER ── */}
+      <header className="sticky top-0 z-50" style={{background:"var(--header-bg)",borderBottom:"1px solid var(--header-border)"}}>
+        <div className="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between gap-4">
+
           {/* Logo */}
           <div className="flex items-center gap-2.5 shrink-0">
-            <svg width="32" height="32" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="30" cy="30" r="28" fill="#FF3B3B"/>
-              <path d="M14 14 C36 26, 36 34, 14 46" stroke="white" strokeWidth="2.5" fill="none"/>
-              <path d="M46 14 C24 26, 24 34, 46 46" stroke="white" strokeWidth="2.5" fill="none"/>
-            </svg>
-            <div>
-              <span className="text-base font-black tracking-tight" style={{ color: 'var(--text)' }}>
-                Tenis<span style={{ color: '#FF3B3B' }}>CZ</span>
-              </span>
-              
+            <div className="relative w-8 h-8">
+              <svg viewBox="0 0 60 60" className="w-8 h-8">
+                <circle cx="30" cy="30" r="28" fill="#FF3B3B"/>
+                <path d="M13 13 C37 25,37 35,13 47" stroke="white" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
+                <path d="M47 13 C23 25,23 35,47 47" stroke="white" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
+              </svg>
             </div>
+            <span className="text-white font-black text-lg tracking-tight">
+              Tenis<span style={{color:"#FF3B3B"}}>CZ</span>
+            </span>
           </div>
 
           {/* Nav */}
-          <nav className="hidden sm:flex items-center gap-1">
-            <span className="px-3 py-1.5 rounded-lg text-xs font-semibold" style={{ background: 'var(--brand-dim)', color: 'var(--brand)' }}>
-              Hráči
-            </span>
-            <Link href="/kluby" className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all hover:opacity-80" style={{ color: 'var(--text-2)' }}>
+          <nav className="hidden sm:flex items-center gap-0.5">
+            <span className="px-3 py-1.5 rounded-md text-xs font-semibold" style={{background:"#00B14F20",color:"#00B14F"}}>Hráči</span>
+            <Link href="/kluby" className="px-3 py-1.5 rounded-md text-xs font-semibold transition-colors" style={{color:"#8B949E"}}
+              onMouseEnter={e=>(e.currentTarget.style.color="#E6EDF3")}
+              onMouseLeave={e=>(e.currentTarget.style.color="#8B949E")}>
               Kluby
             </Link>
           </nav>
 
-          <div className="flex items-center gap-2">
-            {kat && (
-              <span className="text-[10px] hidden md:block" style={{ color: 'var(--text-3)' }}>
-                {formatDatum(kat.aktualizace)}
-              </span>
-            )}
+          <div className="flex items-center gap-3">
+            {kat && <span className="text-xs hidden md:block" style={{color:"#484F58"}}>{formatDatum(kat.aktualizace)}</span>}
             <ThemeToggle />
           </div>
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 py-5">
-        {/* Kategorie tabs */}
-        <div className="flex gap-1.5 mb-4 overflow-x-auto pb-1 scrollbar-hide">
-          {KATEGORIE.map(k => (
-            <button key={k.slug}
-              onClick={() => { setAktivni(k.slug); setHledej(""); setRocnik("vse") }}
-              className="px-3 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap shrink-0"
-              style={aktivni === k.slug
-                ? { background: '#00B14F', color: '#fff' }
-                : { background: 'var(--bg-card)', color: 'var(--text-2)', border: '1px solid var(--border)' }
-              }>
-              {k.nazev}
-            </button>
-          ))}
+      {/* ── KATEGORIE TABS ── */}
+      <div style={{background:"var(--header-bg)",borderBottom:"1px solid var(--header-border)"}}>
+        <div className="max-w-7xl mx-auto px-4">
+          <div ref={tabsRef} className="flex gap-0 overflow-x-auto scrollbar-hide">
+            {KATEGORIE.map(k => (
+              <button key={k.slug}
+                onClick={()=>{setAktivni(k.slug);setHledej("");setRocnik("vse")}}
+                className="px-4 py-3 text-xs font-semibold whitespace-nowrap shrink-0 border-b-2 transition-all"
+                style={aktivni===k.slug
+                  ? {color:"#00B14F",borderColor:"#00B14F",background:"transparent"}
+                  : {color:"#6E7681",borderColor:"transparent",background:"transparent"}
+                }>
+                {k.nazev}
+              </button>
+            ))}
+          </div>
         </div>
+      </div>
 
-        {/* Filtry */}
+      <main className="max-w-7xl mx-auto px-4 py-4">
+
+        {/* ── FILTRY ── */}
         <div className="flex flex-wrap gap-2 mb-4">
-          <div className="relative flex-1 min-w-0 sm:w-56 sm:flex-none">
-            <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5" style={{ color: 'var(--text-3)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="relative">
+            <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5" style={{color:"var(--text-3)"}} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
               <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
             </svg>
             <input type="text" placeholder="Hledat hráče nebo klub..."
-              value={hledej} onChange={e => setHledej(e.target.value)}
-              className="w-full pl-8 pr-3 py-2 rounded-xl text-xs focus:outline-none"
-              style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', color: 'var(--text)' }} />
+              value={hledej} onChange={e=>setHledej(e.target.value)}
+              className="pl-8 pr-3 py-2 rounded-lg text-xs w-56 focus:outline-none focus:ring-1"
+              style={{background:"var(--bg-card)",border:"1px solid var(--border)",color:"var(--text)"}} />
           </div>
 
-          {aktivniKat && aktivniKat.rocniky.length > 0 && (
-            <select value={rocnik} onChange={e => setRocnik(e.target.value)}
-              className="px-3 py-2 rounded-xl text-xs focus:outline-none"
-              style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', color: 'var(--text)' }}>
+          {aktivniKat && aktivniKat.rocniky.length>0 && (
+            <select value={rocnik} onChange={e=>setRocnik(e.target.value)}
+              className="px-3 py-2 rounded-lg text-xs focus:outline-none"
+              style={{background:"var(--bg-card)",border:"1px solid var(--border)",color:"var(--text)"}}>
               <option value="vse">Všechny ročníky</option>
-              {aktivniKat.rocniky.map(r => <option key={r} value={String(r)}>{r}</option>)}
+              {aktivniKat.rocniky.map(r=><option key={r} value={String(r)}>{r}</option>)}
             </select>
           )}
 
-          <div className="flex rounded-xl overflow-hidden" style={{ border: '1px solid var(--border)' }}>
-            {[{ val: "celkem", label: "Celkem" }, { val: "dv", label: "2H" }, { val: "ct", label: "4H" }].map(d => (
-              <button key={d.val} onClick={() => setDisciplina(d.val)}
-                className="px-3 py-2 text-xs font-bold transition-all"
-                style={disciplina === d.val
-                  ? { background: '#00B14F', color: '#fff' }
-                  : { background: 'var(--bg-card)', color: 'var(--text-2)' }
-                }>
+          <div className="flex rounded-lg overflow-hidden" style={{border:"1px solid var(--border)"}}>
+            {[{val:"celkem",label:"Celkem"},{val:"dv",label:"2H"},{val:"ct",label:"4H"}].map(d=>(
+              <button key={d.val} onClick={()=>setDisciplina(d.val)}
+                className="px-3 py-2 text-xs font-semibold transition-all"
+                style={disciplina===d.val
+                  ? {background:"#00B14F",color:"#fff"}
+                  : {background:"var(--bg-card)",color:"var(--text-2)"}}>
                 {d.label}
               </button>
             ))}
@@ -179,134 +176,157 @@ export default function Home() {
         </div>
 
         {loading ? (
-          <div className="text-center py-32" style={{ color: 'var(--text-3)' }}>
-            <div className="inline-block w-8 h-8 border-2 rounded-full animate-spin mb-4" style={{ borderColor: 'var(--border)', borderTopColor: '#00B14F' }} />
-            <p className="text-sm">Načítám žebříček...</p>
+          <div className="flex flex-col items-center justify-center py-40 gap-4" style={{color:"var(--text-3)"}}>
+            <div className="w-8 h-8 rounded-full border-2 animate-spin" style={{borderColor:"var(--border)",borderTopColor:"#00B14F"}}/>
+            <span className="text-sm">Načítám žebříček...</span>
           </div>
         ) : !kat ? (
-          <div className="text-center py-32 text-sm" style={{ color: 'var(--text-3)' }}>Data nejsou k dispozici</div>
+          <div className="text-center py-40 text-sm" style={{color:"var(--text-3)"}}>Data nejsou k dispozici</div>
         ) : (
           <>
-            {/* Stats */}
+            {/* ── STATS ── */}
             <div className="flex flex-wrap gap-2 mb-4">
               {[
-                { label: "Hráčů", value: pocetSBody },
-                { label: "Top body", value: topBody },
-                { label: "Průměr", value: prumer },
-                ...(teItf.length > 0 ? [{ label: "Mez. žeb.", value: teItf.length }] : []),
-              ].map(s => (
-                <div key={s.label} className="flex items-center gap-2 px-3 py-2 rounded-lg" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
-                  <span className="text-sm font-black mono" style={{ color: "#00B14F" }}>{s.value}</span>
-                  <span className="text-[10px] font-medium uppercase tracking-wider" style={{ color: "var(--text-3)" }}>{s.label}</span>
+                {label:"Hráčů",value:sHraci.length,tip:"Hráčů s alespoň 1 bodem"},
+                {label:"Top body",value:topBody,tip:"Nejvyšší počet bodů v kategorii"},
+                {label:"Průměr",value:prumer,tip:"Průměrný počet bodů"},
+                ...(teItf.length>0?[{label:"Mez. žeb.",value:teItf.length,tip:"Počet hráčů na mezinárodním žebříčku"}]:[]),
+              ].map(s=>(
+                <div key={s.label} title={s.tip}
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg cursor-help"
+                  style={{background:"var(--bg-card)",border:"1px solid var(--border)"}}>
+                  <span className="text-sm font-black mono" style={{color:"#00B14F"}}>{s.value}</span>
+                  <span className="text-[10px] font-semibold uppercase tracking-wider" style={{color:"var(--text-3)"}}>{s.label}</span>
                 </div>
               ))}
             </div>
 
-            {/* Tabulka */}
-            <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid var(--border)' }}>
+            {/* ── TABULKA ── */}
+            <div className="rounded-xl overflow-hidden" style={{border:"1px solid var(--border)"}}>
+
               {/* Záhlaví desktop */}
               <div className="hidden sm:grid gap-3 px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest"
-                style={{ gridTemplateColumns: hasMez ? "3rem minmax(0,1fr) 5.5rem 3.5rem minmax(0,13rem) 4rem 4rem 5rem 3.5rem" : "3rem minmax(0,1fr) 3.5rem minmax(0,13rem) 4rem 4rem 5rem 3.5rem", background: 'var(--bg-card)', borderBottom: '1px solid var(--border)', color: 'var(--text-3)' }}>
-                <span>#</span><span>Hráč</span>{hasMez && <span className="text-center">Mez.</span>}
-                <span className="text-center">Nar.</span><span title="Název klubu hráče" className="cursor-help">Klub</span>
-                <span className="text-right cursor-help" title="Body získané z dvouhry">2H</span><span className="text-right cursor-help" title="Body získané ze čtyřhry">4H</span>
-                <span className="text-right cursor-help" title="Součet 8 nejlepších akcí">Body</span><span className="text-right cursor-help" title="Bonusová hodnota">BH</span>
+                style={{gridTemplateColumns:cols,background:"var(--bg-card)",borderBottom:"2px solid var(--border)",color:"var(--text-3)"}}>
+                <span>#</span>
+                <span>Hráč</span>
+                {hasMez && <span className="text-center cursor-help" title="Mezinárodní žebříček">Mez.</span>}
+                <span className="text-center">Nar.</span>
+                <span>Klub</span>
+                <span className="text-right cursor-help" title="Body získané z dvouhry">2H</span>
+                <span className="text-right cursor-help" title="Body získané ze čtyřhry">4H</span>
+                <span className="text-right cursor-help" title="Součet 8 nejlepších akcí">Body</span>
+                <span className="text-right cursor-help" title="Bonusová hodnota">BH</span>
               </div>
+
               {/* Záhlaví mobil */}
-              <div className="grid sm:hidden px-3 py-2 text-[10px] font-bold uppercase tracking-widest"
-                style={{ gridTemplateColumns: "2.5rem 1fr auto", background: 'var(--bg-card)', borderBottom: '1px solid var(--border)', color: 'var(--text-3)' }}>
+              <div className="grid sm:hidden gap-2 px-3 py-2 text-[10px] font-bold uppercase tracking-widest"
+                style={{gridTemplateColumns:"2.5rem 1fr auto",background:"var(--bg-card)",borderBottom:"2px solid var(--border)",color:"var(--text-3)"}}>
                 <span>#</span><span>Hráč</span><span className="text-right">Body</span>
               </div>
 
-              {hraci.map((h: any, i: number) => {
+              {hraci.map((h:any,i:number) => {
                 const jeTeItf = h.te_itf
-                const poradi = jeTeItf ? (teItf.indexOf(h) + 1) : (h.poradi_disc ?? i - teItf.length + 1)
-                const isTop1 = !jeTeItf && poradi === 1
-                const isTop2 = !jeTeItf && poradi === 2
-                const isTop3 = !jeTeItf && poradi === 3
-                const poradiColor = isTop1 ? '#F5A623' : isTop2 ? '#A7B1B5' : isTop3 ? '#CD7F32' : 'var(--text-3)'
+                const poradi  = jeTeItf ? (teItf.indexOf(h)+1) : (h.poradi_disc??i-teItf.length+1)
+                const isTop1  = !jeTeItf && poradi===1
+                const isTop2  = !jeTeItf && poradi===2
+                const isTop3  = !jeTeItf && poradi===3
+
+                const rankColor = isTop1?"#D4A017":isTop2?"#9BA3AC":isTop3?"#A0522D":"var(--text-3)"
+                const rowBg = jeTeItf?"var(--brand-dim)"
+                  : isTop1?"#D4A01708":isTop2?"#9BA3AC06":isTop3?"#A0522D06"
+                  : i%2===0?"var(--bg-card)":"var(--bg-stripe)"
 
                 return (
                   <div key={h.id}
-                    className="transition-colors"
-                    style={{ borderBottom: '1px solid var(--border)', background: jeTeItf ? 'var(--brand-dim)' : isTop1 ? '#F5A62308' : isTop2 ? '#A7B1B508' : isTop3 ? '#CD7F3208' : i % 2 === 0 ? 'var(--bg-card)' : 'var(--bg-hover)' }}
-                    onMouseEnter={e => (e.currentTarget.style.background = 'var(--bg-hover)')}
-                    onMouseLeave={e => (e.currentTarget.style.background = jeTeItf ? 'var(--brand-dim)' : isTop1 ? '#F5A62308' : isTop2 ? '#A7B1B508' : isTop3 ? '#CD7F3208' : i % 2 === 0 ? 'var(--bg-card)' : 'var(--bg-hover)')}>
+                    style={{borderBottom:"1px solid var(--border)",background:rowBg}}
+                    onMouseEnter={e=>{e.currentTarget.style.background="var(--bg-hover)"}}
+                    onMouseLeave={e=>{e.currentTarget.style.background=rowBg}}>
 
                     {/* Desktop */}
-                    <div className="hidden sm:grid gap-3 px-4 py-[5px] items-center"
-                      style={{ gridTemplateColumns: hasMez ? "3rem minmax(0,1fr) 5.5rem 3.5rem minmax(0,13rem) 4rem 4rem 5rem 3.5rem" : "3rem minmax(0,1fr) 3.5rem minmax(0,13rem) 4rem 4rem 5rem 3.5rem" }}>
-                      <span className="text-sm font-black mono" style={{ color: poradiColor }}>{i + 1}</span>
+                    <div className="hidden sm:grid gap-3 px-4 py-[7px] items-center"
+                      style={{gridTemplateColumns:cols}}>
+
+                      {/* # */}
+                      <div className="flex items-center gap-1">
+                        {isTop1 && <span className="text-sm">🥇</span>}
+                        {isTop2 && <span className="text-sm">🥈</span>}
+                        {isTop3 && <span className="text-sm">🥉</span>}
+                        {!isTop1&&!isTop2&&!isTop3 && <span className="text-xs font-bold mono" style={{color:rankColor}}>{i+1}</span>}
+                      </div>
+
+                      {/* Jméno */}
                       <div className="min-w-0 group">
                         <a href={`https://cztenis.cz/hrac/${h.id}`} target="_blank" rel="noopener noreferrer"
-                          className="font-semibold text-sm truncate block hover:underline group-hover:after:content-['_→']"
-                          style={{ color: 'var(--text)' }}>
-                          {h.jmeno} <span className="opacity-0 group-hover:opacity-40 text-xs transition-opacity">→</span>
+                          className="font-semibold text-sm truncate flex items-center gap-1 hover:underline"
+                          style={{color:"var(--text)"}}>
+                          <span className="truncate">{h.jmeno}</span>
+                          <span className="opacity-0 group-hover:opacity-40 transition-opacity text-xs shrink-0">↗</span>
                         </a>
                       </div>
-                      {hasMez && <div className="flex justify-center">
-                        {jeTeItf ? (
-                          <span className="text-[10px] font-black px-1.5 py-0.5 rounded" style={badgeStyle(h.te_itf_typ)}>
-                            {h.te_itf_typ} {h.te_itf_poradi}
-                          </span>
-                        ) : h.ma_mezinarodni ? (
-                          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded" style={{ background: '#2563EB22', color: '#2563EB', border: '1px solid #2563EB44' }}>INT</span>
-                        ) : <span style={{ color: 'var(--border)' }}>—</span>}
-                      </div>}
-                      <span className="text-xs text-center mono" style={{ color: 'var(--text-3)' }}>{h.narozeni}</span>
-                      <span className="text-xs truncate cursor-help" title={h.klub} style={{ color: 'var(--text-2)' }}>{h.klub}</span>
-                      <span className="text-sm text-right mono" style={{ color: 'var(--text-2)' }}>{jeTeItf ? "—" : h.body_dv}</span>
-                      <span className="text-sm text-right mono" style={{ color: 'var(--text-2)' }}>{jeTeItf ? "—" : h.body_ct}</span>
-                      <span className="text-sm font-black text-right mono" style={{ color: isTop1 ? '#00B14F' : jeTeItf ? 'var(--text-3)' : 'var(--text)' }}>
+
+                      {/* Mez */}
+                      {hasMez && (
+                        <div className="flex justify-center">
+                          {jeTeItf ? (
+                            <span className="text-[10px] font-black px-1.5 py-0.5 rounded" style={badgeStyle(h.te_itf_typ)}>
+                              {h.te_itf_typ} {h.te_itf_poradi}
+                            </span>
+                          ) : h.ma_mezinarodni ? (
+                            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded" style={{background:"#2563EB18",color:"#60A5FA",border:"1px solid #2563EB30"}}>INT</span>
+                          ) : null}
+                        </div>
+                      )}
+
+                      <span className="text-xs text-center mono" style={{color:"var(--text-3)"}}>{h.narozeni}</span>
+                      <span className="text-xs truncate cursor-help" title={h.klub} style={{color:"var(--text-2)"}}>{h.klub}</span>
+                      <span className="text-xs text-right mono" style={{color:"var(--text-2)"}}>{jeTeItf?"—":h.body_dv}</span>
+                      <span className="text-xs text-right mono" style={{color:"var(--text-2)"}}>{jeTeItf?"—":h.body_ct}</span>
+                      <span className="text-sm font-black text-right mono" style={{color:isTop1?"#D4A017":jeTeItf?"var(--text-3)":"var(--text)"}}>
                         {bodySloupec(h)}
                       </span>
-                      <span className="text-sm text-right mono" style={{ color: 'var(--text-3)' }}>
-                        {jeTeItf ? "—" : (h.bh ?? 0)}
-                      </span>
+                      <span className="text-xs text-right mono" style={{color:"var(--text-3)"}}>{jeTeItf?"—":(h.bh??0)}</span>
                     </div>
 
                     {/* Mobil */}
-                    <div className="grid sm:hidden gap-2 px-3 py-1.5 items-center"
-                      style={{ gridTemplateColumns: "2.5rem 1fr auto" }}>
-                      <span className="text-sm font-black mono" style={{ color: poradiColor }}>{i + 1}</span>
-                      <div className="min-w-0 group">
+                    <div className="grid sm:hidden gap-2 px-3 py-2.5 items-center"
+                      style={{gridTemplateColumns:"2.5rem 1fr auto"}}>
+                      <div className="flex items-center">
+                        {isTop1?<span>🥇</span>:isTop2?<span>🥈</span>:isTop3?<span>🥉</span>
+                          :<span className="text-xs font-bold mono" style={{color:rankColor}}>{i+1}</span>}
+                      </div>
+                      <div className="min-w-0">
                         <a href={`https://cztenis.cz/hrac/${h.id}`} target="_blank" rel="noopener noreferrer"
-                          className="font-semibold text-sm truncate block" style={{ color: 'var(--text)' }}>
+                          className="font-semibold text-sm truncate block" style={{color:"var(--text)"}}>
                           {h.jmeno}
                         </a>
-                        <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
-                          <span className="text-[10px] mono" style={{ color: 'var(--text-3)' }}>{h.narozeni}</span>
-                          <span style={{ color: 'var(--border)' }}>·</span>
-                          <span className="text-[10px] truncate" style={{ color: 'var(--text-3)' }}>{h.klub}</span>
-                          {jeTeItf && (
-                            <span className="text-[9px] font-black px-1 py-0.5 rounded" style={badgeStyle(h.te_itf_typ)}>
-                              {h.te_itf_typ} {h.te_itf_poradi}
-                            </span>
-                          )}
+                        <div className="flex gap-1.5 mt-0.5 flex-wrap">
+                          <span className="text-[10px] mono" style={{color:"var(--text-3)"}}>{h.narozeni}</span>
+                          <span style={{color:"var(--border)"}}>·</span>
+                          <span className="text-[10px] truncate" style={{color:"var(--text-3)"}}>{h.klub}</span>
                         </div>
                         <div className="flex gap-2 mt-0.5">
-                          <span className="text-[10px] mono" style={{ color: 'var(--text-3)' }}>2H: {jeTeItf ? "—" : h.body_dv}</span>
-                          <span className="text-[10px] mono" style={{ color: 'var(--text-3)' }}>4H: {jeTeItf ? "—" : h.body_ct}</span>
+                          <span className="text-[10px] mono" style={{color:"var(--text-3)"}}>2H {jeTeItf?"—":h.body_dv}</span>
+                          <span className="text-[10px] mono" style={{color:"var(--text-3)"}}>4H {jeTeItf?"—":h.body_ct}</span>
                         </div>
                       </div>
                       <div className="text-right">
-                        <span className="text-sm font-black mono block" style={{ color: isTop1 ? '#00B14F' : jeTeItf ? 'var(--text-3)' : 'var(--text)' }}>
+                        <span className="text-sm font-black mono" style={{color:isTop1?"#D4A017":jeTeItf?"var(--text-3)":"var(--text)"}}>
                           {bodySloupec(h)}
                         </span>
-                        {!jeTeItf && <span className="text-[10px] mono" style={{ color: 'var(--text-3)' }}>BH {h.bh ?? 0}</span>}
+                        {!jeTeItf && <div className="text-[10px] mono" style={{color:"var(--text-3)"}}>BH {h.bh??0}</div>}
                       </div>
                     </div>
                   </div>
                 )
               })}
 
-              {hraci.length === 0 && (
-                <div className="text-center py-16 text-sm" style={{ color: 'var(--text-3)' }}>Žádní hráči nenalezeni</div>
+              {hraci.length===0 && (
+                <div className="text-center py-16 text-sm" style={{color:"var(--text-3)"}}>Žádní hráči nenalezeni</div>
               )}
             </div>
 
-            <p className="text-[10px] mt-4 text-center" style={{ color: 'var(--text-3)' }}>
-              * Body z českých turnajů · INT = mezinárodní turnaje zadány
+            <p className="text-[10px] mt-3 text-center" style={{color:"var(--text-3)"}}>
+              Body z českých turnajů · INT = mezinárodní turnaje zadány · BH = bonusová hodnota
             </p>
           </>
         )}

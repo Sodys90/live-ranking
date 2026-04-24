@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800;900&family=Geist+Mono:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -7,43 +7,63 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --bg:        #F4F6F7;
-  --bg-card:   #FFFFFF;
-  --bg-hover:  #EEF1F2;
-  --border:    #DDE2E5;
-  --text:      #0F1A1F;
-  --text-2:    #4A5568;
-  --text-3:    #8A9BA3;
-  --brand:     #00B14F;
-  --brand-dim: #00B14F1A;
-  --accent:    #FF3B3B;
-  --gold:      #F5A623;
-  --header-bg: #FFFFFF;
+  --bg:         #F0F2F5;
+  --bg-card:    #FFFFFF;
+  --bg-hover:   #F7F9FA;
+  --bg-stripe:  #FAFBFC;
+  --border:     #E4E8EC;
+  --border-2:   #D0D7DE;
+  --text:       #0D1117;
+  --text-2:     #57606A;
+  --text-3:     #8C959F;
+  --brand:      #00B14F;
+  --brand-2:    #009944;
+  --brand-dim:  #00B14F15;
+  --brand-dim2: #00B14F25;
+  --accent:     #FF3B3B;
+  --gold:       #D4A017;
+  --silver:     #9BA3AC;
+  --bronze:     #A0522D;
+  --header-bg:  #0D1117;
+  --header-border: #21262D;
 }
 
 .dark {
-  --bg:        #0F1A1F;
-  --bg-card:   #1C2A30;
-  --bg-hover:  #243540;
-  --border:    #2A3A42;
-  --text:      #FFFFFF;
-  --text-2:    #A7B1B5;
-  --text-3:    #566970;
-  --brand:     #00B14F;
-  --brand-dim: #00B14F1A;
-  --accent:    #FF3B3B;
-  --gold:      #F5A623;
-  --header-bg: #162028;
+  --bg:         #0D1117;
+  --bg-card:    #161B22;
+  --bg-hover:   #1C2128;
+  --bg-stripe:  #13181F;
+  --border:     #21262D;
+  --border-2:   #30363D;
+  --text:       #E6EDF3;
+  --text-2:     #8B949E;
+  --text-3:     #484F58;
+  --brand:      #00B14F;
+  --brand-2:    #00D85F;
+  --brand-dim:  #00B14F12;
+  --brand-dim2: #00B14F22;
+  --accent:     #FF3B3B;
+  --gold:       #D4A017;
+  --silver:     #6E7681;
+  --bronze:     #A0522D;
+  --header-bg:  #0D1117;
+  --header-border: #21262D;
 }
 
 body {
   background: var(--bg);
   color: var(--text);
-  font-family: 'Geist', sans-serif;
-  transition: background 0.2s, color 0.2s;
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
 
+.mono { font-family: 'JetBrains Mono', monospace; }
 .scrollbar-hide::-webkit-scrollbar { display: none; }
 .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 
-.mono { font-family: 'Geist Mono', monospace; }
+/* Kategorie tab aktivní pulse */
+@keyframes tab-in {
+  from { transform: scale(0.95); opacity: 0.7; }
+  to   { transform: scale(1);    opacity: 1; }
+}
+.tab-active { animation: tab-in 0.15s ease-out; }
