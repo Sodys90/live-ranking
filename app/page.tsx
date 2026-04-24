@@ -207,7 +207,7 @@ export default function Home() {
             {/* Tabulka */}
             <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid var(--border)' }}>
               {/* Záhlaví desktop */}
-              <div className="hidden sm:grid px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest"
+              <div className="hidden sm:grid gap-3 px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest"
                 style={{ gridTemplateColumns: "3rem minmax(0,1fr) 5.5rem 3.5rem minmax(0,13rem) 4rem 4rem 5rem 3.5rem", background: 'var(--bg-card)', borderBottom: '1px solid var(--border)', color: 'var(--text-3)' }}>
                 <span>#</span><span>Hráč</span><span className="text-center">Mez.</span>
                 <span className="text-center">Nar.</span><span>Klub</span>
