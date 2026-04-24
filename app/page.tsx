@@ -152,7 +152,9 @@ export default function Home() {
       {/* ── KATEGORIE TABS ── */}
       <div style={{background:"var(--header-bg)",borderBottom:"1px solid var(--header-border)"}}>
         <div className="max-w-7xl mx-auto px-4 relative">
-          <div className="absolute right-0 top-0 bottom-0 w-8 pointer-events-none sm:hidden" style={{background:"linear-gradient(to right, transparent, var(--header-bg))"}}/>
+          <div className="absolute right-0 top-0 bottom-0 w-10 pointer-events-none sm:hidden flex items-center justify-end pr-1" style={{background:"linear-gradient(to right, transparent, var(--header-bg))"}}>
+            <span className="text-white/40 text-xs animate-pulse">›</span>
+          </div>
           <div ref={tabsRef} className="flex gap-0 overflow-x-auto scrollbar-hide">
             {KATEGORIE.map(k => (
               <button key={k.slug}
@@ -384,12 +386,12 @@ export default function Home() {
                           className="font-semibold text-[13px] truncate block" style={{color:"var(--text)"}}>
                           {h.jmeno}
                         </a>
-                        <div className="flex gap-1 items-center">
+                        <div className="flex gap-0.5 items-center">
                           <span className="text-[10px] mono" style={{color:"var(--text-3)"}}>{h.narozeni}</span>
                           <span style={{color:"var(--border)"}}>·</span>
                           <span className="text-[10px] truncate" style={{color:"var(--text-3)"}}>{h.klub}{!jeTeItf && klubPoradi[h.id] ? <sub className="mono font-bold" style={{color:"var(--text-3)",fontSize:"8px"}}>{klubPoradi[h.id]}</sub> : null}</span>
                         </div>
-                        <div className="flex gap-1.5">
+                        <div className="flex gap-1">
                           <span className="text-[10px] mono" style={{color:"var(--text-3)"}}>2H {jeTeItf?"—":h.body_dv}</span>
                           <span className="text-[10px] mono" style={{color:"var(--text-3)"}}>4H {jeTeItf?"—":h.body_ct}</span>
                         </div>
