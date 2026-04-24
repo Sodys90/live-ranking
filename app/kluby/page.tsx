@@ -22,15 +22,15 @@ const SVAZY = [
 ]
 
 type KlubRow = { klub: string; kategorie_slug: string; body_dv: number; body_ct: number; body_celkem: number; pocet: number; oblast: string; svaz: string }
-type AggRow = { klub: string; body_dv: number; body_ct: number; body_celkem: number; pocet: number; oblast: string; svaz: string }
+type AggRow  = { klub: string; body_dv: number; body_ct: number; body_celkem: number; pocet: number; oblast: string; svaz: string }
 
 export default function KlubovyZebricek() {
-  const [data, setData] = useState<KlubRow[]>([])
-  const [loading, setLoading] = useState(true)
+  const [data, setData]           = useState<KlubRow[]>([])
+  const [loading, setLoading]     = useState(true)
   const [kategorie, setKategorie] = useState("vse")
-  const [svaz, setSvaz] = useState("Vše")
+  const [svaz, setSvaz]           = useState("Vše")
   const [disciplina, setDisciplina] = useState("celkem")
-  const [hledej, setHledej] = useState("")
+  const [hledej, setHledej]       = useState("")
 
   useEffect(() => {
     setLoading(true)
@@ -46,10 +46,10 @@ export default function KlubovyZebricek() {
   const aggMap: Record<string, AggRow> = {}
   for (const r of data) {
     if (!aggMap[r.klub]) aggMap[r.klub] = { klub: r.klub, body_dv: 0, body_ct: 0, body_celkem: 0, pocet: 0, oblast: r.oblast, svaz: r.svaz }
-    aggMap[r.klub].body_dv += r.body_dv
-    aggMap[r.klub].body_ct += r.body_ct
+    aggMap[r.klub].body_dv     += r.body_dv
+    aggMap[r.klub].body_ct     += r.body_ct
     aggMap[r.klub].body_celkem += r.body_celkem
-    aggMap[r.klub].pocet += r.pocet
+    aggMap[r.klub].pocet       += r.pocet
   }
 
   const radky = Object.values(aggMap)
@@ -60,88 +60,96 @@ export default function KlubovyZebricek() {
       return b.body_celkem - a.body_celkem
     })
 
-  const bodyKlubu = (r: AggRow) => {
-    if (disciplina === "dv") return r.body_dv
-    if (disciplina === "ct") return r.body_ct
-    return r.body_celkem
-  }
-
+  const bodyKlubu = (r: AggRow) => disciplina === "dv" ? r.body_dv : disciplina === "ct" ? r.body_ct : r.body_celkem
   const top = radky.length > 0 ? bodyKlubu(radky[0]) : 0
 
   return (
-    <div className="min-h-screen" style={{ background: 'var(--bg)' }}>
-      <header className="sticky top-0 z-50 border-b" style={{ background: 'var(--header-bg)', borderColor: 'var(--border)' }}>
-        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
+    <div className="min-h-screen" style={{background:"var(--bg)"}}>
+
+      {/* HEADER */}
+      <header className="sticky top-0 z-50" style={{background:"var(--header-bg)",borderBottom:"1px solid var(--header-border)"}}>
+        <div className="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between gap-4">
           <div className="flex items-center gap-2.5 shrink-0">
-            <svg width="32" height="32" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+            <svg viewBox="0 0 60 60" className="w-8 h-8">
               <circle cx="30" cy="30" r="28" fill="#FF3B3B"/>
-              <path d="M14 14 C36 26, 36 34, 14 46" stroke="white" strokeWidth="2.5" fill="none"/>
-              <path d="M46 14 C24 26, 24 34, 46 46" stroke="white" strokeWidth="2.5" fill="none"/>
+              <path d="M13 13 C37 25,37 35,13 47" stroke="white" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
+              <path d="M47 13 C23 25,23 35,47 47" stroke="white" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
             </svg>
-            <div>
-              <span className="text-base font-black tracking-tight" style={{ color: 'var(--text)' }}>
-                Tenis<span style={{ color: '#FF3B3B' }}>CZ</span>
-              </span>
-              
-            </div>
+            <span className="text-white font-black text-lg tracking-tight">
+              Tenis<span style={{color:"#FF3B3B"}}>CZ</span>
+            </span>
           </div>
-          <nav className="hidden sm:flex items-center gap-1">
-            <Link href="/" className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all hover:opacity-80" style={{ color: 'var(--text-2)' }}>
+
+          <nav className="hidden sm:flex items-center gap-0.5">
+            <Link href="/" className="px-3 py-1.5 rounded-md text-xs font-semibold transition-colors" style={{color:"#8B949E"}}
+              onMouseEnter={e=>(e.currentTarget.style.color="#E6EDF3")}
+              onMouseLeave={e=>(e.currentTarget.style.color="#8B949E")}>
               Hráči
             </Link>
-            <span className="px-3 py-1.5 rounded-lg text-xs font-semibold" style={{ background: 'var(--brand-dim)', color: 'var(--brand)' }}>
-              Kluby
-            </span>
+            <span className="px-3 py-1.5 rounded-md text-xs font-semibold" style={{background:"#FF3B3B20",color:"#FF3B3B"}}>Kluby</span>
           </nav>
+
           <ThemeToggle />
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 py-5">
-        <div className="flex gap-1.5 mb-3 overflow-x-auto pb-1 scrollbar-hide">
-          {KATEGORIE.map(k => (
-            <button key={k.slug} onClick={() => setKategorie(k.slug)}
-              className="px-3 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap shrink-0"
-              style={kategorie === k.slug
-                ? { background: '#FF3B3B', color: '#fff' }
-                : { background: 'var(--bg-card)', color: 'var(--text-2)', border: '1px solid var(--border)' }
-              }>
-              {k.nazev}
-            </button>
-          ))}
+      {/* KATEGORIE TABS */}
+      <div style={{background:"var(--header-bg)",borderBottom:"1px solid var(--header-border)"}}>
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="flex gap-0 overflow-x-auto scrollbar-hide">
+            {KATEGORIE.map(k => (
+              <button key={k.slug} onClick={() => setKategorie(k.slug)}
+                className="px-4 py-3 text-xs font-semibold whitespace-nowrap shrink-0 border-b-2 transition-all"
+                style={kategorie === k.slug
+                  ? {color:"#FF3B3B",borderColor:"#FF3B3B",background:"transparent"}
+                  : {color:"#6E7681",borderColor:"transparent",background:"transparent"}
+                }>
+                {k.nazev}
+              </button>
+            ))}
+          </div>
         </div>
+      </div>
 
-        <div className="flex gap-1.5 mb-4 overflow-x-auto pb-1 scrollbar-hide">
-          {SVAZY.map(s => (
-            <button key={s} onClick={() => setSvaz(s)}
-              className="px-3 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap shrink-0"
-              style={svaz === s
-                ? { background: 'var(--text)', color: 'var(--bg)' }
-                : { background: 'var(--bg-card)', color: 'var(--text-3)', border: '1px solid var(--border)' }
-              }>
-              {s}
-            </button>
-          ))}
+      {/* SVAZY TABS */}
+      <div style={{background:"var(--bg-card)",borderBottom:"1px solid var(--border)"}}>
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="flex gap-0 overflow-x-auto scrollbar-hide">
+            {SVAZY.map(s => (
+              <button key={s} onClick={() => setSvaz(s)}
+                className="px-4 py-2.5 text-xs font-semibold whitespace-nowrap shrink-0 border-b-2 transition-all"
+                style={svaz === s
+                  ? {color:"var(--text)",borderColor:"var(--text)",background:"transparent"}
+                  : {color:"var(--text-3)",borderColor:"transparent",background:"transparent"}
+                }>
+                {s}
+              </button>
+            ))}
+          </div>
         </div>
+      </div>
 
+      <main className="max-w-7xl mx-auto px-4 py-4">
+
+        {/* FILTRY */}
         <div className="flex flex-wrap gap-2 mb-4">
-          <div className="relative flex-1 min-w-0 sm:w-56 sm:flex-none">
-            <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5" style={{ color: 'var(--text-3)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="relative">
+            <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5" style={{color:"var(--text-3)"}} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
               <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
             </svg>
             <input type="text" placeholder="Hledat klub..."
               value={hledej} onChange={e => setHledej(e.target.value)}
-              className="w-full pl-8 pr-3 py-2 rounded-xl text-xs focus:outline-none"
-              style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', color: 'var(--text)' }} />
+              className="pl-8 pr-3 py-2 rounded-lg text-xs w-48 focus:outline-none"
+              style={{background:"var(--bg-card)",border:"1px solid var(--border)",color:"var(--text)"}} />
           </div>
-          <div className="flex rounded-xl overflow-hidden" style={{ border: '1px solid var(--border)' }}>
-            {[{ val: "celkem", label: "Celkem" }, { val: "dv", label: "2H" }, { val: "ct", label: "4H" }].map(d => (
+
+          <div className="flex rounded-lg p-0.5" style={{background:"var(--bg)",border:"1px solid var(--border)"}}>
+            {[{val:"celkem",label:"Celkem"},{val:"dv",label:"2H"},{val:"ct",label:"4H"}].map(d => (
               <button key={d.val} onClick={() => setDisciplina(d.val)}
-                className="px-3 py-2 text-xs font-bold transition-all"
+                className="px-3 py-1.5 rounded-md text-xs font-semibold transition-all"
                 style={disciplina === d.val
-                  ? { background: '#FF3B3B', color: '#fff' }
-                  : { background: 'var(--bg-card)', color: 'var(--text-2)' }
-                }>
+                  ? {background:"var(--bg-card)",color:"var(--text)",borderBottom:"2px solid #FF3B3B"}
+                  : {background:"transparent",color:"var(--text-3)"}}>
                 {d.label}
               </button>
             ))}
@@ -149,34 +157,44 @@ export default function KlubovyZebricek() {
         </div>
 
         {loading ? (
-          <div className="text-center py-32" style={{ color: 'var(--text-3)' }}>
-            <div className="inline-block w-8 h-8 border-2 rounded-full animate-spin mb-4" style={{ borderColor: 'var(--border)', borderTopColor: '#FF3B3B' }} />
-            <p className="text-sm">Načítám kluby...</p>
+          <div className="flex flex-col items-center justify-center py-40 gap-4" style={{color:"var(--text-3)"}}>
+            <div className="w-8 h-8 rounded-full border-2 animate-spin" style={{borderColor:"var(--border)",borderTopColor:"#FF3B3B"}}/>
+            <span className="text-sm">Načítám kluby...</span>
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4">
+            {/* STATS */}
+            <div className="flex flex-wrap gap-2 mb-4">
               {[
-                { label: "Klubů", value: radky.length },
-                { label: "Top body", value: top },
-                { label: "Hráčů celkem", value: radky.reduce((s, r) => s + r.pocet, 0) },
+                {label:"Klubů",    value:radky.length,          tip:"Počet klubů"},
+                {label:"Top body", value:top,                   tip:"Nejvyšší počet bodů"},
+                {label:"Hráčů",    value:radky.reduce((s,r)=>s+r.pocet,0), tip:"Celkem hráčů"},
               ].map(s => (
-                <div key={s.label} className="rounded-xl p-3" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
-                  <p className="text-2xl font-black mono" style={{ color: '#FF3B3B' }}>{s.value}</p>
-                  <p className="text-[10px] mt-0.5 font-medium uppercase tracking-wider" style={{ color: 'var(--text-3)' }}>{s.label}</p>
+                <div key={s.label} title={s.tip}
+                  className="flex items-baseline gap-2 px-3 py-2 rounded-lg cursor-help"
+                  style={{background:"var(--bg-card)",border:"1px solid var(--border)"}}>
+                  <span className="text-base font-black mono" style={{color:"#FF3B3B"}}>{s.value}</span>
+                  <span className="text-[9px] font-bold uppercase tracking-widest" style={{color:"var(--text-3)"}}>{s.label}</span>
                 </div>
               ))}
             </div>
 
-            <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid var(--border)' }}>
-              <div className="hidden sm:grid px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest"
-                style={{ gridTemplateColumns: "3rem 1fr 8rem 4rem 4rem 4rem 5rem", background: 'var(--bg-card)', borderBottom: '1px solid var(--border)', color: 'var(--text-3)' }}>
-                <span>#</span><span>Klub</span><span>Svaz</span>
-                <span className="text-right">Hráči</span><span className="text-right">2H</span>
-                <span className="text-right">4H</span><span className="text-right">Body</span>
+            {/* TABULKA */}
+            <div className="rounded-xl overflow-hidden" style={{border:"1px solid var(--border)"}}>
+              {/* Záhlaví desktop */}
+              <div className="hidden sm:grid gap-3 px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest"
+                style={{gridTemplateColumns:"3rem minmax(0,1fr) 9rem 4rem 4rem 4rem 5rem",background:"var(--bg-card)",borderBottom:"2px solid var(--border)",color:"var(--text-3)"}}>
+                <span>#</span>
+                <span>Klub</span>
+                <span>Svaz</span>
+                <span className="text-right cursor-help" title="Počet hráčů v kategorii">Hráči</span>
+                <span className="text-right cursor-help" title="Body získané z dvouhry">2H</span>
+                <span className="text-right cursor-help" title="Body získané ze čtyřhry">4H</span>
+                <span className="text-right cursor-help" title="Celkový součet bodů klubu">Body</span>
               </div>
-              <div className="grid sm:hidden px-3 py-2 text-[10px] font-bold uppercase tracking-widest"
-                style={{ gridTemplateColumns: "2.5rem 1fr auto", background: 'var(--bg-card)', borderBottom: '1px solid var(--border)', color: 'var(--text-3)' }}>
+              {/* Záhlaví mobil */}
+              <div className="grid sm:hidden gap-2 px-3 py-2 text-[10px] font-bold uppercase tracking-widest"
+                style={{gridTemplateColumns:"2.5rem 1fr auto",background:"var(--bg-card)",borderBottom:"2px solid var(--border)",color:"var(--text-3)"}}>
                 <span>#</span><span>Klub</span><span className="text-right">Body</span>
               </div>
 
@@ -184,48 +202,58 @@ export default function KlubovyZebricek() {
                 const isTop1 = i === 0
                 const isTop2 = i === 1
                 const isTop3 = i === 2
-                const poradiColor = isTop1 ? '#FF3B3B' : isTop2 ? '#A7B1B5' : isTop3 ? '#F5A623' : 'var(--text-3)'
+                const rankColor = isTop1?"#D4A017":isTop2?"#9BA3AC":isTop3?"#A0522D":"var(--text-3)"
                 const body = bodyKlubu(r)
-                const pct = top > 0 ? (body / top) * 100 : 0
+                const pct  = top > 0 ? (body/top)*100 : 0
+                const rowBg = i%2===0?"var(--bg-card)":"var(--bg-stripe)"
+
                 return (
                   <div key={r.klub}
-                    className="transition-colors"
-                    style={{ borderBottom: '1px solid var(--border)', background: 'var(--bg-card)' }}
-                    onMouseEnter={e => (e.currentTarget.style.background = 'var(--bg-hover)')}
-                    onMouseLeave={e => (e.currentTarget.style.background = 'var(--bg-card)')}>
-                    <div className="hidden sm:grid gap-3 px-4 py-2.5 items-center relative overflow-hidden"
-                      style={{ gridTemplateColumns: "3rem 1fr 8rem 4rem 4rem 4rem 5rem" }}>
-                      <div className="absolute inset-y-0 left-0 opacity-30" style={{ width: `${pct}%`, background: 'var(--brand-dim)' }} />
-                      <span className="text-sm font-black mono relative" style={{ color: poradiColor }}>{i + 1}</span>
-                      <span className="text-sm font-semibold truncate relative" style={{ color: 'var(--text)' }}>{r.klub}</span>
-                      <span className="text-xs truncate relative" style={{ color: 'var(--text-3)' }}>{r.svaz}</span>
-                      <span className="text-xs text-right mono relative" style={{ color: 'var(--text-3)' }}>{r.pocet}</span>
-                      <span className="text-sm text-right mono relative" style={{ color: 'var(--text-2)' }}>{r.body_dv}</span>
-                      <span className="text-sm text-right mono relative" style={{ color: 'var(--text-2)' }}>{r.body_ct}</span>
-                      <span className="text-sm font-black text-right mono relative" style={{ color: isTop1 ? '#FF3B3B' : 'var(--text)' }}>{body}</span>
+                    style={{borderBottom:"1px solid var(--border)",background:rowBg,borderLeft:isTop1?"3px solid #D4A017":isTop2?"3px solid #9BA3AC":isTop3?"3px solid #A0522D":"3px solid transparent"}}
+                    onMouseEnter={e=>{e.currentTarget.style.background="var(--bg-hover)"}}
+                    onMouseLeave={e=>{e.currentTarget.style.background=rowBg}}>
+
+                    {/* Desktop */}
+                    <div className="hidden sm:grid gap-3 px-4 py-[7px] items-center relative overflow-hidden"
+                      style={{gridTemplateColumns:"3rem minmax(0,1fr) 9rem 4rem 4rem 4rem 5rem"}}>
+                      <div className="absolute inset-y-0 left-12 opacity-20 pointer-events-none rounded"
+                        style={{width:`${pct*0.4}%`,background:"#FF3B3B15"}}/>
+                      <span className="text-xs font-black mono relative" style={{color:rankColor}}>{i+1}</span>
+                      <span className="text-sm font-semibold truncate relative" style={{color:"var(--text)"}}>{r.klub}</span>
+                      <span className="text-xs truncate relative" style={{color:"var(--text-3)"}}>{r.svaz}</span>
+                      <span className="text-xs text-right mono relative" style={{color:"var(--text-3)"}}>{r.pocet}</span>
+                      <span className="text-xs text-right mono relative" style={{color:"var(--text-2)"}}>{r.body_dv}</span>
+                      <span className="text-xs text-right mono relative" style={{color:"var(--text-2)"}}>{r.body_ct}</span>
+                      <span className="text-sm font-black text-right mono relative" style={{color:isTop1?"#D4A017":"var(--text)"}}>{body}</span>
                     </div>
-                    <div className="grid sm:hidden gap-2 px-3 py-3 items-center"
-                      style={{ gridTemplateColumns: "2.5rem 1fr auto" }}>
-                      <span className="text-sm font-black mono" style={{ color: poradiColor }}>{i + 1}</span>
+
+                    {/* Mobil */}
+                    <div className="grid sm:hidden gap-2 px-3 py-2.5 items-center"
+                      style={{gridTemplateColumns:"2.5rem 1fr auto"}}>
+                      <span className="text-xs font-black mono" style={{color:rankColor}}>{i+1}</span>
                       <div>
-                        <span className="text-sm font-semibold block truncate" style={{ color: 'var(--text)' }}>{r.klub}</span>
+                        <span className="text-sm font-semibold block truncate" style={{color:"var(--text)"}}>{r.klub}</span>
                         <div className="flex gap-2 mt-0.5">
-                          <span className="text-[10px] mono" style={{ color: 'var(--text-3)' }}>{r.svaz}</span>
-                          <span style={{ color: 'var(--border)' }}>·</span>
-                          <span className="text-[10px] mono" style={{ color: 'var(--text-3)' }}>2H: {r.body_dv}</span>
-                          <span className="text-[10px] mono" style={{ color: 'var(--text-3)' }}>4H: {r.body_ct}</span>
+                          <span className="text-[10px] mono" style={{color:"var(--text-3)"}}>{r.svaz}</span>
+                          <span style={{color:"var(--border)"}}>·</span>
+                          <span className="text-[10px] mono" style={{color:"var(--text-3)"}}>2H: {r.body_dv}</span>
+                          <span className="text-[10px] mono" style={{color:"var(--text-3)"}}>4H: {r.body_ct}</span>
+                          <span className="text-[10px] mono" style={{color:"var(--text-3)"}}>{r.pocet} hráčů</span>
                         </div>
                       </div>
-                      <span className="text-sm font-black mono" style={{ color: isTop1 ? '#FF3B3B' : 'var(--text)' }}>{body}</span>
+                      <span className="text-sm font-black mono" style={{color:isTop1?"#D4A017":"var(--text)"}}>{body}</span>
                     </div>
                   </div>
                 )
               })}
+
               {radky.length === 0 && (
-                <div className="text-center py-16 text-sm" style={{ color: 'var(--text-3)' }}>Žádné kluby nenalezeny</div>
+                <div className="text-center py-16 text-sm" style={{color:"var(--text-3)"}}>Žádné kluby nenalezeny</div>
               )}
             </div>
-            <p className="text-[10px] mt-4 text-center" style={{ color: 'var(--text-3)' }}>* TE/ITF/ATP/WTA hráči nejsou zahrnuti v bodech klubu</p>
+            <p className="text-[10px] mt-3 text-center" style={{color:"var(--text-3)"}}>
+              * TE/ITF/ATP/WTA hráči nejsou zahrnuti v bodech klubu
+            </p>
           </>
         )}
       </main>
