@@ -115,11 +115,11 @@ export default function Home() {
 
           <div className="flex items-center gap-3">
             {kat && (
-              <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-md" style={{background:"#FF3B3B15",border:"1px solid #FF3B3B30"}}>
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#FF3B3B" strokeWidth="2.5">
+              <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-md" style={{background:"#FFFFFF10",border:"1px solid #FFFFFF20"}}>
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF60" strokeWidth="2.5">
                   <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
                 </svg>
-                <span className="text-[10px] font-semibold" style={{color:"#FF3B3B"}}>Žebříček aktualizován: {formatDatum(kat.aktualizace)}</span>
+                <span className="text-[10px] font-semibold" style={{color:"#FFFFFF70"}}>Žebříček aktualizován: {formatDatum(kat.aktualizace)}</span>
               </div>
             )}
             <ThemeToggle />
