@@ -208,7 +208,7 @@ export default function Home() {
             <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid var(--border)' }}>
               {/* Záhlaví desktop */}
               <div className="hidden sm:grid px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest"
-                style={{ gridTemplateColumns: "3rem 1fr 6rem 4rem 14rem 4rem 4rem 5rem 4rem", background: 'var(--bg-card)', borderBottom: '1px solid var(--border)', color: 'var(--text-3)' }}>
+                style={{ gridTemplateColumns: "3rem minmax(0,1fr) 5.5rem 3.5rem minmax(0,13rem) 4rem 4rem 5rem 3.5rem", background: 'var(--bg-card)', borderBottom: '1px solid var(--border)', color: 'var(--text-3)' }}>
                 <span>#</span><span>Hráč</span><span className="text-center">Mez.</span>
                 <span className="text-center">Nar.</span><span>Klub</span>
                 <span className="text-right">2H</span><span className="text-right">4H</span>
@@ -237,7 +237,7 @@ export default function Home() {
 
                     {/* Desktop */}
                     <div className="hidden sm:grid gap-3 px-4 py-2.5 items-center"
-                      style={{ gridTemplateColumns: "3rem 1fr 6rem 4rem 14rem 4rem 4rem 5rem 4rem" }}>
+                      style={{ gridTemplateColumns: "3rem minmax(0,1fr) 5.5rem 3.5rem minmax(0,13rem) 4rem 4rem 5rem 3.5rem" }}>
                       <span className="text-sm font-black mono" style={{ color: poradiColor }}>{i + 1}</span>
                       <div className="min-w-0">
                         <a href={`https://cztenis.cz/hrac/${h.id}`} target="_blank" rel="noopener noreferrer"
