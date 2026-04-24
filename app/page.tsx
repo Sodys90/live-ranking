@@ -230,6 +230,18 @@ export default function Home() {
               ))}
             </div>
 
+            {/* Datum aktualizace - mobil */}
+            {kat && (
+              <div className="flex items-center gap-1.5 mb-3 sm:hidden">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#FF3B3B" strokeWidth="2.5">
+                  <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
+                </svg>
+                <span className="text-[10px] font-semibold" style={{color:"var(--text-3)"}}>
+                  Aktualizován: {formatDatum(kat.aktualizace)} · Další: {nextMonday()}
+                </span>
+              </div>
+            )}
+
             {/* ── TABULKA ── */}
             <div className="rounded-xl overflow-hidden" style={{border:"1px solid var(--border)"}}>
 
