@@ -207,7 +207,7 @@ export default function Home() {
               {/* Záhlaví desktop */}
               <div className="hidden sm:grid gap-3 px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest"
                 style={{ gridTemplateColumns: hasMez ? "3rem minmax(0,1fr) 5.5rem 3.5rem minmax(0,13rem) 4rem 4rem 5rem 3.5rem" : "3rem minmax(0,1fr) 3.5rem minmax(0,13rem) 4rem 4rem 5rem 3.5rem", background: 'var(--bg-card)', borderBottom: '1px solid var(--border)', color: 'var(--text-3)' }}>
-                <span>#</span><span>Hráč</span><span className="text-center">Mez.</span>
+                <span>#</span><span>Hráč</span>{hasMez && <span className="text-center">Mez.</span>}
                 <span className="text-center">Nar.</span><span>Klub</span>
                 <span className="text-right">2H</span><span className="text-right">4H</span>
                 <span className="text-right">Body</span><span className="text-right">BH</span>
@@ -244,7 +244,7 @@ export default function Home() {
                           {h.jmeno}
                         </a>
                       </div>
-                      <div className="flex justify-center">
+                      {hasMez && <div className="flex justify-center">
                         {jeTeItf ? (
                           <span className="text-[10px] font-black px-1.5 py-0.5 rounded" style={badgeStyle(h.te_itf_typ)}>
                             {h.te_itf_typ} {h.te_itf_poradi}
@@ -252,7 +252,7 @@ export default function Home() {
                         ) : h.ma_mezinarodni ? (
                           <span className="text-[10px] font-bold px-1.5 py-0.5 rounded" style={{ background: '#2563EB22', color: '#2563EB', border: '1px solid #2563EB44' }}>INT</span>
                         ) : <span style={{ color: 'var(--border)' }}>—</span>}
-                      </div>
+                      </div>}
                       <span className="text-xs text-center mono" style={{ color: 'var(--text-3)' }}>{h.narozeni}</span>
                       <span className="text-xs truncate" style={{ color: 'var(--text-2)' }}>{h.klub}</span>
                       <span className="text-sm text-right mono" style={{ color: 'var(--text-2)' }}>{jeTeItf ? "—" : h.body_dv}</span>
