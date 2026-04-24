@@ -252,20 +252,22 @@ export default function KlubovyZebricek() {
                     </div>
 
                     {/* Mobil */}
-                    <div className="grid sm:hidden gap-2 px-3 py-2.5 items-center"
-                      style={{gridTemplateColumns:"2.5rem 1fr auto"}}>
+                    <div className="grid sm:hidden gap-1.5 px-3 py-2 items-center"
+                      style={{gridTemplateColumns:"2rem 1fr auto"}}>
                       <span className="text-xs font-black mono" style={{color:rankColor}}>{i+1}</span>
-                      <div>
-                        <span className="text-sm font-semibold block truncate" style={{color:"var(--text)"}}>{r.klub}</span>
-                        <div className="flex gap-2 mt-0.5">
-                          <span className="text-[10px] mono" style={{color:"var(--text-3)"}}>{r.svaz}</span>
+                      <div className="min-w-0">
+                        <span className="text-[13px] font-semibold block" style={{color:"var(--text)",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",maxWidth:"calc(100vw - 120px)"}}>
+                          {r.klub.length > 22 ? r.klub.substring(0,22)+"…" : r.klub}
+                        </span>
+                        <div className="flex gap-1.5 mt-0.5 flex-wrap">
+                          <span className="text-[10px] mono" style={{color:"var(--text-3)"}}>{r.svaz.replace(" TS","")}</span>
                           <span style={{color:"var(--border)"}}>·</span>
-                          <span className="text-[10px] mono" style={{color:"var(--text-3)"}}>2H: {r.body_dv}</span>
-                          <span className="text-[10px] mono" style={{color:"var(--text-3)"}}>4H: {r.body_ct}</span>
-                          <span className="text-[10px] mono" style={{color:"var(--text-3)"}}>{r.pocet} hráčů</span>
+                          <span className="text-[10px] mono" style={{color:"var(--text-3)"}}>2H {r.body_dv}</span>
+                          <span className="text-[10px] mono" style={{color:"var(--text-3)"}}>4H {r.body_ct}</span>
+                          <span className="text-[10px] mono" style={{color:"var(--text-3)"}}>{r.pocet} hr.</span>
                         </div>
                       </div>
-                      <span className="text-sm font-black mono" style={{color:isTop1?"#D4A017":"var(--text)"}}>{body}</span>
+                      <span className="text-sm font-black mono shrink-0" style={{color:isTop1?"#D4A017":"var(--text)"}}>{body}</span>
                     </div>
                   </div>
                 )

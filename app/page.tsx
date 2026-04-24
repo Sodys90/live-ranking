@@ -350,8 +350,8 @@ export default function Home() {
                     </div>
 
                     {/* Mobil */}
-                    <div className="grid sm:hidden gap-2 px-3 py-2.5 items-center"
-                      style={{gridTemplateColumns:"2.5rem auto 1fr auto"}}>
+                    <div className="grid sm:hidden gap-1.5 px-3 py-2 items-center"
+                      style={{gridTemplateColumns:"2rem auto 1fr auto"}}>
                       <span className="text-xs font-black mono" style={{color:rankColor}}>{i+1}</span>
 
                       {/* NH badge mobil */}
@@ -368,7 +368,7 @@ export default function Home() {
 
                       <div className="min-w-0">
                         <a href={`https://cztenis.cz/hrac/${h.id}`} target="_blank" rel="noopener noreferrer"
-                          className="font-semibold text-sm truncate block" style={{color:"var(--text)"}}>
+                          className="font-semibold text-[13px] truncate block" style={{color:"var(--text)"}}>
                           {h.jmeno}
                         </a>
                         <div className="flex gap-1.5 mt-0.5 items-center">
