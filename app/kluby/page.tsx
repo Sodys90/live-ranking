@@ -167,12 +167,12 @@ export default function KlubovyZebricek() {
               style={{background:"var(--bg-card)",border:"1px solid var(--border)",color:"var(--text)"}} />
           </div>
 
-          <div className="flex rounded-lg p-0.5" style={{background:"var(--bg)",border:"1px solid var(--border)"}}>
+          <div className="flex rounded-full p-0.5" style={{background:"var(--bg-card)",border:"1px solid var(--border)"}}>
             {[{val:"celkem",label:"Celkem"},{val:"dv",label:"2H"},{val:"ct",label:"4H"}].map(d => (
               <button key={d.val} onClick={() => setDisciplina(d.val)}
-                className="px-3 py-1.5 rounded-md text-xs font-semibold transition-all"
+                className="px-3 py-1.5 rounded-full text-xs font-semibold transition-all"
                 style={disciplina === d.val
-                  ? {background:"var(--bg-card)",color:"var(--text)",borderBottom:"2px solid #FF3B3B"}
+                  ? {background:"#FF3B3B",color:"#fff"}
                   : {background:"transparent",color:"var(--text-3)"}}>
                 {d.label}
               </button>
@@ -188,14 +188,14 @@ export default function KlubovyZebricek() {
         ) : (
           <>
             {/* STATS */}
-            <div className="flex flex-wrap gap-2 mb-4">
+            <div className="grid grid-cols-3 gap-2 mb-4">
               {[
                 {label:"Klubů",    value:radky.length,          tip:"Počet klubů"},
                 {label:"Top body", value:top,                   tip:"Nejvyšší počet bodů"},
                 {label:"Hráčů",    value:radky.reduce((s,r)=>s+r.pocet,0), tip:"Celkem hráčů"},
               ].map(s => (
                 <div key={s.label} title={s.tip}
-                  className="flex items-baseline gap-2 px-3 py-2 rounded-lg cursor-help"
+                  className="flex items-baseline gap-2 px-3 py-2 rounded-lg cursor-help justify-center sm:justify-start"
                   style={{background:"var(--bg-card)",border:"1px solid var(--border)"}}>
                   <span className="text-base font-black mono" style={{color:"#FF3B3B"}}>{s.value}</span>
                   <span className="text-[9px] font-bold uppercase tracking-widest" style={{color:"var(--text-3)"}}>{s.label}</span>
