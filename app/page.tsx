@@ -171,7 +171,7 @@ export default function Home() {
       <main className="max-w-7xl mx-auto px-4 py-4">
 
         {/* ── FILTRY ── */}
-        <div className="flex flex-wrap gap-2 mb-4">
+        <div className="grid grid-cols-3 sm:flex sm:flex-wrap gap-2 mb-4">
           <div className="relative">
             <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5" style={{color:"var(--text-3)"}} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
               <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
@@ -214,7 +214,7 @@ export default function Home() {
         ) : (
           <>
             {/* ── STATS ── */}
-            <div className="flex flex-wrap gap-2 mb-4">
+            <div className="grid grid-cols-3 sm:flex sm:flex-wrap gap-2 mb-4">
               {[
                 {label:"Hráčů",value:sHraci.length,tip:"Hráčů s alespoň 1 bodem"},
                 {label:"Top body",value:topBody,tip:"Nejvyšší počet bodů v kategorii"},

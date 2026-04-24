@@ -188,7 +188,7 @@ export default function KlubovyZebricek() {
         ) : (
           <>
             {/* STATS */}
-            <div className="grid grid-cols-3 gap-2 mb-4">
+            <div className="grid grid-cols-3 sm:flex sm:flex-wrap gap-2 mb-4">
               {[
                 {label:"Klubů",    value:radky.length,          tip:"Počet klubů"},
                 {label:"Top body", value:top,                   tip:"Nejvyšší počet bodů"},
