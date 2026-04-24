@@ -351,23 +351,37 @@ export default function Home() {
 
                     {/* Mobil */}
                     <div className="grid sm:hidden gap-2 px-3 py-2.5 items-center"
-                      style={{gridTemplateColumns:"2.5rem 1fr auto"}}>
+                      style={{gridTemplateColumns:"2.5rem auto 1fr auto"}}>
                       <span className="text-xs font-black mono" style={{color:rankColor}}>{i+1}</span>
+
+                      {/* NH badge mobil */}
+                      {(() => {
+                        if (jeTeItf) return <span/>
+                        const key = `${h.id}__${aktivni}`
+                        const best = nmk[key]
+                        if (!best) return <span/>
+                        const diff = (h.poradi_live||0) - best
+                        const bg = diff===0?"#F5A623":diff<=5?"#00B14F":diff<=30?"#6E7681":"#0D1117"
+                        const border = diff>30?"1px solid #30363D":"none"
+                        return <span className="text-[9px] font-black w-5 h-5 flex items-center justify-center rounded shrink-0" style={{background:bg,color:"#fff",border}}>{best}</span>
+                      })()}
+
                       <div className="min-w-0">
                         <a href={`https://cztenis.cz/hrac/${h.id}`} target="_blank" rel="noopener noreferrer"
                           className="font-semibold text-sm truncate block" style={{color:"var(--text)"}}>
                           {h.jmeno}
                         </a>
-                        <div className="flex gap-1.5 mt-0.5 flex-wrap">
+                        <div className="flex gap-1.5 mt-0.5 items-center">
                           <span className="text-[10px] mono" style={{color:"var(--text-3)"}}>{h.narozeni}</span>
                           <span style={{color:"var(--border)"}}>·</span>
-                          <span className="text-[10px] truncate" style={{color:"var(--text-3)"}}>{h.klub}</span>
+                          <span className="text-[10px] truncate" style={{color:"var(--text-3)"}}>{h.klub}{!jeTeItf && klubPoradi[h.id] ? <sub className="mono font-bold" style={{color:"var(--text-3)",fontSize:"8px"}}>{klubPoradi[h.id]}</sub> : null}</span>
                         </div>
                         <div className="flex gap-2 mt-0.5">
                           <span className="text-[10px] mono" style={{color:"var(--text-3)"}}>2H {jeTeItf?"—":h.body_dv}</span>
                           <span className="text-[10px] mono" style={{color:"var(--text-3)"}}>4H {jeTeItf?"—":h.body_ct}</span>
                         </div>
                       </div>
+
                       <div className="text-right">
                         <span className="text-sm font-black mono" style={{color:isTop1?"#D4A017":jeTeItf?"var(--text-3)":"var(--text)"}}>
                           {bodySloupec(h)}
