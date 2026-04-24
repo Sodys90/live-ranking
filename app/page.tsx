@@ -114,7 +114,14 @@ export default function Home() {
           </nav>
 
           <div className="flex items-center gap-3">
-            {kat && <span className="text-xs hidden md:block" style={{color:"#484F58"}}>{formatDatum(kat.aktualizace)}</span>}
+            {kat && (
+              <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-md" style={{background:"#FF3B3B15",border:"1px solid #FF3B3B30"}}>
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#FF3B3B" strokeWidth="2.5">
+                  <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
+                </svg>
+                <span className="text-[10px] font-semibold" style={{color:"#FF3B3B"}}>Aktualizováno {formatDatum(kat.aktualizace)}</span>
+              </div>
+            )}
             <ThemeToggle />
           </div>
         </div>
@@ -193,10 +200,10 @@ export default function Home() {
                 ...(teItf.length>0?[{label:"Mez. žeb.",value:teItf.length,tip:"Počet hráčů na mezinárodním žebříčku"}]:[]),
               ].map(s=>(
                 <div key={s.label} title={s.tip}
-                  className="flex flex-col px-4 py-2.5 rounded-lg cursor-help min-w-[80px]"
+                  className="flex items-baseline gap-2 px-3 py-2 rounded-lg cursor-help"
                   style={{background:"var(--bg-card)",border:"1px solid var(--border)"}}>
-                  <span className="text-xl font-black mono leading-none" style={{color:"#FF3B3B"}}>{s.value}</span>
-                  <span className="text-[9px] font-bold uppercase tracking-widest mt-1" style={{color:"var(--text-3)"}}>{s.label}</span>
+                  <span className="text-base font-black mono leading-none" style={{color:"#FF3B3B"}}>{s.value}</span>
+                  <span className="text-[9px] font-bold uppercase tracking-widest" style={{color:"var(--text-3)"}}>{s.label}</span>
                 </div>
               ))}
             </div>
@@ -233,7 +240,7 @@ export default function Home() {
 
                 const rankColor = isTop1?"#D4A017":isTop2?"#9BA3AC":isTop3?"#A0522D":"var(--text-3)"
                 const rowBg = jeTeItf?"var(--brand-dim)"
-                  : isTop1?"#D4A01708":isTop2?"#9BA3AC06":isTop3?"#A0522D06"
+                  : isTop1?"var(--bg-card)":isTop2?"var(--bg-card)":isTop3?"var(--bg-card)"
                   : i%2===0?"var(--bg-card)":"var(--bg-stripe)"
 
                 return (
