@@ -79,8 +79,8 @@ export default function Home() {
   }
 
   const cols = hasMez
-    ? "3rem minmax(0,1fr) 5rem 3.5rem minmax(0,1fr) 4rem 4rem 5.5rem 3.5rem"
-    : "3rem minmax(0,1fr) 3.5rem minmax(0,1fr) 4rem 4rem 5.5rem 3.5rem"
+    ? "3rem minmax(0,1fr) 5rem 3rem minmax(0,1fr) 3.5rem 3.5rem 5rem 3rem"
+    : "3rem minmax(0,1fr) 3rem minmax(0,1fr) 3.5rem 3.5rem 5rem 3rem"
 
   return (
     <div className="min-h-screen" style={{background:"var(--bg)"}}>
@@ -193,10 +193,10 @@ export default function Home() {
                 ...(teItf.length>0?[{label:"Mez. žeb.",value:teItf.length,tip:"Počet hráčů na mezinárodním žebříčku"}]:[]),
               ].map(s=>(
                 <div key={s.label} title={s.tip}
-                  className="flex items-center gap-2 px-3 py-2 rounded-lg cursor-help"
+                  className="flex flex-col px-4 py-2.5 rounded-lg cursor-help min-w-[80px]"
                   style={{background:"var(--bg-card)",border:"1px solid var(--border)"}}>
-                  <span className="text-sm font-black mono" style={{color:"#FF3B3B"}}>{s.value}</span>
-                  <span className="text-[10px] font-semibold uppercase tracking-wider" style={{color:"var(--text-3)"}}>{s.label}</span>
+                  <span className="text-xl font-black mono leading-none" style={{color:"#FF3B3B"}}>{s.value}</span>
+                  <span className="text-[9px] font-bold uppercase tracking-widest mt-1" style={{color:"var(--text-3)"}}>{s.label}</span>
                 </div>
               ))}
             </div>
@@ -238,8 +238,8 @@ export default function Home() {
 
                 return (
                   <div key={h.id}
-                    style={{borderBottom:"1px solid var(--border)",background:rowBg}}
-                    onMouseEnter={e=>{e.currentTarget.style.background="var(--bg-hover)"}}
+                    style={{borderBottom:"1px solid var(--border)",background:rowBg,borderLeft:isTop1?"3px solid #D4A017":isTop2?"3px solid #9BA3AC":isTop3?"3px solid #A0522D":"3px solid transparent"}}
+                    onMouseEnter={e=>{e.currentTarget.style.background="var(--bg-hover)";e.currentTarget.style.transition="background 0.1s"}}
                     onMouseLeave={e=>{e.currentTarget.style.background=rowBg}}>
 
                     {/* Desktop */}
@@ -247,12 +247,7 @@ export default function Home() {
                       style={{gridTemplateColumns:cols}}>
 
                       {/* # */}
-                      <div className="flex items-center gap-1">
-                        {isTop1 && <span className="text-sm">🥇</span>}
-                        {isTop2 && <span className="text-sm">🥈</span>}
-                        {isTop3 && <span className="text-sm">🥉</span>}
-                        {!isTop1&&!isTop2&&!isTop3 && <span className="text-xs font-bold mono" style={{color:rankColor}}>{i+1}</span>}
-                      </div>
+                      <span className="text-xs font-black mono" style={{color:rankColor}}>{i+1}</span>
 
                       {/* Jméno */}
                       <div className="min-w-0 group">
@@ -290,10 +285,7 @@ export default function Home() {
                     {/* Mobil */}
                     <div className="grid sm:hidden gap-2 px-3 py-2.5 items-center"
                       style={{gridTemplateColumns:"2.5rem 1fr auto"}}>
-                      <div className="flex items-center">
-                        {isTop1?<span>🥇</span>:isTop2?<span>🥈</span>:isTop3?<span>🥉</span>
-                          :<span className="text-xs font-bold mono" style={{color:rankColor}}>{i+1}</span>}
-                      </div>
+                      <span className="text-xs font-black mono" style={{color:rankColor}}>{i+1}</span>
                       <div className="min-w-0">
                         <a href={`https://cztenis.cz/hrac/${h.id}`} target="_blank" rel="noopener noreferrer"
                           className="font-semibold text-sm truncate block" style={{color:"var(--text)"}}>
