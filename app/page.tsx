@@ -90,8 +90,8 @@ export default function Home() {
   }
 
   const cols = hasMez
-    ? "3rem minmax(0,1fr) 5rem 3rem minmax(0,1fr) 3.5rem 3.5rem 5rem 3rem"
-    : "3rem minmax(0,1fr) 3rem minmax(0,1fr) 3.5rem 3.5rem 5rem 3rem"
+    ? "3rem 2.2rem minmax(0,1fr) 5rem 3rem minmax(0,1fr) 3.5rem 3.5rem 5rem 3rem"
+    : "3rem 2.2rem minmax(0,1fr) 3rem minmax(0,1fr) 3.5rem 3.5rem 5rem 3rem"
 
   return (
     <div className="min-h-screen" style={{background:"var(--bg)"}}>
