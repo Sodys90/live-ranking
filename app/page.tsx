@@ -9,6 +9,8 @@ const KATEGORIE = [
   { slug: "starsi-zakyne", nazev: "Starší žákyně",  rocniky: [2012,2013,2014,2015,2016] },
   { slug: "dorostenci",    nazev: "Dorostenci",     rocniky: [2008,2009,2010,2011,2012,2013,2014,2015,2016] },
   { slug: "dorostenky",    nazev: "Dorostenky",     rocniky: [2008,2009,2010,2011,2012,2013,2014,2015,2016] },
+  { slug: "muzi",          nazev: "Muži",           rocniky: [] },
+  { slug: "zeny",          nazev: "Ženy",           rocniky: [] },
 ]
 
 const TYP_PRIORITY = {"ATP": 0, "WTA": 0, "ITF": 1, "TE": 2}

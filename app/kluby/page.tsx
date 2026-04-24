@@ -10,6 +10,8 @@ const KATEGORIE = [
   { slug: "starsi-zakyne", nazev: "Starší žákyně" },
   { slug: "dorostenci",    nazev: "Dorostenci" },
   { slug: "dorostenky",    nazev: "Dorostenky" },
+  { slug: "muzi",          nazev: "Muži" },
+  { slug: "zeny",          nazev: "Ženy" },
 ]
 
 const SVAZY = [

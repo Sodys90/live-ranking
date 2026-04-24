@@ -24,6 +24,8 @@ KATEGORIE = [
     {"id": "26", "slug": "starsi-zakyne", "url_base": "starsi-zactvo", "cat": "5"},
     {"id": "20", "slug": "dorostenci",    "url_base": "dorost",        "cat": "2"},
     {"id": "21", "slug": "dorostenky",    "url_base": "dorost",        "cat": "2"},
+    {"id": "10", "slug": "muzi",           "url_base": "muzi",           "cat": "3"},
+    {"id": "11", "slug": "zeny",           "url_base": "zeny",           "cat": "3"},
 
 ]
 
@@ -32,6 +34,8 @@ ROCNIKY = {
     "25": [2012,2013,2014,2015,2016], "26": [2012,2013,2014,2015,2016],
     "20": [2008,2009,2010,2011],
     "21": [2008,2009,2010,2011],
+    "10": [],
+    "11": [],
 
 }
 
@@ -46,6 +50,8 @@ TURNAJ_PREFIXES = {
     "starsi-zakyne": ["6"],
     "dorostenci":    ["3"],
     "dorostenky":    ["4"],
+    "muzi":          ["1"],
+    "zeny":          ["2"],
 }
 
 # Klíčová slova pro mezinárodní turnaje (bez odkazu)
@@ -56,6 +62,8 @@ MEZINARODNI_KLICOVA_SLOVA = {
     "starsi-zakyne": ["u14 girls", "g14", "te u14 girls"],
     "dorostenci":    ["u16 boys", "u18 boys", "b16", "b18", "junior davis", "davis cup", "itf juniors boys", "te u16 boys", "te u18 boys"],
     "dorostenky":    ["u16 girls", "u18 girls", "g16", "g18", "fed cup", "billie jean", "itf juniors girls", "te u16 girls", "te u18 girls"],
+    "muzi":          ["davis cup", "atp", "challenger", "itf men"],
+    "zeny":          ["fed cup", "billie jean", "wta", "itf women"],
 }
 
 def get_page(page, url, retries=3):
@@ -190,6 +198,8 @@ SLUG_URL = {
     "starsi-zakyne": "starsi-zakyne",
     "dorostenci":    "dorostenci",
     "dorostenky":    "dorostenky",
+    "muzi":          "muzi",
+    "zeny":          "zeny",
 
 }
 
