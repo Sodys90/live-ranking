@@ -127,7 +127,8 @@ export default function KlubovyZebricek() {
 
       {/* KATEGORIE TABS */}
       <div style={{background:"var(--header-bg)",borderBottom:"1px solid var(--header-border)"}}>
-        <div className="max-w-7xl mx-auto px-4">
+        <div className="max-w-7xl mx-auto px-4 relative">
+          <div className="absolute right-0 top-0 bottom-0 w-8 pointer-events-none sm:hidden" style={{background:"linear-gradient(to right, transparent, var(--header-bg))"}}/>
           <div className="flex gap-0 overflow-x-auto scrollbar-hide">
             {KATEGORIE.map(k => (
               <button key={k.slug} onClick={() => setKategorie(k.slug)}
@@ -145,7 +146,8 @@ export default function KlubovyZebricek() {
 
       {/* SVAZY TABS */}
       <div style={{background:"var(--bg-card)",borderBottom:"1px solid var(--border)"}}>
-        <div className="max-w-7xl mx-auto px-4">
+        <div className="max-w-7xl mx-auto px-4 relative">
+          <div className="absolute right-0 top-0 bottom-0 w-8 pointer-events-none sm:hidden" style={{background:"linear-gradient(to right, transparent, var(--bg-card))"}}/>
           <div className="flex gap-0 overflow-x-auto scrollbar-hide">
             {SVAZY.map(s => (
               <button key={s} onClick={() => setSvaz(s)}
