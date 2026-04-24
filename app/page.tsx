@@ -382,7 +382,7 @@ export default function Home() {
                     </div>
 
                     {/* Mobil */}
-                    <div className="grid sm:hidden gap-1.5 px-3 py-2 items-center"
+                    <div className="grid sm:hidden gap-1 px-3 py-[2px] items-center"
                       style={{gridTemplateColumns:"2rem auto 1fr auto"}}>
                       <span className="text-xs font-black mono" style={{color:rankColor}}>{i+1}</span>
 
