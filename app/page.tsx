@@ -383,7 +383,7 @@ export default function Home() {
 
                     {/* Mobil */}
                     <div className="grid sm:hidden gap-0.5 px-2.5 py-[1px] items-center"
-                      style={{gridTemplateColumns:"2.5rem 1fr auto"}}>
+                      style={{gridTemplateColumns:"2rem auto 1fr auto"}}>
                       <span className="text-xs font-black mono" style={{color:rankColor}}>{i+1}</span>
 
                       {/* NH badge mobil */}
