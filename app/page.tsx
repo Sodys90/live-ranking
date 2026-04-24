@@ -66,6 +66,13 @@ export default function Home() {
   const prumer   = Math.round(sHraci.reduce((s:number,h:any)=>s+getBody(h),0)/(sHraci.length||1))
 
   const formatDatum = (iso:string) => new Date(iso).toLocaleDateString("cs-CZ",{day:"numeric",month:"long",year:"numeric"})
+  const nextMonday = () => {
+    const d = new Date()
+    const day = d.getDay()
+    const diff = day===1 ? 7 : (8-day)%7||7
+    d.setDate(d.getDate()+diff)
+    return d.toLocaleDateString("cs-CZ",{day:"numeric",month:"long"})
+  }
 
   const badgeStyle = (typ:string) => {
     if (typ==="ATP"||typ==="WTA") return {background:"#7C3AED18",color:"#9F7AEA",border:"1px solid #7C3AED30"}
@@ -119,7 +126,9 @@ export default function Home() {
                 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF60" strokeWidth="2.5">
                   <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
                 </svg>
-                <span className="text-[10px] font-semibold" style={{color:"#FFFFFF70"}}>Žebříček aktualizován: {formatDatum(kat.aktualizace)}</span>
+                <span className="text-[10px] font-semibold" style={{color:"#FFFFFF70"}}>Aktualizován: {formatDatum(kat.aktualizace)}</span>
+                <span className="text-[10px]" style={{color:"#FFFFFF30"}}>·</span>
+                <span className="text-[10px] font-semibold" style={{color:"#FFFFFF40"}}>Další: {nextMonday()}</span>
               </div>
             )}
             <ThemeToggle />
