@@ -102,9 +102,9 @@ export default function Home() {
             </svg>
             <div>
               <span className="text-base font-black tracking-tight" style={{ color: 'var(--text)' }}>
-                Tenis<span style={{ color: '#00B14F' }}>CZ</span>
+                Tenis<span style={{ color: '#FF3B3B' }}>CZ</span>
               </span>
-              <p className="text-[10px] leading-none mt-0.5" style={{ color: 'var(--text-3)' }}>Živé žebříčky mládeže</p>
+              
             </div>
           </div>
 
