@@ -43,6 +43,7 @@ export default function Home() {
     return (a.te_itf_poradi ?? 999) - (b.te_itf_poradi ?? 999)
   })
 
+  const hasMez = vsichni.some((h: any) => h.te_itf || h.ma_mezinarodni)
   const cestiSerazeni = vsichni
     .filter((h: any) => !h.te_itf)
     .sort((a: any, b: any) => {
@@ -79,14 +80,11 @@ export default function Home() {
     return h.body_celkem
   }
 
-  const topBody = disciplina === "dv" ? (cesteFiltr[0]?.body_dv ?? 0)
-    : disciplina === "ct" ? (cesteFiltr[0]?.body_ct ?? 0)
-    : (cesteFiltr[0]?.body_celkem ?? 0)
-
-  const prumer = Math.round(
-    cesteFiltr.reduce((s: number, h: any) => s + (disciplina === "dv" ? h.body_dv : disciplina === "ct" ? h.body_ct : h.body_celkem), 0)
-    / (cesteFiltr.length || 1)
-  )
+  const getBody = (h: any) => disciplina === "dv" ? h.body_dv : disciplina === "ct" ? h.body_ct : h.body_celkem
+  const sHraci = cesteFiltr.filter((h: any) => getBody(h) > 0)
+  const topBody = sHraci[0] ? getBody(sHraci[0]) : 0
+  const prumer = Math.round(sHraci.reduce((s: number, h: any) => s + getBody(h), 0) / (sHraci.length || 1))
+  const pocetSBody = sHraci.length
 
   return (
     <div className="min-h-screen" style={{ background: 'var(--bg)' }}>
@@ -192,10 +190,10 @@ export default function Home() {
             {/* Stats */}
             <div className="flex flex-wrap gap-2 mb-4">
               {[
-                { label: "Hráčů", value: vsichni.length },
+                { label: "Hráčů", value: pocetSBody },
                 { label: "Top body", value: topBody },
                 { label: "Průměr", value: prumer },
-                { label: "Mez. žeb.", value: teItf.length },
+                ...(teItf.length > 0 ? [{ label: "Mez. žeb.", value: teItf.length }] : []),
               ].map(s => (
                 <div key={s.label} className="flex items-center gap-2 px-3 py-2 rounded-lg" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
                   <span className="text-sm font-black mono" style={{ color: "#00B14F" }}>{s.value}</span>
@@ -208,7 +206,7 @@ export default function Home() {
             <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid var(--border)' }}>
               {/* Záhlaví desktop */}
               <div className="hidden sm:grid gap-3 px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest"
-                style={{ gridTemplateColumns: "3rem minmax(0,1fr) 5.5rem 3.5rem minmax(0,13rem) 4rem 4rem 5rem 3.5rem", background: 'var(--bg-card)', borderBottom: '1px solid var(--border)', color: 'var(--text-3)' }}>
+                style={{ gridTemplateColumns: hasMez ? "3rem minmax(0,1fr) 5.5rem 3.5rem minmax(0,13rem) 4rem 4rem 5rem 3.5rem" : "3rem minmax(0,1fr) 3.5rem minmax(0,13rem) 4rem 4rem 5rem 3.5rem", background: 'var(--bg-card)', borderBottom: '1px solid var(--border)', color: 'var(--text-3)' }}>
                 <span>#</span><span>Hráč</span><span className="text-center">Mez.</span>
                 <span className="text-center">Nar.</span><span>Klub</span>
                 <span className="text-right">2H</span><span className="text-right">4H</span>
@@ -231,13 +229,13 @@ export default function Home() {
                 return (
                   <div key={h.id}
                     className="transition-colors"
-                    style={{ borderBottom: '1px solid var(--border)', background: jeTeItf ? 'var(--brand-dim)' : 'var(--bg-card)' }}
+                    style={{ borderBottom: '1px solid var(--border)', background: jeTeItf ? 'var(--brand-dim)' : i % 2 === 0 ? 'var(--bg-card)' : 'var(--bg-hover)' }}
                     onMouseEnter={e => (e.currentTarget.style.background = 'var(--bg-hover)')}
-                    onMouseLeave={e => (e.currentTarget.style.background = jeTeItf ? 'var(--brand-dim)' : 'var(--bg-card)')}>
+                    onMouseLeave={e => (e.currentTarget.style.background = jeTeItf ? 'var(--brand-dim)' : i % 2 === 0 ? 'var(--bg-card)' : 'var(--bg-hover)')}>
 
                     {/* Desktop */}
-                    <div className="hidden sm:grid gap-3 px-4 py-2.5 items-center"
-                      style={{ gridTemplateColumns: "3rem minmax(0,1fr) 5.5rem 3.5rem minmax(0,13rem) 4rem 4rem 5rem 3.5rem" }}>
+                    <div className="hidden sm:grid gap-3 px-4 py-1.5 items-center"
+                      style={{ gridTemplateColumns: hasMez ? "3rem minmax(0,1fr) 5.5rem 3.5rem minmax(0,13rem) 4rem 4rem 5rem 3.5rem" : "3rem minmax(0,1fr) 3.5rem minmax(0,13rem) 4rem 4rem 5rem 3.5rem" }}>
                       <span className="text-sm font-black mono" style={{ color: poradiColor }}>{i + 1}</span>
                       <div className="min-w-0">
                         <a href={`https://cztenis.cz/hrac/${h.id}`} target="_blank" rel="noopener noreferrer"
@@ -268,7 +266,7 @@ export default function Home() {
                     </div>
 
                     {/* Mobil */}
-                    <div className="grid sm:hidden gap-2 px-3 py-3 items-center"
+                    <div className="grid sm:hidden gap-2 px-3 py-2 items-center"
                       style={{ gridTemplateColumns: "2.5rem 1fr auto" }}>
                       <span className="text-sm font-black mono" style={{ color: poradiColor }}>{i + 1}</span>
                       <div className="min-w-0">
