@@ -379,7 +379,7 @@ export default function Home() {
                       <span className="text-sm font-black text-right mono" style={{color:isTop1?"#D4A017":jeTeItf?"var(--text-3)":"var(--text)"}}>
                         {bodySloupec(h)}
                       </span>
-                      <span className="text-xs text-right mono" style={{color:"var(--text-3)"}}>{jeTeItf?"—":(h.bh??0)}</span>
+                      <span className="text-xs text-right mono" style={{color:"var(--text-3)"}}>{h.bh??0}</span>
                     </div>
 
                     {/* Mobil */}
@@ -421,7 +421,7 @@ export default function Home() {
                         <span className="text-sm font-black mono" style={{color:isTop1?"#D4A017":jeTeItf?"var(--text-3)":"var(--text)"}}>
                           {bodySloupec(h)}
                         </span>
-                        {!jeTeItf && <div className="text-[10px] mono" style={{color:"var(--text-3)"}}>BH {h.bh??0}</div>}
+                        <div className="text-[10px] mono" style={{color:"var(--text-3)"}}>BH {h.bh??0}</div>
                       </div>
                     </div>
                   </div>
