@@ -93,23 +93,20 @@ export async function GET() {
       return (b.body_celkem ?? 0) - (a.body_celkem ?? 0)
     })
 
-    // Přiřaď pořadí a BH - pouze pro ne-ITF hráče
-    const pocetSBody = hraci.filter(h => !h.te_itf && (h.body_celkem ?? 0) > 0).length
-    const cestiHraci = hraci.filter(h => !h.te_itf)
+    // Přiřaď pořadí a BH - všichni hráči včetně ITF
+    const pocetSBody = hraci.filter(h => (h.body_celkem ?? 0) > 0).length
     let poradi = 1
-    for (let i = 0; i < cestiHraci.length; i++) {
-      const h = cestiHraci[i]
-      if (i > 0 && cestiHraci[i-1].body_celkem === h.body_celkem) {
-        h.poradi_live = cestiHraci[i-1].poradi_live
+    for (let i = 0; i < hraci.length; i++) {
+      const h = hraci[i]
+      if (i > 0 && !hraci[i-1].te_itf && hraci[i-1].body_celkem === h.body_celkem && !h.te_itf) {
+        h.poradi_live = hraci[i-1].poradi_live
+      } else if (h.te_itf) {
+        h.poradi_live = poradi
       } else {
         h.poradi_live = poradi
       }
-      h.bh = (h.body_celkem ?? 0) === 0 ? 1 : vypocitejBH(h.poradi_live, pocetSBody)
+      h.bh = vypocitejBH(h.poradi_live, pocetSBody)
       poradi++
-    }
-    // ITF hráči
-    for (const h of hraci.filter(h => h.te_itf)) {
-      h.poradi_live = 0; h.bh = 0
     }
 
     output[kat.slug] = { nazev: kat.slug, aktualizace, hraci }
