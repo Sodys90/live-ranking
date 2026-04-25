@@ -21,7 +21,7 @@ export async function GET() {
     from += 1000
   }
 
-  const datumy = [...new Set(vsechnaData.map(d => d.datum))].sort().reverse()
+  const datumy = Array.from(new Set(vsechnaData.map(d => d.datum))).sort().reverse()
   if (datumy.length < 2) return NextResponse.json({})
 
   const aktualniDatum = datumy[0]
