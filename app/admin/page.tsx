@@ -27,6 +27,9 @@ export default function AdminPage() {
   const [editTyp, setEditTyp]     = useState("")
   const [editPoradi, setEditPoradi] = useState("")
   const [saving, setSaving]       = useState(false)
+  const [pridavamKey, setPridavamKey] = useState<string|null>(null)
+  const [searchTypy, setSearchTypy] = useState<Record<string,string>>({})
+  const [searchPoradi, setSearchPoradi] = useState<Record<string,string>>({})
 
   const headers = { "x-admin-password": heslo, "Content-Type": "application/json" }
 
@@ -187,22 +190,43 @@ export default function AdminPage() {
                       <span className="text-[10px]" style={{color:"var(--text-3)"}}>{h.klub}</span>
                     </div>
                   </div>
-                  <select value={editTyp} onChange={e => setEditTyp(e.target.value)}
-                    className="px-2 py-1 rounded text-xs focus:outline-none"
-                    style={{background:"var(--bg-card)",border:"1px solid var(--border)",color:"var(--text)"}}>
-                    <option value="">Typ</option>
-                    {TYPY.map(t => <option key={t} value={t}>{t}</option>)}
-                  </select>
-                  <input type="number" placeholder="Pořadí"
-                    value={editPoradi} onChange={e => setEditPoradi(e.target.value)}
-                    className="w-20 px-2 py-1 rounded text-xs focus:outline-none"
-                    style={{background:"var(--bg-card)",border:"1px solid var(--border)",color:"var(--text)"}} />
-                  <button onClick={() => pridejHrace(h)}
-                    disabled={!editTyp || !editPoradi || saving}
-                    className="px-3 py-1 rounded text-xs font-bold disabled:opacity-40"
-                    style={{background:"#FF3B3B",color:"#fff"}}>
-                    Přidat
-                  </button>
+                  {(() => {
+                    const key = `${h.id}__${h.kategorie_slug}`
+                    return <>
+                      <select value={searchTypy[key]||""} onChange={e => setSearchTypy(p => ({...p,[key]:e.target.value}))}
+                        className="px-2 py-1 rounded text-xs focus:outline-none"
+                        style={{background:"var(--bg-card)",border:"1px solid var(--border)",color:"var(--text)"}}>
+                        <option value="">Typ</option>
+                        {TYPY.map(t => <option key={t} value={t}>{t}</option>)}
+                      </select>
+                      <input type="number" placeholder="Pořadí"
+                        value={searchPoradi[key]||""} onChange={e => setSearchPoradi(p => ({...p,[key]:e.target.value}))}
+                        className="w-20 px-2 py-1 rounded text-xs focus:outline-none"
+                        style={{background:"var(--bg-card)",border:"1px solid var(--border)",color:"var(--text)"}} />
+                      <button onClick={() => {
+                          setPridavamKey(key)
+                          fetch("/api/admin/itf", {
+                            method:"POST", headers,
+                            body: JSON.stringify({
+                              hrac_id: h.id, jmeno: h.jmeno,
+                              kategorie_slug: h.kategorie_slug,
+                              te_itf: true, te_itf_typ: searchTypy[key],
+                              te_itf_poradi: parseInt(searchPoradi[key]),
+                            })
+                          }).then(() => {
+                            setHledej(""); setVysledky([])
+                            setSearchTypy({}); setSearchPoradi({})
+                            setPridavamKey(null)
+                            nactiUlozene()
+                          })
+                        }}
+                        disabled={!searchTypy[key] || !searchPoradi[key] || pridavamKey===key}
+                        className="px-3 py-1 rounded text-xs font-bold disabled:opacity-40"
+                        style={{background:"#FF3B3B",color:"#fff"}}>
+                        {pridavamKey===key ? "..." : "Přidat"}
+                      </button>
+                    </>
+                  })()}
                 </div>
               ))}
             </div>
