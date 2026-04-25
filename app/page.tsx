@@ -309,9 +309,10 @@ export default function Home() {
                       {/* # */}
                       <span className="text-xs font-black mono" style={{color:rankColor}}>{i+1}</span>
 
-                      {/* MK badge */}
+                      {/* MK badge - pouze pro celkové pořadí */}
                       {(() => {
                         if (jeTeItf) return <span/>
+                        if (disciplina !== "celkem") return <span/>
                         const key = `${h.id}__${aktivni}`
                         const best = nmk[key]
                         if (!best) return <span/>
@@ -389,6 +390,7 @@ export default function Home() {
                       {/* NH badge mobil */}
                       {(() => {
                         if (jeTeItf) return <span/>
+                        if (disciplina !== "celkem") return <span/>
                         const key = `${h.id}__${aktivni}`
                         const best = nmk[key]
                         if (!best) return <span/>
