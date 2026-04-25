@@ -323,6 +323,18 @@ def prepocitej_zebricky():
     import json
     TOP_N = 8
     output = {}
+
+    # Načti aktivní ITF hráče z nové tabulky
+    itf_db = {}
+    try:
+        itf_res = sb.table("itf_hrace").select("*").eq("aktivni", True).execute()
+        for r in itf_res.data:
+            key = f"{r['hrac_id']}__{r['kategorie_slug']}"
+            itf_db[key] = {"te_itf": True, "te_itf_typ": r["typ"], "te_itf_poradi": r["poradi"]}
+        print(f"✅ Načteno {len(itf_db)} ITF hráčů z DB")
+    except Exception as e:
+        print(f"⚠️ Nepodařilo se načíst ITF hráče: {e}")
+
     for kat in KATEGORIE:
         hraci = []
         offset = 0
@@ -332,6 +344,12 @@ def prepocitej_zebricky():
             hraci += res.data
             if len(res.data) < 1000: break
             offset += 1000
+
+        # Aplikuj ITF z DB
+        for h in hraci:
+            key = f"{h['id']}__{kat['slug']}"
+            if key in itf_db:
+                h.update(itf_db[key])
 
         # Seřaď - TE/ITF první, pak podle bodů
         from typing import Any
