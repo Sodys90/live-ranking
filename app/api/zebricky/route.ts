@@ -1,61 +1,115 @@
 import { NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
-import fs from "fs"
-import path from "path"
 
-const TOP_N = 8
+const KATEGORIE = [
+  { slug: "mladsi-zaci",   nazev: "Mladší žáci" },
+  { slug: "mladsi-zakyne", nazev: "Mladší žákyně" },
+  { slug: "starsi-zaci",   nazev: "Starší žáci" },
+  { slug: "starsi-zakyne", nazev: "Starší žákyně" },
+  { slug: "dorostenci",    nazev: "Dorostenci" },
+  { slug: "dorostenky",    nazev: "Dorostenky" },
+  { slug: "muzi",          nazev: "Muži" },
+  { slug: "zeny",          nazev: "Ženy" },
+]
+
+const TYP_PRIORITY: Record<string,number> = { ATP:0, WTA:0, ITF:1, TE:2 }
+
+function vypocitejBH(poradi: number, pocetSBody: number): number {
+  if (pocetSBody <= 0) return 1
+  const bs = [
+    [5,60],[7,45],[9,35],[12,30],[27,25],[28,20],[42,15],[70,12],[100,9]
+  ] as [number,number][]
+  let hranice = 0
+  for (const [pocet, bh] of bs) {
+    hranice += pocet
+    if (poradi <= hranice) return bh
+  }
+  const zbyvajici = pocetSBody - hranice
+  if (zbyvajici <= 0) return 1
+  const tretina = Math.max(1, Math.floor(zbyvajici / 3))
+  if (poradi <= hranice + tretina) return 6
+  if (poradi <= hranice + 2 * tretina) return 4
+  if (poradi <= hranice + 3 * tretina) return 3
+  return 1
+}
 
 export async function GET() {
-  // Načti JSON data
-  const jsonPath = path.join(process.cwd(), "public/data/zebricky.json")
-  const raw = fs.readFileSync(jsonPath, "utf-8")
-  const data = JSON.parse(raw)
-
-  // Načti všechny mezinárodní turnaje z Supabase
-  const { data: mezinarodni } = await supabaseAdmin
-    .from("mezinarodni_turnaje")
-    .select("*")
-
-  if (!mezinarodni || mezinarodni.length === 0) {
-    return NextResponse.json(data)
+  // Načti všechny hráče ze Supabase se stránkováním
+  const vsichniHraci: any[] = []
+  let from = 0
+  while (true) {
+    const { data, error } = await supabaseAdmin
+      .from("hraci")
+      .select("*")
+      .range(from, from + 999)
+    if (error || !data || data.length === 0) break
+    vsichniHraci.push(...data)
+    if (data.length < 1000) break
+    from += 1000
   }
 
-  // Pro každou kategorii přepočítej body hráčů s mezinárodními turnaji
-  for (const slug of Object.keys(data)) {
-    const kat = data[slug]
-    if (!kat?.hraci) continue
+  // Načti aktivní ITF hráče
+  const { data: itfData } = await supabaseAdmin
+    .from("itf_hrace")
+    .select("*")
+    .eq("aktivni", true)
 
-    const turnajeTeto = mezinarodni.filter(t => t.kategorie_slug === slug)
-    if (turnajeTeto.length === 0) continue
+  const itfMap: Record<string,any> = {}
+  for (const r of itfData ?? []) {
+    itfMap[`${r.hrac_id}__${r.kategorie_slug}`] = r
+  }
 
-    const hraciSMezi = new Set(turnajeTeto.map(t => t.hrac_id))
+  // Načti datum poslední aktualizace
+  const { data: posledni } = await supabaseAdmin
+    .from("hraci")
+    .select("updated_at")
+    .order("updated_at", { ascending: false })
+    .limit(1)
+  const aktualizace = posledni?.[0]?.updated_at ?? new Date().toISOString()
 
-    kat.hraci = kat.hraci.map(hrac => {
-      if (!hraciSMezi.has(hrac.id)) return hrac
+  const output: Record<string,any> = {}
 
-      const hracTurnaje = turnajeTeto.filter(t => t.hrac_id === hrac.id)
+  for (const kat of KATEGORIE) {
+    const hraci = vsichniHraci
+      .filter(h => h.kategorie_slug === kat.slug)
+      .map(h => {
+        const itf = itfMap[`${h.id}__${kat.slug}`]
+        if (itf) {
+          return { ...h, te_itf: true, te_itf_typ: itf.typ, te_itf_poradi: itf.poradi }
+        }
+        return h
+      })
 
-      // Vezmi uložené české akce + přidej mezinárodní
-      const akce_dv = [...(hrac.akce_dv ?? []), ...hracTurnaje.map(t => t.body_dv).filter(b => b > 0)]
-      const akce_ct = [...(hrac.akce_ct ?? []), ...hracTurnaje.map(t => t.body_ct).filter(b => b > 0)]
-
-      // Přepočítej top 8
-      const A = akce_dv.sort((a, b) => b - a).slice(0, TOP_N).reduce((s, b) => s + b, 0)
-      const B = akce_ct.sort((a, b) => b - a).slice(0, TOP_N).reduce((s, b) => s + b, 0)
-
-      return {
-        ...hrac,
-        body_dv: A,
-        body_ct: B,
-        body_celkem: A + B,
-        ma_mezinarodni: true,
+    // Seřaď
+    hraci.sort((a, b) => {
+      if (a.te_itf && b.te_itf) {
+        const pa = TYP_PRIORITY[a.te_itf_typ] ?? 9
+        const pb = TYP_PRIORITY[b.te_itf_typ] ?? 9
+        if (pa !== pb) return pa - pb
+        return (a.te_itf_poradi ?? 999) - (b.te_itf_poradi ?? 999)
       }
+      if (a.te_itf) return -1
+      if (b.te_itf) return 1
+      return (b.body_celkem ?? 0) - (a.body_celkem ?? 0)
     })
 
-    // Přeseřaď
-    kat.hraci.sort((a, b) => b.body_celkem - a.body_celkem)
-    kat.hraci.forEach((h, i) => { h.poradi_live = i + 1 })
+    // Přiřaď pořadí a BH
+    const pocetSBody = hraci.filter(h => !h.te_itf && (h.body_celkem ?? 0) > 0).length
+    let poradi = 1
+    for (let i = 0; i < hraci.length; i++) {
+      const h = hraci[i]
+      if (h.te_itf) { h.poradi_live = 0; h.bh = 0; continue }
+      if (i > 0 && !hraci[i-1].te_itf && h.body_celkem === hraci[i-1].body_celkem) {
+        h.poradi_live = hraci[i-1].poradi_live
+      } else {
+        h.poradi_live = poradi
+      }
+      h.bh = (h.body_celkem ?? 0) === 0 ? 1 : vypocitejBH(h.poradi_live, pocetSBody)
+      poradi++
+    }
+
+    output[kat.slug] = { nazev: kat.slug, aktualizace, hraci }
   }
 
-  return NextResponse.json(data)
+  return NextResponse.json(output)
 }
