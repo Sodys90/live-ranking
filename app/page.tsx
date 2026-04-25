@@ -294,7 +294,7 @@ export default function Home() {
                 const isTop3  = !jeTeItf && poradi===3
 
                 const rankColor = isTop1?"#D4A017":isTop2?"#9BA3AC":isTop3?"#A0522D":"var(--text-3)"
-                const rowBg = jeTeItf?"var(--brand-dim)" : i%2===0?"var(--bg-card)":"var(--bg-stripe)"
+                const rowBg = i%2===0?"var(--bg-card)":"var(--bg-stripe)"
 
                 return (
                   <div key={h.id}
