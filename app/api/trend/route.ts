@@ -7,35 +7,38 @@ const supabase = createClient(
 )
 
 export async function GET() {
-  const { data: datumy } = await supabase
-    .from('historie_poradi')
-    .select('datum')
-    .order('datum', { ascending: false })
-    .limit(100)
+  // Načti unikátní data se stránkováním
+  const vsechnaData: any[] = []
+  let from = 0
+  while (true) {
+    const { data } = await supabase
+      .from('historie_poradi')
+      .select('hrac_id, kategorie_slug, poradi, datum')
+      .range(from, from + 999)
+    if (!data || data.length === 0) break
+    vsechnaData.push(...data)
+    if (data.length < 1000) break
+    from += 1000
+  }
 
-  if (!datumy || datumy.length === 0) return NextResponse.json({})
+  const datumy = [...new Set(vsechnaData.map(d => d.datum))].sort().reverse()
+  if (datumy.length < 2) return NextResponse.json({})
 
-  const unique = Array.from(new Set(datumy.map((d: any) => d.datum)))
-  if (unique.length < 2) return NextResponse.json({})
-
-  const aktualniDatum = unique[0]
-  const predchoziDatum = unique[1]
-
-  const [akt, pred] = await Promise.all([
-    supabase.from('historie_poradi').select('hrac_id,kategorie_slug,poradi').eq('datum', aktualniDatum),
-    supabase.from('historie_poradi').select('hrac_id,kategorie_slug,poradi').eq('datum', predchoziDatum),
-  ])
+  const aktualniDatum = datumy[0]
+  const predchoziDatum = datumy[1]
 
   const predMap: Record<string, number> = {}
-  for (const r of pred.data ?? []) {
+  for (const r of vsechnaData.filter(r => r.datum === predchoziDatum)) {
     predMap[`${r.hrac_id}__${r.kategorie_slug}`] = r.poradi
   }
 
   const trend: Record<string, { trend: number; novy: boolean }> = {}
-  for (const r of akt.data ?? []) {
+  for (const r of vsechnaData.filter(r => r.datum === aktualniDatum)) {
     const key = `${r.hrac_id}__${r.kategorie_slug}`
-    const p = predMap[key]
-    trend[key] = p === undefined ? { trend: 0, novy: true } : { trend: p - r.poradi, novy: false }
+    const pred = predMap[key]
+    trend[key] = pred === undefined
+      ? { trend: 0, novy: true }
+      : { trend: pred - r.poradi, novy: false }
   }
 
   return NextResponse.json(trend)
