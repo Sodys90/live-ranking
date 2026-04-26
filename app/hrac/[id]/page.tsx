@@ -373,7 +373,7 @@ export default function HracProfil() {
               <div className="pb-1">
                 <div className="text-xs" style={{ color: "var(--text-3)" }}>z {kats.length} turnajů</div>
                 <div className="text-xs" style={{ color: "var(--text-3)" }}>
-                  {Number(prumerKat) >= 13 ? "Převážně A turnaje" : Number(prumerKat) >= 10 ? "Mix A/B turnajů" : "Převážně B turnaje"}
+                  {Number(prumerKat) >= 14 ? "Převážně MČR/A* turnaje" : Number(prumerKat) >= 12 ? "Převážně A turnaje" : Number(prumerKat) >= 8 ? "Převážně B turnaje" : Number(prumerKat) >= 3 ? "Převážně C turnaje" : "Převážně D turnaje"}
                 </div>
               </div>
               <div className="flex-1 ml-4">
@@ -385,7 +385,7 @@ export default function HracProfil() {
                     return (
                       <div key={kat} title={`Kategorie ${kat}: ${count}×`}
                         className="rounded text-[10px] font-bold px-1.5 py-0.5"
-                        style={{ background: kat >= 13 ? "#FF3B3B" : kat >= 10 ? "#FF8C00" : "var(--text-3)", color: "#fff" }}>
+                        style={{ background: kat >= 14 ? "#FF3B3B" : kat >= 12 ? "#FF8C00" : kat >= 8 ? "#3B82F6" : "var(--text-3)", color: "#fff" }}>
                         {kat}×{count}
                       </div>
                     )
