@@ -9,7 +9,18 @@ const supabase = createClient(
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
   const kategorie = searchParams.get('kategorie')
-  const svaz = searchParams.get('svaz')
+  const svazRaw = searchParams.get('svaz')
+  const SVAZ_MAP: Record<string,string> = {
+    "Praha": "Pražský TS",
+    "Středočeský": "Středočeský TS",
+    "Jihočeský": "Jihočeský TS",
+    "Západočeský": "Západočeský TS",
+    "Severočeský": "Severočeský TS",
+    "Východočeský": "Východočeský TS",
+    "Jihomoravský": "Jihomoravský TS",
+    "Severomoravský": "Severomoravský TS",
+  }
+  const svaz = svazRaw ? (SVAZ_MAP[svazRaw] ?? svazRaw) : null
   const MLADEZ = ["mladsi-zaci","mladsi-zakyne","starsi-zaci","starsi-zakyne","dorostenci","dorostenky"]
 
   const vsechnaData: any[] = []

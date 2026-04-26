@@ -86,7 +86,20 @@ export default function KlubovyZebricek() {
     if (kategorie === "mladez") return MLADEZ_SLUGS.includes(r.kategorie_slug)
     if (kategorie !== "vse") return r.kategorie_slug === kategorie
     return true
-  }).filter(r => svaz === "Vše" || r.svaz === svaz)
+  }).filter(r => {
+    if (svaz === "Vše") return true
+    const SVAZ_MAP: Record<string,string> = {
+      "Praha": "Pražský TS",
+      "Středočeský": "Středočeský TS",
+      "Jihočeský": "Jihočeský TS",
+      "Západočeský": "Západočeský TS",
+      "Severočeský": "Severočeský TS",
+      "Východočeský": "Východočeský TS",
+      "Jihomoravský": "Jihomoravský TS",
+      "Severomoravský": "Severomoravský TS",
+    }
+    return r.svaz === (SVAZ_MAP[svaz] ?? svaz)
+  })
 
   const aggMap: Record<string, AggRow> = {}
   for (const r of filtrovane) {
