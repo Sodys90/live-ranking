@@ -52,11 +52,9 @@ export async function GET(request: Request) {
       body_dv: 0, body_ct: 0, body_celkem: 0, pocet: 0,
       oblast: info.oblast, svaz: info.svaz
     }
-    if (!h.te_itf) {
-      map[key].body_dv += h.body_dv ?? 0
-      map[key].body_ct += h.body_ct ?? 0
-      map[key].body_celkem += h.body_celkem ?? 0
-    }
+    map[key].body_dv += h.body_dv ?? 0
+    map[key].body_ct += h.body_ct ?? 0
+    map[key].body_celkem += h.body_celkem ?? 0
     map[key].pocet += 1
   }
 
