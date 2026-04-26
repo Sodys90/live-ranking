@@ -9,6 +9,7 @@
 :root {
   --bg:         #F0F2F5;
   --bg-card:    #FFFFFF;
+  --bg-2:       #F0F2F5;
   --bg-hover:   #F7F9FA;
   --bg-stripe:  #FAFBFC;
   --border:     #E4E8EC;
@@ -31,6 +32,7 @@
 .dark {
   --bg:         #0D1117;
   --bg-card:    #161B22;
+  --bg-2:       #1E2433;
   --bg-hover:   #1C2128;
   --bg-stripe:  #13181F;
   --border:     #21262D;
