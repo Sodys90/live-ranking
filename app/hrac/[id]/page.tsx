@@ -61,7 +61,7 @@ export default function HracProfil() {
     </div>
   )
 
-  const sezony = [...new Set(turnaje.map(t => t.sezona))].sort().reverse()
+  const sezony = Array.from(new Set(turnaje.map(t => t.sezona))).sort().reverse()
   const filtTurnaje = turnaje.filter(t => {
     if (aktivniSezona !== "vse" && t.sezona !== aktivniSezona) return false
     if (aktivniTyp === "ind" && t.je_druzstvo) return false
