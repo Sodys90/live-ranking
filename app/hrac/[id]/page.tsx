@@ -78,20 +78,27 @@ export default function HracProfil() {
   const prohry = indZapasy.filter(z => !z.vyhral).length
   const winRate = indZapasy.length > 0 ? Math.round(vyhry / indZapasy.length * 100) : 0
 
-  // Sety
-  const setStats = indZapasy.reduce((acc, z) => {
-    if (!z.vysledek) return acc
-    z.vysledek.split(" ").forEach((set: string) => {
+  // Sety per pozice (1. set, 2. set, 3. set)
+  const setPerPozice: { vyhrane: number; prohrane: number }[] = [
+    { vyhrane: 0, prohrane: 0 },
+    { vyhrane: 0, prohrane: 0 },
+    { vyhrane: 0, prohrane: 0 },
+  ]
+  let celkemVyhraneSet = 0, celkemProhraneSet = 0
+  indZapasy.forEach(z => {
+    if (!z.vysledek) return
+    z.vysledek.split(" ").forEach((set: string, idx: number) => {
       const [h, s] = set.split(":").map(Number)
-      if (!isNaN(h) && !isNaN(s)) {
-        if (h > s) acc.vyhrane++
-        else acc.prohrane++
-      }
+      if (isNaN(h) || isNaN(s)) return
+      if (h > s) { celkemVyhraneSet++; if (idx < 3) setPerPozice[idx].vyhrane++ }
+      else { celkemProhraneSet++; if (idx < 3) setPerPozice[idx].prohrane++ }
     })
-    return acc
-  }, { vyhrane: 0, prohrane: 0 })
-  const setWinRate = (setStats.vyhrane + setStats.prohrane) > 0
-    ? Math.round(setStats.vyhrane / (setStats.vyhrane + setStats.prohrane) * 100) : 0
+  })
+  const setWinRate = (celkemVyhraneSet + celkemProhraneSet) > 0
+    ? Math.round(celkemVyhraneSet / (celkemVyhraneSet + celkemProhraneSet) * 100) : 0
+  const setPctPozice = setPerPozice.map(s =>
+    (s.vyhrane + s.prohrane) > 0 ? Math.round(s.vyhrane / (s.vyhrane + s.prohrane) * 100) : null
+  )
 
   // Forma — posledních 10 zápasů jednotlivců (nejnovější první)
   const formaZapasy = [...indZapasy].slice(0, 10)
@@ -187,6 +194,34 @@ export default function HracProfil() {
                   {z.vyhral ? "V" : "P"}
                 </div>
               ))}
+            </div>
+          </div>
+        )}
+
+        {/* Per-set statistika */}
+        {setPctPozice.some(p => p !== null) && (
+          <div className="rounded-xl p-5 mb-5" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+            <div className="text-sm font-bold mb-4" style={{ color: "var(--text)" }}>Úspěšnost podle setu</div>
+            <div className="space-y-3">
+              {[["1. set", 0], ["2. set", 1], ["3. set", 2]].map(([label, idx]) => {
+                const pct = setPctPozice[idx as number]
+                const s = setPerPozice[idx as number]
+                if (pct === null) return null
+                return (
+                  <div key={label as string} className="flex items-center gap-3">
+                    <div className="text-xs font-semibold w-12 shrink-0" style={{ color: "var(--text-3)" }}>{label}</div>
+                    <div className="flex-1 rounded-full overflow-hidden h-5" style={{ background: "var(--bg-2)" }}>
+                      <div className="h-full rounded-full flex items-center justify-end pr-2 transition-all"
+                        style={{ width: `${pct}%`, background: pct >= 60 ? "#22c55e" : pct >= 40 ? "#FF3B3B" : "#888", minWidth: "2rem" }}>
+                        <span className="text-[10px] font-bold text-white">{pct}%</span>
+                      </div>
+                    </div>
+                    <div className="text-xs w-12 text-right shrink-0" style={{ color: "var(--text-3)" }}>
+                      {s.vyhrane}/{s.vyhrane + s.prohrane}
+                    </div>
+                  </div>
+                )
+              })}
             </div>
           </div>
         )}
