@@ -313,9 +313,11 @@ export default function Home() {
                       {(() => {
                         if (disciplina !== "celkem") return <span/>
                         const key = `${h.id}__${aktivni}`
-                        const best = nmk[key]
+                        const historicke = nmk[key]
+                        const aktualni = h.poradi_live || 0
+                        const best = historicke ? Math.min(historicke, aktualni) : aktualni
                         if (!best) return <span/>
-                        const diff = h.poradi_live - best
+                        const diff = aktualni - best
                         if (diff === 0) return (
                           <span className="text-[8px] font-black w-5 h-4 flex items-center justify-center rounded" style={{background:"#F5A623",color:"#fff"}}>
                             {best}
@@ -390,9 +392,11 @@ export default function Home() {
                       {(() => {
                         if (disciplina !== "celkem") return <span/>
                         const key = `${h.id}__${aktivni}`
-                        const best = nmk[key]
+                        const historicke = nmk[key]
+                        const aktualni = h.poradi_live || 0
+                        const best = historicke ? Math.min(historicke, aktualni) : aktualni
                         if (!best) return <span/>
-                        const diff = (h.poradi_live||0) - best
+                        const diff = aktualni - best
                         const bg = diff===0?"#F5A623":diff<=5?"#00B14F":diff<=30?"#6E7681":"#0D1117"
                         const border = diff>30?"1px solid #30363D":"none"
                         return <span className="text-[9px] font-black w-5 h-5 flex items-center justify-center rounded shrink-0" style={{background:bg,color:"#fff",border}}>{best}</span>
