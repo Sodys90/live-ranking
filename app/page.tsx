@@ -401,7 +401,7 @@ export default function Home() {
 
                       {/* Jméno */}
                       <div className="min-w-0 group flex items-center gap-2">
-                        <a href={`https://cztenis.cz/hrac/${h.id}`} target="_blank" rel="noopener noreferrer"
+                        <a href={`/hrac/${h.id}`}
                           className="font-semibold text-sm truncate flex items-center gap-1 hover:underline"
                           style={{color:"var(--text)"}}>
                           <span className="truncate">{h.jmeno}</span>
@@ -462,7 +462,7 @@ export default function Home() {
                       })()}
 
                       <div className="min-w-0">
-                        <a href={`https://cztenis.cz/hrac/${h.id}`} target="_blank" rel="noopener noreferrer"
+                        <a href={`/hrac/${h.id}`}
                           className="font-semibold text-[13px] truncate block" style={{color:"var(--text)"}}>
                           {h.jmeno}
                         </a>
