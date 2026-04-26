@@ -39,13 +39,27 @@ export default function Home() {
 
   useEffect(() => {
     setLoading(true)
+    // Načti aktivní kategorii + trend + nmk najednou
     Promise.all([
       fetch(`/api/zebricky?kategorie=${aktivni}`).then(r => r.json()),
       fetch("/api/trend").then(r => r.json()),
       fetch("/api/nmk").then(r => r.json()),
-    ]).then(([d, t, n]) => { setData(prev => ({...prev, ...d})); setTrend(t); setNmk(n); setLoading(false) })
-      .catch(() => setLoading(false))
-  }, [aktivni])
+    ]).then(([d, t, n]) => {
+      setData(prev => ({...prev, ...d}))
+      setTrend(t)
+      setNmk(n)
+      setLoading(false)
+      // Prefetch ostatních kategorií na pozadí
+      const KATEGORIE_SLUGS = ["mladsi-zaci","mladsi-zakyne","starsi-zaci","starsi-zakyne","dorostenci","dorostenky","muzi","zeny"]
+      const ostatni = KATEGORIE_SLUGS.filter(k => k !== aktivni)
+      ostatni.forEach(kat => {
+        fetch(`/api/zebricky?kategorie=${kat}`)
+          .then(r => r.json())
+          .then(d => setData(prev => ({...prev, ...d})))
+          .catch(() => {})
+      })
+    }).catch(() => setLoading(false))
+  }, [])
 
   const aktivniKat = KATEGORIE.find(k => k.slug === aktivni)
   const kat        = data?.[aktivni]
