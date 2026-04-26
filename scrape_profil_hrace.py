@@ -130,11 +130,13 @@ def parse_turnaj(match, sezona, hrac_id, kategorie_slug):
             rows = table.find_all('tr')
             if len(rows) < 2: continue
 
-            souper_link = rows[1].find('a')
+            # Soupeři — může být více (čtyřhra)
+            souper_links = rows[1].find_all('a')
             souper_jmeno, souper_id = "", None
-            if souper_link:
-                souper_jmeno = re.sub(r'\s+', ' ', souper_link.get_text()).strip()
-                m_id = re.search(r'/hrac/(\d+)', souper_link.get('href', ''))
+            if souper_links:
+                jmena = [re.sub(r'\s+', ' ', a.get_text()).strip() for a in souper_links]
+                souper_jmeno = " / ".join(jmena)
+                m_id = re.search(r'/hrac/(\d+)', souper_links[0].get('href', ''))
                 if m_id: souper_id = int(m_id.group(1))
 
             svg = result.find('svg')
