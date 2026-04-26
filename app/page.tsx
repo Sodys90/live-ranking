@@ -266,9 +266,9 @@ export default function Home() {
               ].map(s=>(
                 <div key={s.label} title={s.tip}
                   className="flex flex-col items-center sm:flex-row sm:items-baseline gap-1 sm:gap-2 px-3 py-2.5 rounded-lg cursor-help"
-                  style={{background:"var(--bg-2)",border:"1px solid var(--border)"}}>
+                  style={{background:"var(--bg-card)",border:"1px solid var(--border)"}}>
                   <span className="text-2xl font-black mono leading-none" style={{color:"#FF3B3B"}}>{s.value}</span>
-                  <span className="text-[9px] font-medium uppercase tracking-widest" style={{color:"var(--text-3)", opacity:"0.6"}}>{s.label}</span>
+                  <span className="text-[9px] font-medium uppercase tracking-widest" style={{color:"var(--text-2)"}}>{s.label}</span>
                 </div>
               ))}
             </div>
