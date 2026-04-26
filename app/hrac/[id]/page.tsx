@@ -78,6 +78,9 @@ export default function HracProfil() {
   const prohry = indZapasy.filter(z => !z.vyhral).length
   const winRate = indZapasy.length > 0 ? Math.round(vyhry / indZapasy.length * 100) : 0
 
+  // Forma — posledních 10 zápasů jednotlivců (nejnovější první)
+  const formaZapasy = [...indZapasy].slice(0, 10)
+
   const grafData = [...indTurnaje].sort((a, b) => (b.body_dv + b.body_ct) - (a.body_dv + a.body_ct)).slice(0, 10)
   const maxBody = Math.max(...grafData.map(t => t.body_dv + t.body_ct), 1)
 
@@ -152,6 +155,25 @@ export default function HracProfil() {
             </div>
           ))}
         </div>
+
+        {/* Forma */}
+        {formaZapasy.length > 0 && (
+          <div className="rounded-xl p-5 mb-5" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+            <div className="flex items-center justify-between mb-3">
+              <div className="text-sm font-bold" style={{ color: "var(--text)" }}>Forma</div>
+              <div className="text-xs" style={{ color: "var(--text-3)" }}>posledních {formaZapasy.length} zápasů</div>
+            </div>
+            <div className="flex gap-1.5 flex-wrap">
+              {formaZapasy.map((z, i) => (
+                <div key={i} title={`${z.vyhral ? "V" : "P"} vs ${z.souper_jmeno} ${z.vysledek}`}
+                  className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-black cursor-help transition-transform hover:scale-110"
+                  style={{ background: z.vyhral ? "#22c55e" : "#FF3B3B", color: "#fff" }}>
+                  {z.vyhral ? "V" : "P"}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {grafData.length > 0 && (
           <div className="rounded-xl p-5 mb-5" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
