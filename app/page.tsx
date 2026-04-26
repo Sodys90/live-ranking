@@ -58,6 +58,8 @@ export default function Home() {
           .then(d => setData(prev => ({...prev, ...d})))
           .catch(() => {})
       })
+      // Prefetch klubů na pozadí
+      fetch('/api/kluby').catch(() => {})
     }).catch(() => setLoading(false))
   }, [])
 
