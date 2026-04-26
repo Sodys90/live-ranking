@@ -312,9 +312,6 @@ export default function Home() {
                       {/* MK badge - pouze pro celkové pořadí */}
                       {(() => {
                         if (disciplina !== "celkem") return <span/>
-                        if (jeTeItf) {
-                        if (jeTeItf) return <span/>
-                        }
                         const key = `${h.id}__${aktivni}`
                         const best = nmk[key]
                         if (!best) return <span/>
@@ -392,9 +389,6 @@ export default function Home() {
                       {/* NH badge mobil */}
                       {(() => {
                         if (disciplina !== "celkem") return <span/>
-                        if (jeTeItf) {
-                        if (jeTeItf) return <span/>
-                        }
                         const key = `${h.id}__${aktivni}`
                         const best = nmk[key]
                         if (!best) return <span/>
