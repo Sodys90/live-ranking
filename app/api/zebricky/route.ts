@@ -98,15 +98,32 @@ export async function GET() {
     let poradi = 1
     for (let i = 0; i < hraci.length; i++) {
       const h = hraci[i]
-      if (i > 0 && !hraci[i-1].te_itf && hraci[i-1].body_celkem === h.body_celkem && !h.te_itf) {
+      if (i > 0 && hraci[i-1].body_celkem === h.body_celkem && !h.te_itf && !hraci[i-1].te_itf) {
         h.poradi_live = hraci[i-1].poradi_live
-      } else if (h.te_itf) {
-        h.poradi_live = poradi
       } else {
         h.poradi_live = poradi
       }
       h.bh = vypocitejBH(h.poradi_live, pocetSBody)
       poradi++
+    }
+
+    // Přiřaď české pořadí ITF hráčům (kde by byli bez ITF předřazení)
+    const cestiSerazeni = [...hraci].filter(h => !h.te_itf).sort((a,b) => (b.body_celkem??0)-(a.body_celkem??0))
+    let cesPoradi = 1
+    for (let i = 0; i < cestiSerazeni.length; i++) {
+      const h = cestiSerazeni[i]
+      if (i > 0 && cestiSerazeni[i-1].body_celkem === h.body_celkem) {
+        h.poradi_ceske = cestiSerazeni[i-1].poradi_ceske
+      } else {
+        h.poradi_ceske = cesPoradi
+      }
+      cesPoradi++
+    }
+    // ITF hráči dostanou české pořadí podle jejich bodů
+    for (const h of hraci.filter(h => h.te_itf)) {
+      const ceskeBody = h.body_celkem ?? 0
+      const ceskyRank = cestiSerazeni.findIndex(c => (c.body_celkem??0) <= ceskeBody)
+      h.poradi_ceske = ceskyRank >= 0 ? (cestiSerazeni[ceskyRank].poradi_ceske ?? cesPoradi) : cesPoradi
     }
 
     output[kat.slug] = { nazev: kat.slug, aktualizace, hraci }
