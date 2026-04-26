@@ -549,20 +549,31 @@ export default function HracProfil() {
                         </span>
                       )}
                     </div>
-                    {/* Zápasy */}
-                    {zap.map((z, i) => (
-                      <div key={i} className="grid items-center px-4 py-2 transition-colors"
-                        style={{ gridTemplateColumns: "4rem 1fr 7rem 2rem", background: i % 2 === 0 ? "var(--bg-card)" : "var(--bg-stripe)", borderBottom: i < zap.length-1 ? "1px solid var(--border)" : "none" }}
-                        onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = "var(--bg-hover)" }}
-                        onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = i % 2 === 0 ? "var(--bg-card)" : "var(--bg-stripe)" }}>
-                        <span className="text-xs font-bold" style={{ color: "var(--text-3)" }}>{z.kolo}</span>
-                        <div className="text-sm font-semibold truncate" style={{ color: "var(--text)" }}>
-                          {z.souper_id ? <a href={`/hrac/${z.souper_id}`} className="hover:underline">{z.souper_jmeno}</a> : z.souper_jmeno || "—"}
+                    {/* Zápasy — oddělené DV a CT */}
+                    {["dv", "ct"].map(disc => {
+                      const discZap = zap.filter(z => z.disciplina === disc)
+                      if (discZap.length === 0) return null
+                      return (
+                        <div key={disc}>
+                          <div className="px-4 py-1 text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--text-3)", background: "var(--bg-stripe)", borderBottom: "1px solid var(--border)" }}>
+                            {disc === "dv" ? "Dvouhra" : "Čtyřhra"}
+                          </div>
+                          {discZap.map((z, i) => (
+                            <div key={i} className="grid items-center px-4 py-2 transition-colors"
+                              style={{ gridTemplateColumns: "4rem 1fr 7rem 2rem", background: i % 2 === 0 ? "var(--bg-card)" : "var(--bg-stripe)", borderBottom: i < discZap.length-1 ? "1px solid var(--border)" : "none" }}
+                              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = "var(--bg-hover)" }}
+                              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = i % 2 === 0 ? "var(--bg-card)" : "var(--bg-stripe)" }}>
+                              <span className="text-xs font-bold" style={{ color: "var(--text-3)" }}>{z.kolo}</span>
+                              <div className="text-sm font-semibold truncate" style={{ color: "var(--text)" }}>
+                                {z.souper_id ? <a href={`/hrac/${z.souper_id}`} className="hover:underline">{z.souper_jmeno}</a> : z.souper_jmeno || "—"}
+                              </div>
+                              <div className="text-center text-xs font-mono font-bold" style={{ color: z.vyhral ? "#22c55e" : "#FF3B3B" }}>{z.vysledek || "—"}</div>
+                              <div className="text-center text-sm">{z.vyhral ? "✓" : "✗"}</div>
+                            </div>
+                          ))}
                         </div>
-                        <div className="text-center text-xs font-mono font-bold" style={{ color: z.vyhral ? "#22c55e" : "#FF3B3B" }}>{z.vysledek || "—"}</div>
-                        <div className="text-center text-sm">{z.vyhral ? "✓" : "✗"}</div>
-                      </div>
-                    ))}
+                      )
+                    })}
                   </div>
                 )
               })}
