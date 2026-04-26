@@ -5,6 +5,7 @@ import ThemeToggle from "../components/ThemeToggle"
 
 const KATEGORIE = [
   { slug: "vse",           nazev: "Vše" },
+  { slug: "mladez",        nazev: "Mládež" },
   { slug: "mladsi-zaci",   nazev: "Ml. žáci" },
   { slug: "mladsi-zakyne", nazev: "Ml. žákyně" },
   { slug: "starsi-zaci",   nazev: "St. žáci" },
@@ -56,7 +57,8 @@ export default function KlubovyZebricek() {
   useEffect(() => {
     setLoading(true)
     const params = new URLSearchParams()
-    if (kategorie !== "vse") params.set("kategorie", kategorie)
+    if (kategorie === "mladez") params.set("kategorie", "mladez")
+    else if (kategorie !== "vse") params.set("kategorie", kategorie)
     if (svaz !== "Vše") params.set("svaz", svaz)
     Promise.all([
       fetch(`/api/kluby?${params}`).then(r => r.json()),

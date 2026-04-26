@@ -10,6 +10,7 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
   const kategorie = searchParams.get('kategorie')
   const svaz = searchParams.get('svaz')
+  const MLADEZ = ["mladsi-zaci","mladsi-zakyne","starsi-zaci","starsi-zakyne","dorostenci","dorostenky"]
 
   const vsechnaData: any[] = []
   let from = 0
@@ -19,7 +20,8 @@ export async function GET(request: Request) {
       .select('klub, kategorie_slug, body_dv, body_ct, body_celkem, te_itf')
       .not('klub', 'is', null)
       .range(from, from + 999)
-    if (kategorie) query = query.eq('kategorie_slug', kategorie)
+    if (kategorie === 'mladez') query = query.in('kategorie_slug', MLADEZ)
+    else if (kategorie) query = query.eq('kategorie_slug', kategorie)
     const { data, error } = await query
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
     if (!data || data.length === 0) break
