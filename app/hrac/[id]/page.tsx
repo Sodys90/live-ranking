@@ -28,6 +28,8 @@ export default function HracProfil() {
   const id = params?.id as string
 
   const [hrac, setHrac] = useState<any>(null)
+  const [hraci, setHraci] = useState<any[]>([])
+  const [aktivniKat, setAktivniKat] = useState<string | null>(null)
   const [turnaje, setTurnaje] = useState<any[]>([])
   const [zapasy, setZapasy] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
@@ -38,11 +40,12 @@ export default function HracProfil() {
   useEffect(() => {
     if (!id) return
     Promise.all([
-      sb("hraci", `id=eq.${id}&limit=1`),
+      sb("hraci", `id=eq.${id}&order=body_celkem.desc`),
       sb("turnaje_hrace", `hrac_id=eq.${id}&order=datum_str.desc`),
       sb("zapasy_hrace", `hrac_id=eq.${id}&order=id.desc`),
     ]).then(([h, t, z]) => {
       setHrac(h[0])
+      setHraci(h)
       setTurnaje(t)
       setZapasy(z)
       setLoading(false)
@@ -54,6 +57,8 @@ export default function HracProfil() {
       <div className="w-8 h-8 rounded-full border-2 animate-spin" style={{ borderColor: "var(--border)", borderTopColor: "#FF3B3B" }} />
     </div>
   )
+
+  const aktivniHrac = hraci.find(h => h.kategorie_slug === aktivniKat) ?? hrac
 
   if (!hrac) return (
     <div className="min-h-screen flex items-center justify-center" style={{ background: "var(--bg)" }}>
@@ -204,8 +209,8 @@ export default function HracProfil() {
                 <span className="text-xs font-bold px-2 py-0.5 rounded" style={{ background: "var(--bg-2)", color: "var(--text-3)", border: "1px solid var(--border)" }}>
                   {hrac.kategorie_slug?.replace(/-/g, " ")}
                 </span>
-                {hrac.bh > 0 && (
-                  <span className="text-xs font-bold px-2 py-0.5 rounded" style={{ background: "#FF3B3B18", color: "#FF3B3B", border: "1px solid #FF3B3B30" }}>BH {hrac.bh}</span>
+                {aktivniHrac.bh > 0 && (
+                  <span className="text-xs font-bold px-2 py-0.5 rounded" style={{ background: "#FF3B3B18", color: "#FF3B3B", border: "1px solid #FF3B3B30" }}>BH {aktivniHrac.bh}</span>
                 )}
               </div>
               <h1 className="text-2xl font-black mb-1" style={{ color: "var(--text)" }}>{hrac.jmeno}</h1>
@@ -216,21 +221,21 @@ export default function HracProfil() {
               </div>
             </div>
             <div className="text-right shrink-0">
-              <div className="text-3xl font-black mono" style={{ color: "#FF3B3B" }}>{hrac.body_celkem}</div>
+              <div className="text-3xl font-black mono" style={{ color: "#FF3B3B" }}>{aktivniHrac.body_celkem}</div>
               <div className="text-xs" style={{ color: "var(--text-3)" }}>bodů celkem</div>
-              {hrac.poradi_live > 0 && <div className="text-sm font-bold mt-1" style={{ color: "var(--text-2)" }}>#{hrac.poradi_live}</div>}
+              {aktivniHrac.poradi_live > 0 && <div className="text-sm font-bold mt-1" style={{ color: "var(--text-2)" }}>#{aktivniHrac.poradi_live}</div>}
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3 mt-4">
             <div className="rounded-lg px-4 py-3" style={{ background: "var(--bg-2)", border: "1px solid var(--border)" }}>
               <div className="text-xs font-medium mb-1" style={{ color: "var(--text-3)" }}>DVOUHRA</div>
-              <div className="text-xl font-black mono" style={{ color: "var(--text)" }}>{hrac.body_dv}</div>
-              <div className="text-xs mt-1" style={{ color: "var(--text-3)" }}>Top akce: {hrac.akce_dv?.slice(0, 3).join(", ")}</div>
+              <div className="text-xl font-black mono" style={{ color: "var(--text)" }}>{aktivniHrac.body_dv}</div>
+              <div className="text-xs mt-1" style={{ color: "var(--text-3)" }}>Top akce: {aktivniHrac.akce_dv?.slice(0, 3).join(", ")}</div>
             </div>
             <div className="rounded-lg px-4 py-3" style={{ background: "var(--bg-2)", border: "1px solid var(--border)" }}>
               <div className="text-xs font-medium mb-1" style={{ color: "var(--text-3)" }}>ČTYŘHRA</div>
-              <div className="text-xl font-black mono" style={{ color: "var(--text)" }}>{hrac.body_ct}</div>
-              <div className="text-xs mt-1" style={{ color: "var(--text-3)" }}>Top akce: {hrac.akce_ct?.slice(0, 3).join(", ")}</div>
+              <div className="text-xl font-black mono" style={{ color: "var(--text)" }}>{aktivniHrac.body_ct}</div>
+              <div className="text-xs mt-1" style={{ color: "var(--text-3)" }}>Top akce: {aktivniHrac.akce_ct?.slice(0, 3).join(", ")}</div>
             </div>
           </div>
         </div>
