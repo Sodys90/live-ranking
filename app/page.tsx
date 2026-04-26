@@ -63,6 +63,12 @@ export default function Home() {
       setTrend(t)
       setNmk(n)
       setLoading(false)
+      // Uložit ihned první kategorii do cache
+      try {
+        sessionStorage.setItem('cache_hraci', JSON.stringify(d))
+        sessionStorage.setItem('cache_trend', JSON.stringify(t))
+        sessionStorage.setItem('cache_nmk', JSON.stringify(n))
+      } catch(e) {}
       // Prefetch ostatních kategorií na pozadí + uložit vše do sessionStorage
       const KATEGORIE_SLUGS = ["mladsi-zaci","mladsi-zakyne","starsi-zaci","starsi-zakyne","dorostenci","dorostenky","muzi","zeny"]
       const ostatni = KATEGORIE_SLUGS.filter(k => k !== aktivni)
