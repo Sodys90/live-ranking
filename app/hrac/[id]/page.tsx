@@ -78,6 +78,21 @@ export default function HracProfil() {
   const prohry = indZapasy.filter(z => !z.vyhral).length
   const winRate = indZapasy.length > 0 ? Math.round(vyhry / indZapasy.length * 100) : 0
 
+  // Sety
+  const setStats = indZapasy.reduce((acc, z) => {
+    if (!z.vysledek) return acc
+    z.vysledek.split(" ").forEach((set: string) => {
+      const [h, s] = set.split(":").map(Number)
+      if (!isNaN(h) && !isNaN(s)) {
+        if (h > s) acc.vyhrane++
+        else acc.prohrane++
+      }
+    })
+    return acc
+  }, { vyhrane: 0, prohrane: 0 })
+  const setWinRate = (setStats.vyhrane + setStats.prohrane) > 0
+    ? Math.round(setStats.vyhrane / (setStats.vyhrane + setStats.prohrane) * 100) : 0
+
   // Forma — posledních 10 zápasů jednotlivců (nejnovější první)
   const formaZapasy = [...indZapasy].slice(0, 10)
 
@@ -148,6 +163,7 @@ export default function HracProfil() {
             { label: "Výher", value: `${vyhry}/${indZapasy.length}` },
             { label: "Win rate", value: `${winRate}%` },
             { label: "Titulů", value: vitezstvi },
+            { label: "Sety %", value: `${setWinRate}%` },
           ].map(s => (
             <div key={s.label} className="rounded-lg px-4 py-3" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
               <div className="text-2xl font-black mono" style={{ color: "#FF3B3B" }}>{s.value}</div>
