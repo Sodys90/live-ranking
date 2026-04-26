@@ -42,7 +42,7 @@ export default function HracProfil() {
     Promise.all([
       sb("hraci", `id=eq.${id}&order=body_celkem.desc`),
       sb("turnaje_hrace", `hrac_id=eq.${id}&order=datum_str.desc`),
-      sb("zapasy_hrace", `hrac_id=eq.${id}&order=id.desc`),
+      sb("zapasy_hrace", `hrac_id=eq.${id}&order=id.asc`),
     ]).then(([h, t, z]) => {
       setHrac(h[0])
       setHraci(h)
