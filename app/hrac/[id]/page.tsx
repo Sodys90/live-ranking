@@ -118,6 +118,24 @@ export default function HracProfil() {
     .sort((a, b) => (b.vyhry + b.prohry) - (a.vyhry + a.prohry))
     .slice(0, 3)
 
+  // Povrch — výhry/prohry per povrch
+  const povrchMap: Record<string, { vyhry: number; prohry: number }> = {}
+  indTurnaje.forEach(t => {
+    if (!t.povrch) return
+    const p = t.povrch.trim()
+    if (!povrchMap[p]) povrchMap[p] = { vyhry: 0, prohry: 0 }
+    // Najdi zápasy tohoto turnaje
+    const turnajZapasy = indZapasy.filter(z => z.turnaj_kod === t.turnaj_kod)
+    turnajZapasy.forEach(z => {
+      if (z.vyhral) povrchMap[p].vyhry++
+      else povrchMap[p].prohry++
+    })
+  })
+  const povrchStats = Object.entries(povrchMap)
+    .map(([nazev, s]) => ({ nazev, ...s, total: s.vyhry + s.prohry, pct: Math.round(s.vyhry / (s.vyhry + s.prohry) * 100) }))
+    .filter(p => p.total > 0)
+    .sort((a, b) => b.total - a.total)
+
   // Forma — posledních 10 zápasů jednotlivců (nejnovější první)
   const formaZapasy = [...indZapasy].slice(0, 10)
 
@@ -241,6 +259,29 @@ export default function HracProfil() {
                   </div>
                 )
               })}
+            </div>
+          </div>
+        )}
+
+        {/* Povrch */}
+        {povrchStats.length > 0 && (
+          <div className="rounded-xl p-5 mb-5" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+            <div className="text-sm font-bold mb-4" style={{ color: "var(--text)" }}>Výsledky podle povrchu</div>
+            <div className="space-y-2">
+              {povrchStats.map((p, i) => (
+                <div key={i} className="flex items-center gap-3">
+                  <div className="text-xs font-semibold w-20 shrink-0" style={{ color: "var(--text-3)" }}>{p.nazev}</div>
+                  <div className="flex-1 rounded-full overflow-hidden h-5" style={{ background: "var(--bg-2)" }}>
+                    <div className="h-full rounded-full flex items-center justify-end pr-2"
+                      style={{ width: `${p.pct}%`, background: p.pct >= 60 ? "#22c55e" : p.pct >= 40 ? "#FF3B3B" : "#888", minWidth: "1.5rem" }}>
+                      <span className="text-[10px] font-bold text-white">{p.pct}%</span>
+                    </div>
+                  </div>
+                  <div className="text-xs w-10 text-right shrink-0 font-mono" style={{ color: "var(--text-3)" }}>
+                    {p.vyhry}/{p.total}
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         )}
