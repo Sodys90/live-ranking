@@ -168,7 +168,7 @@ export default function Home() {
                 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF60" strokeWidth="2.5">
                   <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
                 </svg>
-                <span className="text-[10px] font-semibold" style={{color:"#FFFFFF70"}}>Aktualizován: {formatDatum(kat.aktualizace)}</span>
+                <span className="text-[10px] font-semibold" style={{color:"#FFFFFF70"}}>Data aktualizována: {formatDatum(kat.aktualizace)}</span>
                 <span className="text-[10px]" style={{color:"#FFFFFF30"}}>·</span>
                 <span className="text-[10px] font-semibold" style={{color:"#FFFFFF40"}}>Další: {nextMonday()}</span>
               </div>
@@ -216,7 +216,7 @@ export default function Home() {
               <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-3 h-3" style={{color:"var(--text-3)"}} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                 <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
               </svg>
-              <input type="text" placeholder="Hledat hráče nebo klub..."
+              <input type="text" placeholder="Zadej jméno hráče nebo klub"
                 value={hledej} onChange={e=>setHledej(e.target.value)}
                 className="w-full pl-8 pr-3 py-1.5 rounded-lg text-xs focus:outline-none"
                 style={{background:"var(--bg-card)",border:"1px solid var(--border)",color:"var(--text)"}} />
@@ -276,7 +276,7 @@ export default function Home() {
                   <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
                 </svg>
                 <span className="text-[10px] font-semibold" style={{color:"var(--text-3)"}}>
-                  Aktualizován: {formatDatum(kat.aktualizace)} · Další: {nextMonday()}
+                  Data aktualizována: {formatDatum(kat.aktualizace)} · Další: {nextMonday()}
                 </span>
               </div>
             )}
@@ -456,7 +456,7 @@ export default function Home() {
               })}
 
               {hraci.length===0 && (
-                <div className="text-center py-16 text-sm" style={{color:"var(--text-3)"}}>Žádní hráči nenalezeni</div>
+                <div className="text-center py-16 text-sm" style={{color:"var(--text-3)"}}>Nenašli jsme žádné výsledky. Zkus jiné jméno.</div>
               )}
             </div>
 

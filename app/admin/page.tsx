@@ -168,7 +168,7 @@ export default function AdminPage() {
             <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5" style={{color:"var(--text-3)"}} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
               <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
             </svg>
-            <input type="text" placeholder="Hledat hráče podle jména..."
+            <input type="text" placeholder="Zadej jméno hráče"
               value={hledej} onChange={e => setHledej(e.target.value)}
               className="w-full pl-8 pr-3 py-2.5 rounded-lg text-sm focus:outline-none"
               style={{background:"var(--bg)",border:"1px solid var(--border)",color:"var(--text)"}} />
