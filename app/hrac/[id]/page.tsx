@@ -136,6 +136,23 @@ export default function HracProfil() {
     .filter(p => p.total > 0)
     .sort((a, b) => b.total - a.total)
 
+  // Sezónní srovnání
+  const sezonySrovnani = sezony.map(s => {
+    const st = indTurnaje.filter(t => t.sezona === s)
+    const sz = indZapasy.filter(z => z.sezona === s)
+    return {
+      sezona: s,
+      turnaju: st.length,
+      body: st.reduce((acc, t) => acc + t.body_dv + t.body_ct, 0),
+      vyhry: sz.filter(z => z.vyhral).length,
+      zapasy: sz.length,
+    }
+  })
+
+  // Průměrná kategorie turnajů
+  const kats = indTurnaje.filter(t => t.kategorie_dv).map(t => t.kategorie_dv)
+  const prumerKat = kats.length > 0 ? (kats.reduce((a: number, b: number) => a + b, 0) / kats.length).toFixed(1) : null
+
   // Forma — posledních 10 zápasů jednotlivců (nejnovější první)
   const formaZapasy = [...indZapasy].slice(0, 10)
 
@@ -282,6 +299,57 @@ export default function HracProfil() {
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+        )}
+
+        {/* Sezónní srovnání */}
+        {sezonySrovnani.length > 1 && (
+          <div className="rounded-xl p-5 mb-5" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+            <div className="text-sm font-bold mb-4" style={{ color: "var(--text)" }}>Sezónní srovnání</div>
+            <div className="grid gap-3" style={{ gridTemplateColumns: `repeat(${sezonySrovnani.length}, 1fr)` }}>
+              {sezonySrovnani.map((s, i) => (
+                <div key={i} className="rounded-lg px-3 py-3 text-center" style={{ background: "var(--bg-2)", border: "1px solid var(--border)" }}>
+                  <div className="text-xs font-bold mb-2" style={{ color: "#FF3B3B" }}>{s.sezona}</div>
+                  <div className="text-xl font-black mono" style={{ color: "var(--text)" }}>{s.body}</div>
+                  <div className="text-xs mb-2" style={{ color: "var(--text-3)" }}>bodů</div>
+                  <div className="text-sm font-bold" style={{ color: "var(--text-2)" }}>{s.vyhry}/{s.zapasy}</div>
+                  <div className="text-xs" style={{ color: "var(--text-3)" }}>zápasů</div>
+                  <div className="text-xs mt-1" style={{ color: "var(--text-3)" }}>{s.turnaju} turnajů</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Průměrná kategorie */}
+        {prumerKat && (
+          <div className="rounded-xl p-5 mb-5" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+            <div className="text-sm font-bold mb-3" style={{ color: "var(--text)" }}>Průměrná kategorie turnajů</div>
+            <div className="flex items-end gap-3">
+              <div className="text-4xl font-black mono" style={{ color: "#FF3B3B" }}>{prumerKat}</div>
+              <div className="pb-1">
+                <div className="text-xs" style={{ color: "var(--text-3)" }}>z {kats.length} turnajů</div>
+                <div className="text-xs" style={{ color: "var(--text-3)" }}>
+                  {Number(prumerKat) >= 13 ? "Převážně A turnaje" : Number(prumerKat) >= 10 ? "Mix A/B turnajů" : "Převážně B turnaje"}
+                </div>
+              </div>
+              <div className="flex-1 ml-4">
+                <div className="flex gap-1 flex-wrap">
+                  {[...Array(21)].map((_, i) => {
+                    const kat = i + 1
+                    const count = kats.filter((k: number) => k === kat).length
+                    if (count === 0) return null
+                    return (
+                      <div key={kat} title={`Kategorie ${kat}: ${count}×`}
+                        className="rounded text-[10px] font-bold px-1.5 py-0.5"
+                        style={{ background: kat >= 13 ? "#FF3B3B" : kat >= 10 ? "#FF8C00" : "var(--text-3)", color: "#fff" }}>
+                        {kat}×{count}
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
             </div>
           </div>
         )}
