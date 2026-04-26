@@ -289,9 +289,9 @@ export default function Home() {
               {hraci.map((h:any,i:number) => {
                 const jeTeItf = h.te_itf
                 const poradi  = jeTeItf ? (teItf.indexOf(h)+1) : (h.poradi_disc??i-teItf.length+1)
-                const isTop1  = !jeTeItf && poradi===1
-                const isTop2  = !jeTeItf && poradi===2
-                const isTop3  = !jeTeItf && poradi===3
+                const isTop1  = !jeTeItf && (h.poradi_live??0)===1
+                const isTop2  = !jeTeItf && (h.poradi_live??0)===2
+                const isTop3  = !jeTeItf && (h.poradi_live??0)===3
 
                 const rankColor = isTop1?"#D4A017":isTop2?"#9BA3AC":isTop3?"#A0522D":"var(--text-3)"
                 const rowBg = i%2===0?"var(--bg-card)":"var(--bg-stripe)"
@@ -311,8 +311,10 @@ export default function Home() {
 
                       {/* MK badge - pouze pro celkové pořadí */}
                       {(() => {
-                        if (jeTeItf) return <span/>
                         if (disciplina !== "celkem") return <span/>
+                        if (jeTeItf) {
+                          return <span className="text-[8px] font-black w-5 h-4 flex items-center justify-center rounded" style={{background:"#2563EB",color:"#fff"}}>{h.te_itf_poradi}</span>
+                        }
                         const key = `${h.id}__${aktivni}`
                         const best = nmk[key]
                         if (!best) return <span/>
@@ -389,8 +391,10 @@ export default function Home() {
 
                       {/* NH badge mobil */}
                       {(() => {
-                        if (jeTeItf) return <span/>
                         if (disciplina !== "celkem") return <span/>
+                        if (jeTeItf) {
+                          return <span className="text-[6px] font-black w-3.5 h-3.5 flex items-center justify-center rounded shrink-0" style={{background:"#2563EB",color:"#fff"}}>{h.te_itf_poradi}</span>
+                        }
                         const key = `${h.id}__${aktivni}`
                         const best = nmk[key]
                         if (!best) return <span/>
