@@ -437,9 +437,15 @@ export default function Home() {
                       </div>
 
                       <div className="text-right">
-                        <span className="text-sm font-black mono" style={{color:isTop1?"#D4A017":jeTeItf?"var(--text-3)":"var(--text)"}}>
-                          {bodySloupec(h)}
-                        </span>
+                        {jeTeItf ? (
+                          <span className="text-[10px] font-black px-1.5 py-0.5 rounded" style={{background:"#2563EB18",color:"#60A5FA",border:"1px solid #2563EB30"}}>
+                            {h.te_itf_typ} {h.te_itf_poradi}
+                          </span>
+                        ) : (
+                          <span className="text-sm font-black mono" style={{color:isTop1?"#D4A017":"var(--text)"}}>
+                            {bodySloupec(h)}
+                          </span>
+                        )}
                         <div className="text-[10px] mono" style={{color:"var(--text-3)"}}>BH {h.bh??0}</div>
                       </div>
                     </div>
