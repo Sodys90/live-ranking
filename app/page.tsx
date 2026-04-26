@@ -313,7 +313,7 @@ export default function Home() {
                       {(() => {
                         if (disciplina !== "celkem") return <span/>
                         if (jeTeItf) {
-                          return <span className="text-[8px] font-black w-5 h-4 flex items-center justify-center rounded" style={{background:"#2563EB",color:"#fff"}}>{h.te_itf_poradi}</span>
+                        if (jeTeItf) return <span/>
                         }
                         const key = `${h.id}__${aktivni}`
                         const best = nmk[key]
@@ -393,7 +393,7 @@ export default function Home() {
                       {(() => {
                         if (disciplina !== "celkem") return <span/>
                         if (jeTeItf) {
-                          return <span className="text-[6px] font-black w-3.5 h-3.5 flex items-center justify-center rounded shrink-0" style={{background:"#2563EB",color:"#fff"}}>{h.te_itf_poradi}</span>
+                        if (jeTeItf) return <span/>
                         }
                         const key = `${h.id}__${aktivni}`
                         const best = nmk[key]
