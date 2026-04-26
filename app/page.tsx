@@ -229,7 +229,7 @@ export default function Home() {
                 {aktivniKat.rocniky.map(r=><option key={r} value={String(r)}>{r}</option>)}
               </select>
             )}
-            <div className="flex rounded-full p-0.5 shrink-0" style={{background:"var(--bg-2)",border:"none",padding:"3px"}}>
+            <div className="flex rounded-full p-0.5 shrink-0" style={{background:"var(--bg-2)"}}>
               {[{val:"celkem",label:"Celkem",short:"C"},{val:"dv",label:"2H",short:"2H"},{val:"ct",label:"4H",short:"4H"}].map(d=>(
                 <button key={d.val} onClick={()=>setDisciplina(d.val)}
                   className="px-2.5 py-1 rounded-full text-xs font-semibold transition-all"
@@ -261,10 +261,10 @@ export default function Home() {
                 ...(teItf.length>0?[{label:"Mez. žeb.",value:teItf.length,tip:"Počet hráčů na mezinárodním žebříčku"}]:[]),
               ].map(s=>(
                 <div key={s.label} title={s.tip}
-                  className="flex flex-col items-center sm:flex-row sm:items-baseline gap-1 sm:gap-2 px-3 py-2 rounded-lg cursor-help"
-                  style={{background:"var(--bg-2)",border:"none",padding:"3px"}}>
-                  <span className="text-lg font-black mono leading-none" style={{color:"#FF3B3B"}}>{s.value}</span>
-                  <span className="text-[9px] font-bold uppercase tracking-widest" style={{color:"var(--text-3)"}}>{s.label}</span>
+                  className="flex flex-col items-center sm:flex-row sm:items-baseline gap-1 sm:gap-2 px-3 py-2.5 rounded-lg cursor-help"
+                  style={{background:"var(--bg-2)"}}>
+                  <span className="text-2xl font-black mono leading-none" style={{color:"#FF3B3B"}}>{s.value}</span>
+                  <span className="text-[9px] font-medium uppercase tracking-widest" style={{color:"var(--text-3)", opacity:"0.6"}}>{s.label}</span>
                 </div>
               ))}
             </div>
