@@ -4,6 +4,11 @@ import "./globals.css"
 
 export const metadata: Metadata = {
   title: "TenisCZ — Žebříčky mládeže",
+  icons: {
+    icon: "/favicon.svg",
+    apple: "/icon-192.png",
+  },
+  manifest: "/manifest.json",
   description: "Aktuální živý žebříček mládeže Českého tenisového svazu",
 }
 
