@@ -16,9 +16,9 @@ const KATEGORIE = [
 ]
 
 const SVAZY = [
-  "Vše", "Pražský TS", "Středočeský TS", "Jihočeský TS",
-  "Západočeský TS", "Severočeský TS", "Východočeský TS",
-  "Jihomoravský TS", "Severomoravský TS"
+  "Vše", "Praha", "Středočeský", "Jihočeský",
+  "Západočeský", "Severočeský", "Východočeský",
+  "Jihomoravský", "Severomoravský"
 ]
 
 type KlubRow = { klub: string; kategorie_slug: string; body_dv: number; body_ct: number; body_celkem: number; pocet: number; oblast: string; svaz: string }
@@ -185,7 +185,7 @@ export default function KlubovyZebricek() {
               <button key={s} onClick={() => setSvaz(s)}
                 className="px-4 py-2.5 text-xs font-semibold whitespace-nowrap shrink-0 border-b-2 transition-all"
                 style={svaz === s
-                  ? {color:"var(--text)",borderColor:"var(--text)",background:"var(--bg-2)"}
+                  ? {color:"#FF3B3B",borderColor:"#FF3B3B",background:"var(--bg-2)"}
                   : {color:"var(--text-3)",borderColor:"transparent",background:"transparent"}
                 }>
                 {s}
