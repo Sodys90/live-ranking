@@ -38,6 +38,20 @@ export default function Home() {
   }
 
   useEffect(() => {
+    // Zkus načíst ze sessionStorage
+    try {
+      const cachedData = sessionStorage.getItem('cache_hraci')
+      const cachedTrend = sessionStorage.getItem('cache_trend')
+      const cachedNmk = sessionStorage.getItem('cache_nmk')
+      if (cachedData && cachedTrend && cachedNmk) {
+        setData(JSON.parse(cachedData))
+        setTrend(JSON.parse(cachedTrend))
+        setNmk(JSON.parse(cachedNmk))
+        setLoading(false)
+        return
+      }
+    } catch(e) {}
+
     setLoading(true)
     // Načti aktivní kategorii + trend + nmk najednou
     Promise.all([
@@ -49,13 +63,26 @@ export default function Home() {
       setTrend(t)
       setNmk(n)
       setLoading(false)
-      // Prefetch ostatních kategorií na pozadí
+      // Prefetch ostatních kategorií na pozadí + uložit vše do sessionStorage
       const KATEGORIE_SLUGS = ["mladsi-zaci","mladsi-zakyne","starsi-zaci","starsi-zakyne","dorostenci","dorostenky","muzi","zeny"]
       const ostatni = KATEGORIE_SLUGS.filter(k => k !== aktivni)
+      const allData = {...d}
+      let done = 0
       ostatni.forEach(kat => {
         fetch(`/api/zebricky?kategorie=${kat}`)
           .then(r => r.json())
-          .then(d => setData(prev => ({...prev, ...d})))
+          .then(d2 => {
+            Object.assign(allData, d2)
+            setData(prev => ({...prev, ...d2}))
+            done++
+            if (done === ostatni.length) {
+              try {
+                sessionStorage.setItem('cache_hraci', JSON.stringify(allData))
+                sessionStorage.setItem('cache_trend', JSON.stringify(t))
+                sessionStorage.setItem('cache_nmk', JSON.stringify(n))
+              } catch(e) {}
+            }
+          })
           .catch(() => {})
       })
       // Prefetch klubů na pozadí + uložit do sessionStorage
