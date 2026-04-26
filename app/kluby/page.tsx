@@ -106,13 +106,13 @@ export default function KlubovyZebricek() {
             </span>
           </div>
 
-          <nav className="hidden sm:flex items-center gap-0.5">
-            <Link href="/" className="px-3 py-1.5 rounded-md text-xs font-semibold transition-colors" style={{color:"#8B949E"}}
-              onMouseEnter={e=>(e.currentTarget.style.color="#E6EDF3")}
-              onMouseLeave={e=>(e.currentTarget.style.color="#8B949E")}>
+          <nav className="hidden sm:flex items-center">
+            <Link href="/" className="px-4 py-4 text-xs font-semibold border-b-2 transition-all" style={{color:"#6E7681",borderColor:"transparent"}}
+              onMouseEnter={e=>{e.currentTarget.style.color="#E6EDF3"}}
+              onMouseLeave={e=>{e.currentTarget.style.color="#6E7681"}}>
               Hráči
             </Link>
-            <span className="px-3 py-1.5 rounded-md text-xs font-semibold" style={{background:"#FF3B3B20",color:"#FF3B3B"}}>Kluby</span>
+            <span className="px-4 py-4 text-xs font-semibold border-b-2 transition-all" style={{color:"#FF3B3B",borderColor:"#FF3B3B"}}>Kluby</span>
           </nav>
 
           <div className="flex items-center gap-3">
