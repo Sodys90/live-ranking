@@ -85,6 +85,7 @@ export default function Home() {
     return mH && mR
   })
 
+  // Při hledání zobrazíme filtrované hráče ale zachováme jejich skutečné pořadí
   const hraci = hledej||rocnik!=="vse" ? cesteFiltr : [...teItf,...cesteFiltr]
   const hasMez = vsichni.some((h:any) => h.te_itf||h.ma_mezinarodni)
 
@@ -98,9 +99,11 @@ export default function Home() {
   })
 
   const getBody  = (h:any) => disciplina==="dv"?h.body_dv:disciplina==="ct"?h.body_ct:h.body_celkem
+  // Stats vždy z celé kategorie (ignoruj hledání)
+  const vsichniSBody = cestiSerazeni.filter((h:any) => getBody(h)>0)
   const sHraci   = cesteFiltr.filter((h:any) => getBody(h)>0)
-  const topBody  = sHraci[0] ? getBody(sHraci[0]) : 0
-  const prumer   = Math.round(sHraci.reduce((s:number,h:any)=>s+getBody(h),0)/(sHraci.length||1))
+  const topBody  = vsichniSBody[0] ? getBody(vsichniSBody[0]) : 0
+  const prumer   = Math.round(vsichniSBody.reduce((s:number,h:any)=>s+getBody(h),0)/(vsichniSBody.length||1))
 
   const formatDatum = (iso:string) => new Date(iso).toLocaleDateString("cs-CZ",{day:"numeric",month:"long",year:"numeric"})
   const nextMonday = () => {
@@ -250,7 +253,7 @@ export default function Home() {
             {/* ── STATS ── */}
             <div className="grid grid-cols-3 sm:flex sm:flex-wrap gap-2 mb-4">
               {[
-                {label:"Hráčů",value:sHraci.length,tip:"Hráčů s alespoň 1 bodem"},
+                {label:"Hráčů",value:vsichniSBody.length,tip:"Hráčů s alespoň 1 bodem"},
                 {label:"Top body",value:topBody,tip:"Nejvyšší počet bodů v kategorii"},
                 {label:"Průměr",value:prumer,tip:"Průměrný počet bodů"},
                 ...(teItf.length>0?[{label:"Mez. žeb.",value:teItf.length,tip:"Počet hráčů na mezinárodním žebříčku"}]:[]),
