@@ -170,7 +170,6 @@ export default function HracProfil() {
             { label: "Výher", value: `${vyhry}/${indZapasy.length}` },
             { label: "Win rate", value: `${winRate}%` },
             { label: "Titulů", value: vitezstvi },
-            { label: "Sety %", value: `${setWinRate}%` },
           ].map(s => (
             <div key={s.label} className="rounded-lg px-4 py-3" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
               <div className="text-2xl font-black mono" style={{ color: "#FF3B3B" }}>{s.value}</div>
