@@ -46,7 +46,6 @@ export default function KlubovyZebricek() {
   const [svazScroll, setSvazScroll] = useState({left: false, right: true})
   const katRef = useRef<HTMLDivElement>(null)
   const svazRef = useRef<HTMLDivElement>(null)
-  const [data, setData]           = useState<KlubRow[]>([])
   const [loading, setLoading]     = useState(true)
   const [kategorie, setKategorie] = useState("vse")
   const [svaz, setSvaz]           = useState("Vše")
@@ -54,25 +53,43 @@ export default function KlubovyZebricek() {
   const [hledej, setHledej]       = useState("")
   const [aktualizace, setAktualizace] = useState<string|null>(null)
 
+  // Cache pro všechna data klubů
+  const [allKluby, setAllKluby] = useState<any[]>([])
+
+  // Načti vše jednou — ze sessionStorage nebo API
   useEffect(() => {
-    setLoading(true)
-    const params = new URLSearchParams()
-    if (kategorie === "mladez") params.set("kategorie", "mladez")
-    else if (kategorie !== "vse") params.set("kategorie", kategorie)
-    if (svaz !== "Vše") params.set("svaz", svaz)
-    Promise.all([
-      fetch(`/api/kluby?${params}`).then(r => r.json()),
-      fetch('/api/zebricky').then(r => r.json()),
-    ]).then(([d, z]) => {
-      setData(d)
-      const kat = Object.values(z)[0] as any
-      if (kat?.aktualizace) setAktualizace(kat.aktualizace)
+    try {
+      const cached = sessionStorage.getItem('cache_kluby_vse')
+      if (cached) {
+        setAllKluby(JSON.parse(cached))
+        setLoading(false)
+        return
+      }
+    } catch(e) {}
+    fetch('/api/kluby').then(r => r.json()).then(d => {
+      setAllKluby(d)
+      try { sessionStorage.setItem('cache_kluby_vse', JSON.stringify(d)) } catch(e) {}
       setLoading(false)
     }).catch(() => setLoading(false))
-  }, [kategorie, svaz])
+  }, [])
+
+  // Načti datum aktualizace jednou
+  useEffect(() => {
+    fetch('/api/zebricky').then(r => r.json()).then(z => {
+      const kat = Object.values(z)[0] as any
+      if (kat?.aktualizace) setAktualizace(kat.aktualizace)
+    }).catch(() => {})
+  }, [])
+
+  const MLADEZ_SLUGS = ["mladsi-zaci","mladsi-zakyne","starsi-zaci","starsi-zakyne","dorostenci","dorostenky"]
+  const filtrovane = allKluby.filter(r => {
+    if (kategorie === "mladez") return MLADEZ_SLUGS.includes(r.kategorie_slug)
+    if (kategorie !== "vse") return r.kategorie_slug === kategorie
+    return true
+  }).filter(r => svaz === "Vše" || r.svaz === svaz)
 
   const aggMap: Record<string, AggRow> = {}
-  for (const r of data) {
+  for (const r of filtrovane) {
     if (!aggMap[r.klub]) aggMap[r.klub] = { klub: r.klub, body_dv: 0, body_ct: 0, body_celkem: 0, pocet: 0, oblast: r.oblast, svaz: r.svaz }
     aggMap[r.klub].body_dv     += r.body_dv
     aggMap[r.klub].body_ct     += r.body_ct

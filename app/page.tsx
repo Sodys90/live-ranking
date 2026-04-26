@@ -58,8 +58,11 @@ export default function Home() {
           .then(d => setData(prev => ({...prev, ...d})))
           .catch(() => {})
       })
-      // Prefetch klubů na pozadí
-      fetch('/api/kluby').catch(() => {})
+      // Prefetch klubů na pozadí + uložit do sessionStorage
+      fetch('/api/kluby')
+        .then(r => r.json())
+        .then(d => { try { sessionStorage.setItem('cache_kluby_vse', JSON.stringify(d)) } catch(e) {} })
+        .catch(() => {})
     }).catch(() => setLoading(false))
   }, [])
 
