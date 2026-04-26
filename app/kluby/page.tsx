@@ -209,12 +209,12 @@ export default function KlubovyZebricek() {
               style={{background:"var(--bg-card)",border:"1px solid var(--border)",color:"var(--text)"}} />
           </div>
 
-          <div className="flex rounded-full p-0.5" style={{background:"var(--bg-card)",border:"1px solid var(--border)"}}>
+          <div className="flex rounded-xl p-1 shrink-0" style={{background:"var(--bg-hover)"}}>
             {[{val:"celkem",label:"Celkem"},{val:"dv",label:"2H"},{val:"ct",label:"4H"}].map(d => (
               <button key={d.val} onClick={() => setDisciplina(d.val)}
-                className="px-3 py-1.5 rounded-full text-xs font-semibold transition-all"
+                className="px-3 py-1 rounded-lg text-xs font-semibold transition-all"
                 style={disciplina === d.val
-                  ? {background:"#FF3B3B",color:"#fff"}
+                  ? {background:"#FF3B3B",color:"#fff",boxShadow:"0 1px 3px rgba(0,0,0,0.15)"}
                   : {background:"transparent",color:"var(--text-3)"}}>
                 {d.label}
               </button>
