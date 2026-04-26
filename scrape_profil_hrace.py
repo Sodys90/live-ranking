@@ -8,7 +8,7 @@ from bs4 import BeautifulSoup
 from supabase import create_client
 
 BASE_URL = "https://cesky-tenis.cz"
-SEZONY = ["2026-L", "2026-Z"]
+SEZONY = ["2026-L"]  # 2026-Z je uzavřená — scrapeovat pouze jednou ručně
 
 HRACI = [
     (1061488, "Vašíček Jiří",    "mladsi-zaci", 4),
@@ -237,8 +237,9 @@ for z in vsechny_zapasy[:5]:
 # Uložení
 print("\nUkládám do Supabase...")
 hrac_ids = [h[0] for h in HRACI]
-sb.table("turnaje_hrace").delete().in_("hrac_id", hrac_ids).execute()
-sb.table("zapasy_hrace").delete().in_("hrac_id", hrac_ids).execute()
+# Smaž pouze letní sezónu — zimní zůstane
+sb.table("turnaje_hrace").delete().in_("hrac_id", hrac_ids).eq("sezona", "2026-L").execute()
+sb.table("zapasy_hrace").delete().in_("hrac_id", hrac_ids).eq("sezona", "2026-L").execute()
 
 for i in range(0, len(vsechny_turnaje), 50):
     sb.table("turnaje_hrace").insert(vsechny_turnaje[i:i+50]).execute()
