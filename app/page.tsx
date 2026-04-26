@@ -201,7 +201,7 @@ export default function Home() {
                 onClick={()=>{setAktivni(k.slug);setHledej("");setRocnik("vse")}}
                 className="px-4 py-3 text-xs font-semibold whitespace-nowrap shrink-0 border-b-2 transition-all"
                 style={aktivni===k.slug
-                  ? {color:"#FF3B3B",borderColor:"#FF3B3B",background:"transparent"}
+                  ? {color:"#FF3B3B",borderColor:"#FF3B3B",background:"var(--bg-2)"}
                   : {color:"#6E7681",borderColor:"transparent",background:"transparent"}
                 }>
                 {k.nazev}

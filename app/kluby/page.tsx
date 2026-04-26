@@ -112,7 +112,7 @@ export default function KlubovyZebricek() {
               onMouseLeave={e=>{e.currentTarget.style.color="#6E7681"}}>
               Hráči
             </Link>
-            <span className="px-4 py-4 text-xs font-semibold border-b-2 transition-all" style={{color:"#FF3B3B",borderColor:"#FF3B3B"}}>Kluby</span>
+            <span className="px-4 py-4 text-xs font-semibold border-b-2 transition-all" style={{color:"#FF3B3B",borderColor:"#FF3B3B",background:"var(--bg-2)"}}>Kluby</span>
           </nav>
 
           <div className="flex items-center gap-3">
@@ -152,7 +152,7 @@ export default function KlubovyZebricek() {
               <button key={k.slug} onClick={() => setKategorie(k.slug)}
                 className="px-4 py-3 text-xs font-semibold whitespace-nowrap shrink-0 border-b-2 transition-all"
                 style={kategorie === k.slug
-                  ? {color:"#FF3B3B",borderColor:"#FF3B3B",background:"transparent"}
+                  ? {color:"#FF3B3B",borderColor:"#FF3B3B",background:"var(--bg-2)"}
                   : {color:"#6E7681",borderColor:"transparent",background:"transparent"}
                 }>
                 {k.nazev}
@@ -185,7 +185,7 @@ export default function KlubovyZebricek() {
               <button key={s} onClick={() => setSvaz(s)}
                 className="px-4 py-2.5 text-xs font-semibold whitespace-nowrap shrink-0 border-b-2 transition-all"
                 style={svaz === s
-                  ? {color:"var(--text)",borderColor:"var(--text)",background:"transparent"}
+                  ? {color:"var(--text)",borderColor:"var(--text)",background:"var(--bg-2)"}
                   : {color:"var(--text-3)",borderColor:"transparent",background:"transparent"}
                 }>
                 {s}
