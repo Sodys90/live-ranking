@@ -100,6 +100,11 @@ export default function HracProfil() {
     (s.vyhrane + s.prohrane) > 0 ? Math.round(s.vyhrane / (s.vyhrane + s.prohrane) * 100) : null
   )
 
+  // Průměr setů na zápas
+  const zapasySeSetem = indZapasy.filter(z => z.vysledek && z.vysledek.trim())
+  const celkemSetu = zapasySeSetem.reduce((acc, z) => acc + z.vysledek.trim().split(" ").length, 0)
+  const prumerSetu = zapasySeSetem.length > 0 ? (celkemSetu / zapasySeSetem.length).toFixed(1) : "—"
+
   // Forma — posledních 10 zápasů jednotlivců (nejnovější první)
   const formaZapasy = [...indZapasy].slice(0, 10)
 
@@ -170,6 +175,7 @@ export default function HracProfil() {
             { label: "Výher", value: `${vyhry}/${indZapasy.length}` },
             { label: "Win rate", value: `${winRate}%` },
             { label: "Titulů", value: vitezstvi },
+            { label: "Prům. sety", value: prumerSetu },
           ].map(s => (
             <div key={s.label} className="rounded-lg px-4 py-3" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
               <div className="text-2xl font-black mono" style={{ color: "#FF3B3B" }}>{s.value}</div>
