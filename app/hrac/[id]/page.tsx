@@ -110,19 +110,6 @@ export default function HracProfil() {
   const celkemSetu = zapasySeSetem.reduce((acc, z) => acc + z.vysledek.trim().split(" ").length, 0)
   const prumerSetu = zapasySeSetem.length > 0 ? (celkemSetu / zapasySeSetem.length).toFixed(1) : "—"
 
-  // H2H — nejčastější soupeři
-  const h2hMap: Record<string, { jmeno: string; id: number | null; vyhry: number; prohry: number }> = {}
-  indZapasy.forEach(z => {
-    if (!z.souper_jmeno) return
-    const key = z.souper_jmeno
-    if (!h2hMap[key]) h2hMap[key] = { jmeno: z.souper_jmeno, id: z.souper_id, vyhry: 0, prohry: 0 }
-    if (z.vyhral) h2hMap[key].vyhry++
-    else h2hMap[key].prohry++
-  })
-  const h2h = Object.values(h2hMap)
-    .sort((a, b) => (b.vyhry + b.prohry) - (a.vyhry + a.prohry))
-    .slice(0, 3)
-
   // Povrch — výhry/prohry per povrch
   const povrchMap: Record<string, { vyhry: number; prohry: number }> = {}
   indTurnaje.forEach(t => {
@@ -270,35 +257,6 @@ export default function HracProfil() {
                   {z.vyhral ? "V" : "P"}
                 </div>
               ))}
-            </div>
-          </div>
-        )}
-
-        {/* H2H */}
-        {h2h.length > 0 && (
-          <div className="rounded-xl p-5 mb-5" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
-            <div className="text-sm font-bold mb-4" style={{ color: "var(--text)" }}>Nejčastější soupeři</div>
-            <div className="space-y-2">
-              {h2h.map((s, i) => {
-                const total = s.vyhry + s.prohry
-                const pct = Math.round(s.vyhry / total * 100)
-                return (
-                  <div key={i} className="flex items-center gap-3">
-                    <div className="text-sm font-semibold w-32 truncate shrink-0" style={{ color: "var(--text)" }}>
-                      {s.id ? <a href={`/hrac/${s.id}`} className="hover:underline">{s.jmeno}</a> : s.jmeno}
-                    </div>
-                    <div className="flex-1 rounded-full overflow-hidden h-5" style={{ background: "var(--bg-2)" }}>
-                      <div className="h-full rounded-full flex items-center justify-end pr-2"
-                        style={{ width: `${pct}%`, background: pct >= 50 ? "#22c55e" : "#FF3B3B", minWidth: "1.5rem" }}>
-                        <span className="text-[10px] font-bold text-white">{pct}%</span>
-                      </div>
-                    </div>
-                    <div className="text-xs w-10 text-right shrink-0 font-mono" style={{ color: "var(--text-3)" }}>
-                      {s.vyhry}/{total}
-                    </div>
-                  </div>
-                )
-              })}
             </div>
           </div>
         )}
