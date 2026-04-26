@@ -168,7 +168,7 @@ export default function HracProfil() {
     mesicMap[key].turnaju++
     mesicMap[key].body += t.body_dv + t.body_ct
   })
-  const mesicData = Object.entries(mesicMap).sort(([a],[b]) => a.localeCompare(b)).map(([,v]) => v)
+  const mesicData = Object.entries(mesicMap).sort(([a],[b]) => b.localeCompare(a)).map(([,v]) => v)
   const maxMesicBody = Math.max(...mesicData.map(m => m.body), 1)
 
   // Forma — posledních 10 zápasů jednotlivců (nejnovější první)
@@ -350,7 +350,8 @@ export default function HracProfil() {
                   <div className="text-xs w-16 shrink-0 font-semibold" style={{ color: "var(--text-3)" }}>{m.label}</div>
                   <div className="flex-1 rounded-full overflow-hidden h-5" style={{ background: "var(--bg-2)" }}>
                     <div className="h-full rounded-full flex items-center justify-end pr-2"
-                      style={{ width: `${Math.round(m.body / maxMesicBody * 100)}%`, background: "#FF3B3B", minWidth: "1.5rem" }}>
+                      style={{ width: `${Math.round(m.body / maxMesicBody * 100)}%`, minWidth: "1.5rem",
+                        background: m.body >= maxMesicBody * 0.66 ? "#22c55e" : m.body >= maxMesicBody * 0.33 ? "#FF8C00" : "#FF3B3B" }}>
                       <span className="text-[10px] font-bold text-white">{m.body}b</span>
                     </div>
                   </div>
