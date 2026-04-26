@@ -116,11 +116,15 @@ export default function Home() {
     return d.toLocaleDateString("cs-CZ",{day:"numeric",month:"long"})
   }
 
-  const badgeStyle = (typ:string) => {
-    if (typ==="ATP"||typ==="WTA") return {background:"#7C3AED18",color:"#9F7AEA",border:"1px solid #7C3AED30"}
-    if (typ==="ITF") return {background:"#2563EB18",color:"#60A5FA",border:"1px solid #2563EB30"}
-    return {background:"#FF3B3B18",color:"#FF3B3B",border:"1px solid #FF3B3B30"}
-  }
+  const badgeStyle = (_typ:string) => ({
+    background:"var(--bg-2)",
+    color:"var(--text-2)",
+    border:"1px solid var(--border)",
+    borderRadius:"4px",
+    fontSize:"10px",
+    fontWeight:700,
+    letterSpacing:"0.05em"
+  })
 
   const bodySloupec = (h:any) => {
     if (h.te_itf) return "****"
