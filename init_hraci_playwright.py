@@ -430,15 +430,39 @@ def prepocitej_zebricky():
     if existing.data:
         print(f"⏭️  Historie pro {dnes} už existuje, přeskakuji")
     else:
+        # Načti ITF hráče pro správné pořadí
+        itf_res = sb.table("itf_hrace").select("*").eq("aktivni", True).execute()
+        itf_map = {}
+        for r in itf_res.data:
+            itf_map[f"{r['hrac_id']}__{r['kategorie_slug']}"] = r
+
+        TYP_PRI = {"ATP": 0, "WTA": 0, "ITF": 1, "TE": 2}
+
         snapshot = []
         for kat_slug, kat_data in output.items():
-            for h in kat_data["hraci"]:
-                if h.get("te_itf"): continue
-                if not h.get("poradi_live"): continue
+            hraci_kat = kat_data["hraci"][:]
+
+            # Aplikuj ITF
+            for h in hraci_kat:
+                key = f"{h['id']}__{kat_slug}"
+                if key in itf_map:
+                    h["te_itf"] = True
+                    h["te_itf_typ"] = itf_map[key]["typ"]
+                    h["te_itf_poradi"] = itf_map[key]["poradi"]
+
+            # Seřaď stejně jako API
+            def sort_key(h):
+                if h.get("te_itf"):
+                    return (0, TYP_PRI.get(h.get("te_itf_typ","TE"), 9), h.get("te_itf_poradi") or 999)
+                return (1, 0, -(h.get("body_celkem") or 0))
+            hraci_kat.sort(key=sort_key)
+
+            # Uložit skutečné # pořadí
+            for idx, h in enumerate(hraci_kat, 1):
                 snapshot.append({
                     "hrac_id":       str(h["id"]),
                     "kategorie_slug": kat_slug,
-                    "poradi":        h["poradi_live"],
+                    "poradi":        idx,
                     "body_celkem":   h.get("body_celkem") or 0,
                     "body_dv":       h.get("body_dv") or 0,
                     "body_ct":       h.get("body_ct") or 0,
