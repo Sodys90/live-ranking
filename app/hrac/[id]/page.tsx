@@ -153,6 +153,24 @@ export default function HracProfil() {
   const kats = indTurnaje.filter(t => t.kategorie_dv).map(t => t.kategorie_dv)
   const prumerKat = kats.length > 0 ? (kats.reduce((a: number, b: number) => a + b, 0) / kats.length).toFixed(1) : null
 
+  // Aktivita per měsíc
+  const MESICE = ["Led","Úno","Bře","Dub","Kvě","Čvn","Čvc","Srp","Zář","Říj","Lis","Pro"]
+  const mesicMap: Record<string, { turnaju: number; body: number; label: string }> = {}
+  indTurnaje.forEach(t => {
+    if (!t.datum_str) return
+    const parts = t.datum_str.split(".")
+    if (parts.length < 3) return
+    const m = parseInt(parts[1].trim())
+    const r = parts[2].trim()
+    if (isNaN(m) || m < 1 || m > 12) return
+    const key = `${r}-${String(m).padStart(2,"0")}`
+    if (!mesicMap[key]) mesicMap[key] = { turnaju: 0, body: 0, label: `${MESICE[m-1]} ${r}` }
+    mesicMap[key].turnaju++
+    mesicMap[key].body += t.body_dv + t.body_ct
+  })
+  const mesicData = Object.entries(mesicMap).sort(([a],[b]) => a.localeCompare(b)).map(([,v]) => v)
+  const maxMesicBody = Math.max(...mesicData.map(m => m.body), 1)
+
   // Forma — posledních 10 zápasů jednotlivců (nejnovější první)
   const formaZapasy = [...indZapasy].slice(0, 10)
 
@@ -316,6 +334,29 @@ export default function HracProfil() {
                   <div className="text-sm font-bold" style={{ color: "var(--text-2)" }}>{s.vyhry}/{s.zapasy}</div>
                   <div className="text-xs" style={{ color: "var(--text-3)" }}>zápasů</div>
                   <div className="text-xs mt-1" style={{ color: "var(--text-3)" }}>{s.turnaju} turnajů</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Aktivita per měsíc */}
+        {mesicData.length > 0 && (
+          <div className="rounded-xl p-5 mb-5" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+            <div className="text-sm font-bold mb-4" style={{ color: "var(--text)" }}>Aktivita podle měsíce</div>
+            <div className="space-y-2">
+              {mesicData.map((m, i) => (
+                <div key={i} className="flex items-center gap-3">
+                  <div className="text-xs w-16 shrink-0 font-semibold" style={{ color: "var(--text-3)" }}>{m.label}</div>
+                  <div className="flex-1 rounded-full overflow-hidden h-5" style={{ background: "var(--bg-2)" }}>
+                    <div className="h-full rounded-full flex items-center justify-end pr-2"
+                      style={{ width: `${Math.round(m.body / maxMesicBody * 100)}%`, background: "#FF3B3B", minWidth: "1.5rem" }}>
+                      <span className="text-[10px] font-bold text-white">{m.body}b</span>
+                    </div>
+                  </div>
+                  <div className="text-xs w-14 text-right shrink-0" style={{ color: "var(--text-3)" }}>
+                    {m.turnaju} turn.
+                  </div>
                 </div>
               ))}
             </div>
