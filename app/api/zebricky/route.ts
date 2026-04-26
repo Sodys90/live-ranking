@@ -33,15 +33,21 @@ function vypocitejBH(poradi: number, pocetSBody: number): number {
   return 1
 }
 
-export async function GET() {
-  // Načti všechny hráče ze Supabase se stránkováním
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url)
+  const katParam = searchParams.get("kategorie")
+  const katList = katParam ? KATEGORIE.filter(k => k.slug === katParam) : KATEGORIE
+
+  // Načti hráče ze Supabase - pouze pro požadované kategorie
   const vsichniHraci: any[] = []
   let from = 0
   while (true) {
-    const { data, error } = await supabaseAdmin
+    let query = supabaseAdmin
       .from("hraci")
       .select("*")
       .range(from, from + 999)
+    if (katParam) query = query.eq("kategorie_slug", katParam)
+    const { data, error } = await query
     if (error || !data || data.length === 0) break
     vsichniHraci.push(...data)
     if (data.length < 1000) break
@@ -69,7 +75,7 @@ export async function GET() {
 
   const output: Record<string,any> = {}
 
-  for (const kat of KATEGORIE) {
+  for (const kat of katList) {
     const hraci = vsichniHraci
       .filter(h => h.kategorie_slug === kat.slug)
       .map(h => {

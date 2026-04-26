@@ -40,12 +40,12 @@ export default function Home() {
   useEffect(() => {
     setLoading(true)
     Promise.all([
-      fetch("/api/zebricky").then(r => r.json()),
+      fetch(`/api/zebricky?kategorie=${aktivni}`).then(r => r.json()),
       fetch("/api/trend").then(r => r.json()),
       fetch("/api/nmk").then(r => r.json()),
-    ]).then(([d, t, n]) => { setData(d); setTrend(t); setNmk(n); setLoading(false) })
+    ]).then(([d, t, n]) => { setData(prev => ({...prev, ...d})); setTrend(t); setNmk(n); setLoading(false) })
       .catch(() => setLoading(false))
-  }, [])
+  }, [aktivni])
 
   const aktivniKat = KATEGORIE.find(k => k.slug === aktivni)
   const kat        = data?.[aktivni]
