@@ -504,35 +504,71 @@ export default function HracProfil() {
           </div>
         )}
 
-        {aktivniTab === "zapasy" && (
-          <div className="rounded-xl overflow-hidden" style={{ border: "1px solid var(--border)" }}>
-            <div className="grid text-xs font-bold uppercase px-4 py-2.5"
-              style={{ gridTemplateColumns: "4rem 1fr 6rem 2rem", background: "var(--bg-card)", borderBottom: "2px solid var(--border)", color: "var(--text-3)" }}>
-              <span>Kolo</span><span>Soupeř</span><span className="text-center">Výsledek</span><span></span>
-            </div>
-            {zapasy.filter(z => {
-              if (aktivniSezona !== "vse" && z.sezona !== aktivniSezona) return false
-              if (aktivniTyp === "ind" && z.je_druzstvo) return false
-              if (aktivniTyp === "druz" && !z.je_druzstvo) return false
-              return true
-            }).map((z, i) => (
-              <div key={i} className="grid items-center px-4 py-2.5 transition-colors"
-                style={{ gridTemplateColumns: "4rem 1fr 6rem 2rem", background: i % 2 === 0 ? "var(--bg-card)" : "var(--bg-stripe)", borderBottom: "1px solid var(--border)" }}
-                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = "var(--bg-hover)" }}
-                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = i % 2 === 0 ? "var(--bg-card)" : "var(--bg-stripe)" }}>
-                <span className="text-xs font-bold" style={{ color: "var(--text-3)" }}>{z.kolo}</span>
-                <div>
-                  <div className="text-sm font-semibold" style={{ color: "var(--text)" }}>
-                    {z.souper_id ? <a href={`/hrac/${z.souper_id}`} className="hover:underline">{z.souper_jmeno}</a> : z.souper_jmeno || "—"}
+        {aktivniTab === "zapasy" && (() => {
+          const KOLO_PORADI: Record<string,number> = {"128":0,"64":1,"32":2,"16":3,"8":4,"SF":5,"F":6,"V":7,"GS":0}
+          const filtZapasy = zapasy.filter(z => {
+            if (aktivniSezona !== "vse" && z.sezona !== aktivniSezona) return false
+            if (aktivniTyp === "ind" && z.je_druzstvo) return false
+            if (aktivniTyp === "druz" && !z.je_druzstvo) return false
+            return true
+          })
+          // Grupuj podle turnaj_kod
+          const skupiny: Record<string, any[]> = {}
+          const poradi: string[] = []
+          filtZapasy.forEach(z => {
+            const key = z.turnaj_kod || "bez-turnaje"
+            if (!skupiny[key]) { skupiny[key] = []; poradi.push(key) }
+            skupiny[key].push(z)
+          })
+          // Seřaď kola v každé skupině
+          Object.values(skupiny).forEach(zap => {
+            zap.sort((a, b) => (KOLO_PORADI[a.kolo] ?? 9) - (KOLO_PORADI[b.kolo] ?? 9))
+          })
+          // Najdi turnaj pro každou skupinu
+          return (
+            <div className="space-y-3">
+              {poradi.map(key => {
+                const zap = skupiny[key]
+                const prvni = zap[0]
+                const turnaj = filtTurnaje.find(t => t.turnaj_kod === key)
+                return (
+                  <div key={key} className="rounded-xl overflow-hidden" style={{ border: "1px solid var(--border)" }}>
+                    {/* Turnaj header */}
+                    <div className="px-4 py-2.5 flex items-center justify-between" style={{ background: "var(--bg-2)", borderBottom: "1px solid var(--border)" }}>
+                      <div>
+                        <span className="text-xs font-bold" style={{ color: "var(--text)" }}>
+                          {turnaj?.turnaj_url
+                            ? <a href={turnaj.turnaj_url} target="_blank" rel="noopener noreferrer" className="hover:underline">{turnaj.nazev}</a>
+                            : turnaj?.nazev || key}
+                        </span>
+                        <span className="text-xs ml-2" style={{ color: "var(--text-3)" }}>{prvni.sezona}</span>
+                      </div>
+                      {turnaj?.umisteni_dv && (
+                        <span className="text-xs font-bold px-2 py-0.5 rounded" style={{ color: UMISTENI_COLOR[turnaj.umisteni_dv] || "var(--text-3)", background: "var(--bg-card)" }}>
+                          {UMISTENI_LABEL[turnaj.umisteni_dv] || turnaj.umisteni_dv}
+                        </span>
+                      )}
+                    </div>
+                    {/* Zápasy */}
+                    {zap.map((z, i) => (
+                      <div key={i} className="grid items-center px-4 py-2 transition-colors"
+                        style={{ gridTemplateColumns: "4rem 1fr 7rem 2rem", background: i % 2 === 0 ? "var(--bg-card)" : "var(--bg-stripe)", borderBottom: i < zap.length-1 ? "1px solid var(--border)" : "none" }}
+                        onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = "var(--bg-hover)" }}
+                        onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = i % 2 === 0 ? "var(--bg-card)" : "var(--bg-stripe)" }}>
+                        <span className="text-xs font-bold" style={{ color: "var(--text-3)" }}>{z.kolo}</span>
+                        <div className="text-sm font-semibold truncate" style={{ color: "var(--text)" }}>
+                          {z.souper_id ? <a href={`/hrac/${z.souper_id}`} className="hover:underline">{z.souper_jmeno}</a> : z.souper_jmeno || "—"}
+                        </div>
+                        <div className="text-center text-xs font-mono font-bold" style={{ color: z.vyhral ? "#22c55e" : "#FF3B3B" }}>{z.vysledek || "—"}</div>
+                        <div className="text-center text-sm">{z.vyhral ? "✓" : "✗"}</div>
+                      </div>
+                    ))}
                   </div>
-                  <div className="text-xs" style={{ color: "var(--text-3)" }}>{z.sezona}</div>
-                </div>
-                <div className="text-center text-xs font-mono font-bold" style={{ color: z.vyhral ? "#22c55e" : "var(--text-3)" }}>{z.vysledek || "—"}</div>
-                <div className="text-center text-sm">{z.vyhral ? "✓" : "✗"}</div>
-              </div>
-            ))}
-          </div>
-        )}
+                )
+              })}
+            </div>
+          )
+        })()}
 
         <div className="mt-5 text-center">
           <a href={`https://cesky-tenis.cz/hrac/${id}`} target="_blank" rel="noopener noreferrer"
