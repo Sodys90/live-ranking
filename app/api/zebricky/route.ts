@@ -135,5 +135,8 @@ export async function GET(request: Request) {
     output[kat.slug] = { nazev: kat.slug, aktualizace, hraci }
   }
 
-  return NextResponse.json(output)
+  const response = NextResponse.json(output)
+  // Cache na 5 minut, revalidace na pozadí
+  response.headers.set('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=600')
+  return response
 }
