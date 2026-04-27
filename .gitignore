@@ -2,3 +2,5 @@ node_modules/
 .next/
 .env
 .env.local
+.scraper_leto_progress.txt
+.scraper_zima_progress.txt
