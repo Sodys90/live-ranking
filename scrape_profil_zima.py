@@ -178,9 +178,17 @@ def uloz_batch(turnaje, zapasy):
         sb.table("zapasy_hrace").insert(zapasy[i:i+100]).execute()
 
 # Načti hráče již zpracované (pro resume při přerušení)
+PROGRESS_FILE = "/Users/dave-macstudio/Desktop/tenis-zebricky/.scraper_zima_progress.txt"
+
 def nacti_zpracovane():
-    data = sb.table("turnaje_hrace").select("hrac_id").eq("sezona", SEZONA).execute()
-    return set(r["hrac_id"] for r in data.data)
+    if not os.path.exists(PROGRESS_FILE):
+        return set()
+    with open(PROGRESS_FILE) as f:
+        return set(int(line.strip()) for line in f if line.strip())
+
+def oznac_zpracovaneho(hrac_id):
+    with open(PROGRESS_FILE, "a") as f:
+        f.write(f"{hrac_id}\n")
 
 print("Načítám hráče z DB...")
 hraci = nacti_vsechny_hrace()
@@ -233,6 +241,7 @@ with sync_playwright() as p:
             uloz_batch(batch_turnaje, batch_zapasy)
             batch_turnaje, batch_zapasy = [], []
 
+        oznac_zpracovaneho(hrac_id)
         time.sleep(0.8)
 
     # Zbytek
