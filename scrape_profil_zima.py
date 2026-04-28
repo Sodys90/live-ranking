@@ -71,6 +71,12 @@ def parse_turnaj(match, hrac_id, kategorie_slug):
             if '/turnaj/' in href:
                 turnaj_kod = href.split('/turnaj/')[1].split('?')[0].split('#')[0]
                 turnaj_url = BASE_URL + href
+            elif '/soutez/' in href:
+                soutez_id = href.split('/soutez/')[1].split('?')[0].split('#')[0]
+                zapas_m = re.search(r'zapas=(\d+)', href)
+                zapas_id = zapas_m.group(1) if zapas_m else '0'
+                turnaj_kod = f"D{soutez_id}-{zapas_id}"
+                turnaj_url = BASE_URL + href
         else:
             raw = title_el.get_text(separator=' ', strip=True)
             nazev = re.split(r',\s*K:', raw)[0].strip()
