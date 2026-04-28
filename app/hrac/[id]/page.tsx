@@ -231,6 +231,49 @@ export default function HracProfil() {
           </div>
         </div>
 
+        {/* Graf pořadí */}
+        {(() => {
+          const histKat = historie.filter(h => h.kategorie_slug === aktivniHrac.kategorie_slug)
+          if (histKat.length < 2) return null
+          const minP = Math.min(...histKat.map(h => h.poradi))
+          const maxP = Math.max(...histKat.map(h => h.poradi))
+          const range = maxP - minP || 1
+          const w = 100 / (histKat.length - 1)
+          return (
+            <div className="rounded-xl p-5 mb-5" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+              <div className="flex items-center justify-between mb-3">
+                <div className="text-sm font-bold" style={{ color: "var(--text)" }}>Vývoj pořadí</div>
+                <div className="text-xs" style={{ color: "var(--text-3)" }}>{histKat.length} snapshotů</div>
+              </div>
+              <div className="relative" style={{ height: "80px" }}>
+                <svg width="100%" height="80" style={{ overflow: "visible" }}>
+                  {histKat.map((h, i) => {
+                    if (i === 0) return null
+                    const x1 = `${(i-1) * w}%`
+                    const x2 = `${i * w}%`
+                    const y1 = ((histKat[i-1].poradi - minP) / range) * 60 + 5
+                    const y2 = ((h.poradi - minP) / range) * 60 + 5
+                    return <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke="#FF3B3B" strokeWidth="2"/>
+                  })}
+                  {histKat.map((h, i) => {
+                    const x = `${i * w}%`
+                    const y = ((h.poradi - minP) / range) * 60 + 5
+                    return <circle key={i} cx={x} cy={y} r="4" fill="#FF3B3B"/>
+                  })}
+                </svg>
+                <div className="flex justify-between mt-1">
+                  {histKat.map((h, i) => (
+                    <div key={i} className="text-center">
+                      <div className="text-xs font-bold" style={{ color: "var(--text-2)" }}>#{h.poradi}</div>
+                      <div className="text-[10px]" style={{ color: "var(--text-3)" }}>{h.datum?.slice(5)}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )
+        })()}
+
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
           {[
             { label: "Turnajů", value: indTurnaje.length },
