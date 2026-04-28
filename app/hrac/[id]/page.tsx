@@ -32,6 +32,7 @@ export default function HracProfil() {
   const [aktivniKat, setAktivniKat] = useState<string | null>(null)
   const [turnaje, setTurnaje] = useState<any[]>([])
   const [zapasy, setZapasy] = useState<any[]>([])
+  const [historie, setHistorie] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [aktivniTab, setAktivniTab] = useState<"turnaje" | "zapasy">("turnaje")
   const [aktivniSezona, setAktivniSezona] = useState<string>("vse")
@@ -42,12 +43,14 @@ export default function HracProfil() {
     Promise.all([
       sb("hraci", `id=eq.${id}&order=body_celkem.desc`),
       sb("turnaje_hrace", `hrac_id=eq.${id}&order=datum_str.desc`),
+      sb("historie_poradi", `hrac_id=eq.${id}&order=datum.asc`),
       sb("zapasy_hrace", `hrac_id=eq.${id}&order=id.desc`),
-    ]).then(([h, t, z]) => {
+    ]).then(([h, t, z, hist]) => {
       setHrac(h[0])
       setHraci(h)
       setTurnaje(t)
       setZapasy(z)
+      setHistorie(hist)
       setLoading(false)
     })
   }, [id])
