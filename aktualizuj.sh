@@ -3,7 +3,7 @@ cd ~/Desktop/tenis-zebricky
 source ~/venv-grant/bin/activate
 
 echo "1/3 České žebříčky (Playwright)..."
-caffeinate -i python3 init_hraci_playwright.py
+caffeinate -i python3 scrape_zebricky.py
 
 echo "2/3 Letní profily..."
 caffeinate -i python3 scrape_profil_leto.py
