@@ -17,6 +17,31 @@ sb = create_client(os.getenv("NEXT_PUBLIC_SUPABASE_URL"), os.getenv("SUPABASE_SE
 
 BASE_URL = "https://cesky-tenis.cz"
 TOP_N = 8
+PROGRESS_FILE = "/Users/dave-macstudio/Desktop/tenis-zebricky/.scraper_zebricky_progress.txt"
+
+
+def nacti_zpracovane():
+    if not os.path.exists(PROGRESS_FILE):
+        return set()
+    with open(PROGRESS_FILE) as f:
+        return set(line.strip() for line in f if line.strip())
+
+
+def oznac_zpracovaneho(klic):
+    with open(PROGRESS_FILE, "a") as f:
+        f.write(f"{klic}\n")
+
+
+def db_retry(fn, label="", max_retries=3):
+    """Retry pro Supabase volání (network blip, 5xx). Exponenciální backoff."""
+    for attempt in range(max_retries):
+        try:
+            return fn()
+        except Exception as e:
+            if attempt == max_retries - 1:
+                raise
+            print(f"    DB retry {attempt+1}/{max_retries} ({label}): {e}")
+            time.sleep(2 ** attempt)
 
 KATEGORIE = [
     {"id": "22", "slug": "mladsi-zaci",   "url_base": "mladsi-zactvo", "cat": "4"},
@@ -231,20 +256,28 @@ def nacti_hraci_ze_zebricky(page, kat):
     return hraci
 
 def main():
+    zpracovane = nacti_zpracovane()
+    if zpracovane:
+        print(f"📂 Resume: {len(zpracovane)} hráčů už zpracováno z předchozího běhu")
+
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)
         page = browser.new_page()
-        
+
         for kat in KATEGORIE:
             print(f"\n{'='*40}")
             print(f"📡 {kat['slug']}")
-            
+
             hraci = nacti_hraci_ze_zebricky(page, kat)
             print(f"   Celkem: {len(hraci)} hráčů")
-            
+
             for i, h in enumerate(hraci, 1):
+                klic = f"{kat['slug']}__{h['id']}"
+                if klic in zpracovane:
+                    continue
+
                 if h.get("te_itf"):
-                    sb.table("hraci").upsert({
+                    payload = {
                         "id": h["id"], "jmeno": h["jmeno"],
                         "narozeni": h["narozeni"], "klub": h["klub"],
                         "kategorie_slug": kat["slug"],
@@ -252,14 +285,17 @@ def main():
                         "te_itf_poradi": h["te_itf_poradi"],
                         "body_celkem": 0, "body_dv": 0, "body_ct": 0,
                         "updated_at": datetime.now().isoformat(),
-                    }, on_conflict="id,kategorie_slug").execute()
+                    }
+                    db_retry(lambda: sb.table("hraci").upsert(payload, on_conflict="id,kategorie_slug").execute(),
+                             label=f"upsert {h['id']}")
+                    oznac_zpracovaneho(klic)
                     print(f"  [{i:>3}/{len(hraci)}] {h['jmeno']:30} TE/ITF")
                     continue
-                
+
                 print(f"  [{i:>3}/{len(hraci)}] {h['jmeno']:30}", end=" ", flush=True)
                 try:
                     csb, A, B, top_dv, top_ct = scrape_hrace(page, h["id"], kat)
-                    sb.table("hraci").upsert({
+                    payload = {
                         "id": h["id"], "jmeno": h["jmeno"],
                         "narozeni": h["narozeni"], "klub": h["klub"],
                         "kategorie_slug": kat["slug"],
@@ -267,11 +303,14 @@ def main():
                         "akce_dv": top_dv, "akce_ct": top_ct,
                         "te_itf": False,
                         "updated_at": datetime.now().isoformat(),
-                    }, on_conflict="id,kategorie_slug").execute()
+                    }
+                    db_retry(lambda: sb.table("hraci").upsert(payload, on_conflict="id,kategorie_slug").execute(),
+                             label=f"upsert {h['id']}")
+                    oznac_zpracovaneho(klic)
                     print(f"dv:{A} ct:{B} = {csb}")
                 except Exception as e:
                     print(f"CHYBA: {e}")
-        
+
         browser.close()
     print("\n✅ Hotovo!")
 
@@ -378,7 +417,8 @@ def prepocitej_zebricky():
 
     # Ulož snapshot do historie_poradi
     dnes = datetime.now().date().isoformat()
-    existing = sb.table("historie_poradi").select("id").eq("datum", dnes).limit(1).execute()
+    existing = db_retry(lambda: sb.table("historie_poradi").select("id").eq("datum", dnes).limit(1).execute(),
+                        label="historie check")
     if existing.data:
         print(f"⏭️  Historie pro {dnes} už existuje, přeskakuji")
     else:
@@ -395,9 +435,15 @@ def prepocitej_zebricky():
                     "datum":         dnes,
                 })
         for i in range(0, len(snapshot), 500):
-            sb.table("historie_poradi").insert(snapshot[i:i+500]).execute()
+            batch = snapshot[i:i+500]
+            db_retry(lambda b=batch: sb.table("historie_poradi").insert(b).execute(),
+                     label=f"historie batch {i//500}")
         print(f"✅ Historie uložena: {len(snapshot)} záznamů pro {dnes}")
 
 if __name__ == "__main__":
     main()
     prepocitej_zebricky()
+    # Po úspěšném dokončení smaž progress soubor (resume už není potřeba)
+    if os.path.exists(PROGRESS_FILE):
+        os.remove(PROGRESS_FILE)
+        print("🧹 Progress soubor smazán")
