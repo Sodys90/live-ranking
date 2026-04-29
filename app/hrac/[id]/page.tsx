@@ -77,14 +77,12 @@ export default function HracProfil() {
     return true
   })
 
-  const indTurnaje = turnaje.filter(t => !t.je_druzstvo)
-  const vitezstvi = indTurnaje.filter(t => t.umisteni_dv === "V" || t.umisteni_ct === "V").length
-  const finale = indTurnaje.filter(t => t.umisteni_dv === "F" || t.umisteni_ct === "F").length
-  const semifinale = indTurnaje.filter(t => t.umisteni_dv === "SF" || t.umisteni_ct === "SF").length
-  const indZapasy = zapasy.filter(z => !z.je_druzstvo)
-  const vyhry = indZapasy.filter(z => z.vyhral).length
-  const prohry = indZapasy.filter(z => !z.vyhral).length
-  const winRate = indZapasy.length > 0 ? Math.round(vyhry / indZapasy.length * 100) : 0
+  const vitezstvi = turnaje.filter(t => t.umisteni_dv === "V" || t.umisteni_ct === "V").length
+  const finale = turnaje.filter(t => t.umisteni_dv === "F" || t.umisteni_ct === "F").length
+  const semifinale = turnaje.filter(t => t.umisteni_dv === "SF" || t.umisteni_ct === "SF").length
+  const vyhry = zapasy.filter(z => z.vyhral).length
+  const prohry = zapasy.filter(z => !z.vyhral).length
+  const winRate = zapasy.length > 0 ? Math.round(vyhry / zapasy.length * 100) : 0
 
   // Sety per pozice (1. set, 2. set, 3. set)
   const setPerPozice: { vyhrane: number; prohrane: number }[] = [
@@ -93,7 +91,7 @@ export default function HracProfil() {
     { vyhrane: 0, prohrane: 0 },
   ]
   let celkemVyhraneSet = 0, celkemProhraneSet = 0
-  indZapasy.forEach(z => {
+  zapasy.forEach(z => {
     if (!z.vysledek) return
     z.vysledek.split(" ").forEach((set: string, idx: number) => {
       const [h, s] = set.split(":").map(Number)
@@ -109,18 +107,18 @@ export default function HracProfil() {
   )
 
   // Průměr setů na zápas
-  const zapasySeSetem = indZapasy.filter(z => z.vysledek && z.vysledek.trim())
+  const zapasySeSetem = zapasy.filter(z => z.vysledek && z.vysledek.trim())
   const celkemSetu = zapasySeSetem.reduce((acc, z) => acc + z.vysledek.trim().split(" ").length, 0)
   const prumerSetu = zapasySeSetem.length > 0 ? (celkemSetu / zapasySeSetem.length).toFixed(1) : "—"
 
   // Povrch — výhry/prohry per povrch
   const povrchMap: Record<string, { vyhry: number; prohry: number }> = {}
-  indTurnaje.forEach(t => {
+  turnaje.forEach(t => {
     if (!t.povrch) return
     const p = t.povrch.trim()
     if (!povrchMap[p]) povrchMap[p] = { vyhry: 0, prohry: 0 }
     // Najdi zápasy tohoto turnaje
-    const turnajZapasy = indZapasy.filter(z => z.turnaj_kod === t.turnaj_kod)
+    const turnajZapasy = zapasy.filter(z => z.turnaj_kod === t.turnaj_kod)
     turnajZapasy.forEach(z => {
       if (z.vyhral) povrchMap[p].vyhry++
       else povrchMap[p].prohry++
@@ -133,8 +131,8 @@ export default function HracProfil() {
 
   // Sezónní srovnání
   const sezonySrovnani = sezony.map(s => {
-    const st = indTurnaje.filter(t => t.sezona === s)
-    const sz = indZapasy.filter(z => z.sezona === s)
+    const st = turnaje.filter(t => t.sezona === s)
+    const sz = zapasy.filter(z => z.sezona === s)
     return {
       sezona: s,
       turnaju: st.length,
@@ -145,13 +143,13 @@ export default function HracProfil() {
   })
 
   // Průměrná kategorie turnajů
-  const kats = indTurnaje.filter(t => t.kategorie_dv).map(t => t.kategorie_dv)
+  const kats = turnaje.filter(t => t.kategorie_dv).map(t => t.kategorie_dv)
   const prumerKat = kats.length > 0 ? (kats.reduce((a: number, b: number) => a + b, 0) / kats.length).toFixed(1) : null
 
   // Aktivita per měsíc
   const MESICE = ["Led","Úno","Bře","Dub","Kvě","Čvn","Čvc","Srp","Zář","Říj","Lis","Pro"]
   const mesicMap: Record<string, { turnaju: number; body: number; label: string }> = {}
-  indTurnaje.forEach(t => {
+  turnaje.forEach(t => {
     if (!t.datum_str) return
     const parts = t.datum_str.split(".")
     if (parts.length < 3) return
@@ -167,10 +165,10 @@ export default function HracProfil() {
   const maxMesicBody = Math.max(...mesicData.map(m => m.body), 1)
 
   // Forma — posledních 10 zápasů jednotlivců (nejnovější první)
-  const formaDV = indZapasy.filter(z => z.disciplina === "dv").slice(0, 10)
-  const formaCT = indZapasy.filter(z => z.disciplina === "ct").slice(0, 10)
+  const formaDV = zapasy.filter(z => z.disciplina === "dv").slice(0, 10)
+  const formaCT = zapasy.filter(z => z.disciplina === "ct").slice(0, 10)
 
-  const grafData = [...indTurnaje].sort((a, b) => (b.body_dv + b.body_ct) - (a.body_dv + a.body_ct)).slice(0, 10)
+  const grafData = [...turnaje].sort((a, b) => (b.body_dv + b.body_ct) - (a.body_dv + a.body_ct)).slice(0, 10)
   const maxBody = Math.max(...grafData.map(t => t.body_dv + t.body_ct), 1)
 
   return (
@@ -276,8 +274,8 @@ export default function HracProfil() {
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
           {[
-            { label: "Turnajů", value: indTurnaje.length },
-            { label: "Výher", value: `${vyhry}/${indZapasy.length}` },
+            { label: "Turnajů", value: turnaje.length },
+            { label: "Výher", value: `${vyhry}/${zapasy.length}` },
             { label: "Win rate", value: `${winRate}%` },
             { label: "Titulů", value: vitezstvi },
             { label: "Prům. sety", value: prumerSetu },
@@ -484,7 +482,7 @@ export default function HracProfil() {
               { key: "V", label: "🏆 Tituly", count: vitezstvi },
               { key: "F", label: "🥈 Finále", count: finale },
               { key: "SF", label: "🥉 Semifinále", count: semifinale },
-              { key: "8", label: "⚡ Čtvrtfinále", count: indTurnaje.filter(t => t.umisteni_dv === "8").length },
+              { key: "8", label: "⚡ Čtvrtfinále", count: turnaje.filter(t => t.umisteni_dv === "8").length },
             ].map(u => (
               <div key={u.key} className="flex items-center gap-2 px-3 py-2 rounded-lg" style={{ background: "var(--bg-2)", border: "1px solid var(--border)" }}>
                 <span className="text-sm">{u.label}</span>
