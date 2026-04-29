@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
-Nový scraper pomocí Playwright - načítá body přímo z nového webu cesky-tenis.cz
+Hlavní týdenní scraper žebříčku — z cesky-tenis.cz tahá TOP 8 bodů pro každého
+hráče, plní tabulku hraci a generuje public/data/zebricky.json.
 """
 
 import re, os, json, time
@@ -54,18 +55,6 @@ TURNAJ_PREFIXES = {
     "zeny":          ["2"],
 }
 
-# Klíčová slova pro mezinárodní turnaje (bez odkazu)
-MEZINARODNI_KLICOVA_SLOVA = {
-    "mladsi-zaci":   ["u12 boys", "b12"],
-    "mladsi-zakyne": ["u12 girls", "g12"],
-    "starsi-zaci":   ["u14 boys", "b14", "te u14 boys"],
-    "starsi-zakyne": ["u14 girls", "g14", "te u14 girls"],
-    "dorostenci":    ["u16 boys", "u18 boys", "b16", "b18", "junior davis", "davis cup", "itf juniors boys", "te u16 boys", "te u18 boys"],
-    "dorostenky":    ["u16 girls", "u18 girls", "g16", "g18", "fed cup", "billie jean", "itf juniors girls", "te u16 girls", "te u18 girls"],
-    "muzi":          ["davis cup", "atp", "challenger", "itf men"],
-    "zeny":          ["fed cup", "billie jean", "wta", "itf women"],
-}
-
 def get_page(page, url, retries=3):
     for i in range(retries):
         try:
@@ -101,21 +90,6 @@ def parse_body_z_turnaje(match_div):
     
     return body_dv, body_ct, je_druzstvo
 
-def get_vsechny_kategorie(page, hrac_id, kat_cat):
-    """Zjistí všechny kategorie které hráč hraje"""
-    url = f"{BASE_URL}/hrac/{hrac_id}"
-    content = get_page(page, url)
-    if not content: return [kat_cat]
-    
-    soup = BeautifulSoup(content, "html.parser")
-    cats = set([kat_cat])
-    for a in soup.find_all("a", href=True):
-        href = a["href"]
-        if f"/hrac/{hrac_id}" in href and "category=" in href:
-            cat = href.split("category=")[1].split("&")[0]
-            cats.add(cat)
-    return list(cats)
-
 def scrape_hrace(page, hrac_id, kat):
     """Stáhne body hráče ze všech sezón - filtruje podle prefixu turnaje"""
     akce_dv = []
@@ -131,8 +105,7 @@ def scrape_hrace(page, hrac_id, kat):
         if not content: continue
         
         # Zkontroluj jestli záložka pro tuto kategorii existuje
-        from bs4 import BeautifulSoup as _BS
-        _soup = _BS(content, 'html.parser')
+        _soup = BeautifulSoup(content, 'html.parser')
         dostupne_katy = set()
         for a in _soup.find_all('a', href=True):
             href = a['href']
@@ -190,35 +163,20 @@ def scrape_hrace(page, hrac_id, kat):
     B = sum(top_ct)
     return A + B, A, B, top_dv, top_ct
 
-# Mapování slug na URL název
-SLUG_URL = {
-    "mladsi-zaci":   "mladsi-zaci",
-    "mladsi-zakyne": "mladsi-zakyne",
-    "starsi-zaci":   "starsi-zaci",
-    "starsi-zakyne": "starsi-zakyne",
-    "dorostenci":    "dorostenci",
-    "dorostenky":    "dorostenky",
-    "muzi":          "muzi",
-    "zeny":          "zeny",
-
-}
-
 def nacti_hraci_ze_zebricky(page, kat):
     """Načte seznam hráčů ze žebříčku - nový web cesky-tenis.cz"""
-    from bs4 import BeautifulSoup as BS
     hraci = []
     povolene = ROCNIKY.get(kat["id"], [])
-    url_slug = SLUG_URL.get(kat["slug"], kat["slug"])
     strankovani = 1
 
     while True:
-        url = f"{BASE_URL}/zebricky/{url_slug}/{strankovani}"
+        url = f"{BASE_URL}/zebricky/{kat['slug']}/{strankovani}"
         print(f"    stránka {strankovani}...", end=" ", flush=True)
-        
+
         content = get_page(page, url)
         if not content: break
-        
-        soup = BS(content, "html.parser")
+
+        soup = BeautifulSoup(content, "html.parser")
         davka = []
         
         for t in soup.find_all("table"):
@@ -320,8 +278,6 @@ def main():
     print("\n✅ Hotovo!")
 
 def prepocitej_zebricky():
-    import json
-    TOP_N = 8
     output = {}
 
     # Načti aktivní ITF hráče z nové tabulky
@@ -352,7 +308,6 @@ def prepocitej_zebricky():
                 h.update(itf_db[key])
 
         # Seřaď - TE/ITF první, pak podle bodů
-        from typing import Any
         def sort_key(h):
             if h.get("te_itf"):
                 typ = h.get("te_itf_typ", "TE")
