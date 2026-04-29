@@ -86,7 +86,7 @@ def parse_body_z_turnaje(match_div):
                         body_ct = b
                     else:
                         body_dv = b
-                except: pass
+                except (ValueError, AttributeError): pass
     
     return body_dv, body_ct, je_druzstvo
 
@@ -178,44 +178,42 @@ def nacti_hraci_ze_zebricky(page, kat):
 
         soup = BeautifulSoup(content, "html.parser")
         davka = []
-        
-        for t in soup.find_all("table"):
-            rows = t.find_all("tr")
-            if not rows: continue
-            for row in rows[1:]:
-                tds = row.find_all("td")
-                if len(tds) < 6: continue
-                link = tds[2].find("a") if len(tds) > 2 else None
-                if not link: continue
-                href = link.get("href", "")
-                if "/hrac/" not in href: continue
-                hrac_id = href.split("/hrac/")[1].split("?")[0].split("/")[0]
-                # Sloupce: 0=cž 1=kž 2=Jméno 3=Narozen 4=Klub 5=Dvouhra 6=Čtyřhra 7=Suma 8=BH 9=rCŽ
-                narozeni = tds[3].get_text(strip=True) if len(tds) > 3 else ""
-                if povolene and narozeni and narozeni.isdigit() and int(narozeni) not in povolene: continue
-                
-                klub = tds[4].get_text(strip=True) if len(tds) > 4 else ""
-                dvouhra_raw = tds[5].get_text(strip=True) if len(tds) > 5 else ""
-                ctyrhra_raw = tds[6].get_text(strip=True) if len(tds) > 6 else ""
-                suma_raw = tds[7].get_text(strip=True) if len(tds) > 7 else ""
-                
-                try:
-                    int(suma_raw); te_itf = False; te_itf_typ = None; te_itf_poradi = None
-                except:
-                    te_itf = True
-                    te_itf_typ = dvouhra_raw if dvouhra_raw in ["TE","ITF","ATP","WTA"] else None
-                    try: te_itf_poradi = int(ctyrhra_raw)
-                    except: te_itf_poradi = None
-                
-                davka.append({
-                    "id": hrac_id,
-                    "jmeno": tds[2].get_text(strip=True),
-                    "narozeni": narozeni,
-                    "klub": klub,
-                    "te_itf": te_itf, "te_itf_typ": te_itf_typ, "te_itf_poradi": te_itf_poradi,
-                })
-            break
-        
+
+        tabulka = soup.find("table")
+        rows = tabulka.find_all("tr") if tabulka else []
+        for row in rows[1:]:
+            tds = row.find_all("td")
+            if len(tds) < 6: continue
+            link = tds[2].find("a") if len(tds) > 2 else None
+            if not link: continue
+            href = link.get("href", "")
+            if "/hrac/" not in href: continue
+            hrac_id = href.split("/hrac/")[1].split("?")[0].split("/")[0]
+            # Sloupce: 0=cž 1=kž 2=Jméno 3=Narozen 4=Klub 5=Dvouhra 6=Čtyřhra 7=Suma 8=BH 9=rCŽ
+            narozeni = tds[3].get_text(strip=True) if len(tds) > 3 else ""
+            if povolene and narozeni and narozeni.isdigit() and int(narozeni) not in povolene: continue
+
+            klub = tds[4].get_text(strip=True) if len(tds) > 4 else ""
+            dvouhra_raw = tds[5].get_text(strip=True) if len(tds) > 5 else ""
+            ctyrhra_raw = tds[6].get_text(strip=True) if len(tds) > 6 else ""
+            suma_raw = tds[7].get_text(strip=True) if len(tds) > 7 else ""
+
+            try:
+                int(suma_raw); te_itf = False; te_itf_typ = None; te_itf_poradi = None
+            except ValueError:
+                te_itf = True
+                te_itf_typ = dvouhra_raw if dvouhra_raw in ["TE","ITF","ATP","WTA"] else None
+                try: te_itf_poradi = int(ctyrhra_raw)
+                except ValueError: te_itf_poradi = None
+
+            davka.append({
+                "id": hrac_id,
+                "jmeno": tds[2].get_text(strip=True),
+                "narozeni": narozeni,
+                "klub": klub,
+                "te_itf": te_itf, "te_itf_typ": te_itf_typ, "te_itf_poradi": te_itf_poradi,
+            })
+
         print(f"{len(davka)} hráčů")
         if not davka: break
         hraci += davka
@@ -380,40 +378,13 @@ def prepocitej_zebricky():
 
     # Ulož snapshot do historie_poradi
     dnes = datetime.now().date().isoformat()
-    # Zkontroluj jestli dnes už snapshot existuje
     existing = sb.table("historie_poradi").select("id").eq("datum", dnes).limit(1).execute()
     if existing.data:
         print(f"⏭️  Historie pro {dnes} už existuje, přeskakuji")
     else:
-        # Načti ITF hráče pro správné pořadí
-        itf_res = sb.table("itf_hrace").select("*").eq("aktivni", True).execute()
-        itf_map = {}
-        for r in itf_res.data:
-            itf_map[f"{r['hrac_id']}__{r['kategorie_slug']}"] = r
-
-        TYP_PRI = {"ATP": 0, "WTA": 0, "ITF": 1, "TE": 2}
-
         snapshot = []
         for kat_slug, kat_data in output.items():
-            hraci_kat = kat_data["hraci"][:]
-
-            # Aplikuj ITF
-            for h in hraci_kat:
-                key = f"{h['id']}__{kat_slug}"
-                if key in itf_map:
-                    h["te_itf"] = True
-                    h["te_itf_typ"] = itf_map[key]["typ"]
-                    h["te_itf_poradi"] = itf_map[key]["poradi"]
-
-            # Seřaď stejně jako API
-            def sort_key(h):
-                if h.get("te_itf"):
-                    return (0, TYP_PRI.get(h.get("te_itf_typ","TE"), 9), h.get("te_itf_poradi") or 999)
-                return (1, 0, -(h.get("body_celkem") or 0))
-            hraci_kat.sort(key=sort_key)
-
-            # Uložit skutečné # pořadí
-            for idx, h in enumerate(hraci_kat, 1):
+            for idx, h in enumerate(kat_data["hraci"], 1):
                 snapshot.append({
                     "hrac_id":       str(h["id"]),
                     "kategorie_slug": kat_slug,
@@ -423,7 +394,6 @@ def prepocitej_zebricky():
                     "body_ct":       h.get("body_ct") or 0,
                     "datum":         dnes,
                 })
-        # Ulož po dávkách 500
         for i in range(0, len(snapshot), 500):
             sb.table("historie_poradi").insert(snapshot[i:i+500]).execute()
         print(f"✅ Historie uložena: {len(snapshot)} záznamů pro {dnes}")
